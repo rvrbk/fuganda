@@ -1,3 +1,53 @@
 {
-  "agents": {}
+  "agents": {
+    "morpheus": {
+      "persistent_name": "Morpheus",
+      "universe": "The Matrix",
+      "created_at": "2026-05-05T00:00:00Z",
+      "legacy_named": false,
+      "status": "active"
+    },
+    "trinity": {
+      "persistent_name": "Trinity",
+      "universe": "The Matrix",
+      "created_at": "2026-05-05T00:00:00Z",
+      "legacy_named": false,
+      "status": "active"
+    },
+    "neo": {
+      "persistent_name": "Neo",
+      "universe": "The Matrix",
+      "created_at": "2026-05-05T00:00:00Z",
+      "legacy_named": false,
+      "status": "active"
+    },
+    "switch": {
+      "persistent_name": "Switch",
+      "universe": "The Matrix",
+      "created_at": "2026-05-05T00:00:00Z",
+      "legacy_named": false,
+      "status": "active"
+    },
+    "tank": {
+      "persistent_name": "Tank",
+      "universe": "The Matrix",
+      "created_at": "2026-05-05T00:00:00Z",
+      "legacy_named": false,
+      "status": "active"
+    },
+    "scribe": {
+      "persistent_name": "Scribe",
+      "universe": "system",
+      "created_at": "2026-05-05T00:00:00Z",
+      "legacy_named": false,
+      "status": "active"
+    },
+    "ralph": {
+      "persistent_name": "Ralph",
+      "universe": "system",
+      "created_at": "2026-05-05T00:00:00Z",
+      "legacy_named": false,
+      "status": "active"
+    }
+  }
 }
