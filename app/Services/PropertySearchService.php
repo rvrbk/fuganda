@@ -44,6 +44,10 @@ class PropertySearchService
             $query->where('property_type', $filters['property_type']);
         }
 
+        if (! empty($filters['user_id'])) {
+            $query->where('user_id', (int) $filters['user_id']);
+        }
+
         if (array_key_exists('bedrooms', $filters) && $filters['bedrooms'] !== null) {
             $query->where('bedrooms', '>=', (int) $filters['bedrooms']);
         }

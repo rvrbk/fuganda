@@ -12,6 +12,10 @@ return [
         'http://127.0.0.1',
         'http://127.0.0.1:3000',
         'http://127.0.0.1:5173',
+        'http://fuganda.test',
+        'https://fuganda.test',
+        'http://fuganda.test:5173',
+        'https://fuganda.test:5173',
     ],
 
     'allowed_origins_patterns' => [],

@@ -27,6 +27,7 @@ class PropertyIndexRequest extends FormRequest
             'min_price' => ['sometimes', 'integer', 'min:0'],
             'max_price' => ['sometimes', 'integer', 'min:0'],
             'per_page' => ['sometimes', 'integer', 'min:1', 'max:100'],
+            'owned' => ['sometimes', 'boolean'],
         ];
     }
 }

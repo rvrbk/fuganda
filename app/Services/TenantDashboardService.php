@@ -2,24 +2,32 @@
 
 namespace App\Services;
 
+use App\Models\Message;
+use App\Models\Property;
 use App\Models\User;
 
 class TenantDashboardService
 {
     public function buildFor(User $user): array
     {
-        $tenant = $user->corporation;
+        $propertyCount = Property::query()
+            ->where('user_id', $user->id)
+            ->count();
+
+        $unreadMessages = Message::query()
+            ->where('receiver_id', $user->id)
+            ->whereNull('read_at')
+            ->count();
 
         return [
-            'tenant' => [
-                'id' => $tenant?->id,
-                'name' => $tenant?->name,
-                'domain' => $tenant?->domain,
-            ],
             'user' => [
                 'id' => $user->id,
                 'name' => $user->name,
                 'email' => $user->email,
+            ],
+            'stats' => [
+                'property_count' => $propertyCount,
+                'unread_messages' => $unreadMessages,
             ],
         ];
     }

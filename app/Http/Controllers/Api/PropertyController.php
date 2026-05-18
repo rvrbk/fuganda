@@ -10,6 +10,7 @@ use App\Models\Property;
 use App\Services\PropertySearchService;
 use App\Services\PropertyService;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Response;
 use Illuminate\Http\Request;
 
 class PropertyController extends Controller
@@ -22,7 +23,13 @@ class PropertyController extends Controller
 
     public function index(PropertyIndexRequest $request): JsonResponse
     {
-        $properties = $this->searchService->search($request->validated(), true);
+        $filters = $request->validated();
+
+        if ($request->boolean('owned') && $request->user() !== null) {
+            $filters['user_id'] = $request->user()->id;
+        }
+
+        $properties = $this->searchService->search($filters, true);
 
         return response()->json($properties);
     }
@@ -58,7 +65,7 @@ class PropertyController extends Controller
         return response()->json($updatedProperty);
     }
 
-    public function destroy(Request $request, Property $property): JsonResponse
+    public function destroy(Request $request, Property $property): Response
     {
         $this->propertyService->deleteForUser($request->user(), $property);
 

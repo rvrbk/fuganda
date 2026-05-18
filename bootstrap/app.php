@@ -13,10 +13,6 @@ return Application::configure(basePath: dirname(__DIR__))
     )
     ->withMiddleware(function (Middleware $middleware): void {
         $middleware->statefulApi();
-
-        $middleware->alias([
-            'tenant' => App\Http\Middleware\SetCurrentTenantFromUser::class,
-        ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         //

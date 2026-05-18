@@ -33,4 +33,11 @@ class MessageController extends Controller
 
         return response()->json($message, 201);
     }
+
+    public function unreadCount(Request $request): JsonResponse
+    {
+        return response()->json([
+            'unread_count' => $this->messagingService->unreadCount($request->user()),
+        ]);
+    }
 }

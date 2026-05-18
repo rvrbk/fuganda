@@ -20,6 +20,7 @@ class UpdatePropertyRequest extends FormRequest
             'title' => ['sometimes', 'string', 'max:255'],
             'description' => ['sometimes', 'string'],
             'price_ugx' => ['sometimes', 'integer', 'min:0'],
+            'price_currency' => ['sometimes', 'in:UGX,USD'],
             'listing_type' => ['sometimes', 'in:rent,sale'],
             'property_type' => ['sometimes', 'string', 'max:120'],
             'bedrooms' => ['sometimes', 'nullable', 'integer', 'min:0'],

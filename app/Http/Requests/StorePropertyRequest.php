@@ -8,7 +8,9 @@ class StorePropertyRequest extends FormRequest
 {
     public function authorize(): bool
     {
-        return $this->user() !== null;
+        $user = $this->user();
+
+        return $user !== null && ($user->isSeller() || $user->isAdmin());
     }
 
     /**
@@ -20,6 +22,7 @@ class StorePropertyRequest extends FormRequest
             'title' => ['required', 'string', 'max:255'],
             'description' => ['required', 'string'],
             'price_ugx' => ['required', 'integer', 'min:0'],
+            'price_currency' => ['sometimes', 'in:UGX,USD'],
             'listing_type' => ['required', 'in:rent,sale'],
             'property_type' => ['required', 'string', 'max:120'],
             'bedrooms' => ['nullable', 'integer', 'min:0'],

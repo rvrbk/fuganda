@@ -2,27 +2,33 @@
 
 namespace App\Services;
 
+use App\Mail\NewPropertyMessageMail;
 use App\Models\Message;
 use App\Models\Property;
 use App\Models\User;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
+use Illuminate\Support\Facades\Mail;
+use Throwable;
 
 class MessagingService
 {
     public function inbox(User $user, array $filters): LengthAwarePaginator
     {
+        // Mark all newly received messages as read when inbox is opened.
+        Message::query()
+            ->where('receiver_id', $user->id)
+            ->whereNull('read_at')
+            ->update(['read_at' => now()]);
+
         $perPage = max(1, min((int) ($filters['per_page'] ?? 20), 100));
 
         $query = Message::query()
             ->with([
-                'property:id,title,corporation_id,user_id',
-                'sender:id,name,corporation_id',
-                'receiver:id,name,corporation_id',
+                'property:id,title,user_id',
+                'sender:id,name',
+                'receiver:id,name',
             ])
-            ->whereHas('property', function ($builder) use ($user): void {
-                $builder->where('corporation_id', $user->corporation_id);
-            })
             ->where(function ($builder) use ($user): void {
                 $builder
                     ->where('sender_id', $user->id)
@@ -64,24 +70,34 @@ class MessagingService
             throw new AuthorizationException('You cannot send a message to yourself.');
         }
 
-        if ((int) $property->corporation_id !== (int) $sender->corporation_id) {
-            throw new AuthorizationException('Property is outside your tenant.');
-        }
-
-        if ((int) $property->corporation_id !== (int) $receiver->corporation_id) {
-            throw new AuthorizationException('Receiver is outside property tenant.');
-        }
-
-        return Message::query()->create([
+        $message = Message::query()->create([
             'property_id' => $property->id,
             'sender_id' => $sender->id,
             'receiver_id' => $receiver->id,
             'body' => $attributes['body'],
             'read_at' => null,
         ])->load([
-            'property:id,title,corporation_id,user_id',
+            'property:id,title,user_id',
             'sender:id,name',
             'receiver:id,name',
         ]);
+
+        if (! empty($receiver->email)) {
+            try {
+                Mail::to($receiver->email)->send(new NewPropertyMessageMail($message));
+            } catch (Throwable $exception) {
+                report($exception);
+            }
+        }
+
+        return $message;
+    }
+
+    public function unreadCount(User $user): int
+    {
+        return Message::query()
+            ->where('receiver_id', $user->id)
+            ->whereNull('read_at')
+            ->count();
     }
 }

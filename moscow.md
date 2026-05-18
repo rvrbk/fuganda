@@ -1,0 +1,3 @@
+- videos
+- social media links
+- login via google etc

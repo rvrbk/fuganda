@@ -58,7 +58,7 @@ const search = () => {
     const query = Object.fromEntries(
         Object.entries(filters.value).filter(([, value]) => value !== '' && value !== null),
     );
-    router.push({ name: 'properties', query });
+    router.push({ name: 'home', query });
 };
 
 onMounted(async () => {

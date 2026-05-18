@@ -15,6 +15,7 @@ class Property extends Model
         'title',
         'description',
         'price_ugx',
+        'price_currency',
         'listing_type',
         'property_type',
         'bedrooms',
@@ -32,6 +33,7 @@ class Property extends Model
     {
         return [
             'price_ugx' => 'integer',
+            'price_currency' => 'string',
             'latitude' => 'float',
             'longitude' => 'float',
             'published_at' => 'datetime',
