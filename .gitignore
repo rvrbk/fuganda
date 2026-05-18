@@ -23,6 +23,10 @@ Homestead.json
 Homestead.yaml
 Thumbs.db
 
+# Playwright
+/test-results/
+/playwright-report/
+
 # Squad runtime state
 .squad/orchestration-log/
 .squad/log/

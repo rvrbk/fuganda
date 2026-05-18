@@ -16,38 +16,25 @@
 
         <div class="grid gap-3 md:grid-cols-3">
             <RouterLink
-                class="rounded border border-slate-300 px-3 py-3 text-sm"
-                :class="showSubscriptionBlock ? 'pointer-events-none cursor-not-allowed bg-slate-100 text-slate-400' : ''"
+                class="flex items-center justify-center rounded-lg bg-slate-900 px-4 py-3 text-sm font-medium text-white shadow-sm transition-colors hover:bg-slate-700"
+                :class="showSubscriptionBlock ? 'pointer-events-none cursor-not-allowed !bg-slate-200 !text-slate-400 shadow-none' : ''"
                 :to="showSubscriptionBlock ? { name: 'seller-onboarding', query: { redirect: '/properties/new' } } : { name: 'property-create' }"
             >
                 {{ $t('actions.createListing') }}
             </RouterLink>
-            <RouterLink class="rounded border border-slate-300 px-3 py-3 text-sm" :to="{ name: 'home', query: { owned: '1' } }">
+            <RouterLink class="flex items-center justify-center rounded-lg border border-slate-300 bg-white px-4 py-3 text-sm font-medium text-slate-700 shadow-sm transition-colors hover:bg-slate-50" :to="{ name: 'home', query: { owned: '1' } }">
                 {{ $t('nav.properties') }}
             </RouterLink>
-            <RouterLink class="rounded border border-slate-300 px-3 py-3 text-sm" :to="{ name: 'messages' }">
-                <div class="flex items-center justify-between gap-2">
-                    <span>{{ $t('nav.messages') }}</span>
-                    <span
-                        v-if="unreadCount > 0"
-                        class="inline-flex min-w-[1.25rem] items-center justify-center rounded-full bg-rose-600 px-1.5 py-0.5 text-[10px] font-semibold leading-none text-white"
-                    >
-                        {{ unreadCount }}
-                    </span>
-                </div>
-                <p v-if="unreadCount > 0" class="mt-1 text-xs text-rose-700">
-                    {{ $t('messages.unreadOnDashboard', { n: unreadCount }) }}
-                </p>
+            <RouterLink class="flex items-center justify-center rounded-lg border border-slate-300 bg-white px-4 py-3 text-sm font-medium text-slate-700 shadow-sm transition-colors hover:bg-slate-50" :to="{ name: 'messages' }">
+                <span>{{ $t('nav.messages') }}</span>
+                <span
+                    v-if="unreadCount > 0"
+                    class="ml-2 inline-flex min-w-[1.25rem] items-center justify-center rounded-full bg-rose-600 px-1.5 py-0.5 text-[10px] font-semibold leading-none text-white"
+                >
+                    {{ unreadCount }}
+                </span>
             </RouterLink>
         </div>
-
-        <p class="text-sm text-slate-600">
-            Protected backend route: /api/dashboard.
-        </p>
-        <pre class="overflow-auto rounded bg-slate-900 p-3 text-xs text-slate-100">{{ payload }}</pre>
-        <button class="rounded bg-emerald-700 px-3 py-2 text-sm text-white" type="button" @click="load">
-            {{ $t('actions.loadPayload') }}
-        </button>
     </section>
 </template>
 
@@ -58,7 +45,6 @@ import { getUnreadMessageCount } from '../services/messages';
 import { hasActiveSellerSubscription } from '../services/sellerBilling';
 import { formatPrice } from '../utils/formatters';
 
-const payload = ref('Click "Load Dashboard Data" after authenticating.');
 const unreadCount = ref(0);
 const showSubscriptionBlock = ref(false);
 const profile = ref(null);
@@ -86,15 +72,6 @@ const loadUnreadCount = async () => {
         unreadCount.value = await getUnreadMessageCount();
     } catch {
         unreadCount.value = 0;
-    }
-};
-
-const load = async () => {
-    try {
-        const { data } = await window.axios.get('/api/dashboard');
-        payload.value = JSON.stringify(data, null, 2);
-    } catch (error) {
-        payload.value = JSON.stringify(error.response?.data ?? { message: 'Unauthorized' }, null, 2);
     }
 };
 

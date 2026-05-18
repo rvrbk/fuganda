@@ -4,6 +4,7 @@ import { hasActiveSellerSubscription } from '../services/sellerBilling';
 
 const router = createRouter({
     history: createWebHistory(),
+    linkExactActiveClass: 'bg-slate-100 !text-slate-900 font-semibold',
     routes: [
         { path: '/', name: 'home', component: () => import('../views/PropertiesListView.vue') },
         { path: '/properties/:id', name: 'property-detail', component: () => import('../views/PropertyDetailView.vue') },
