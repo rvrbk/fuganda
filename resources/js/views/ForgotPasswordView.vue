@@ -32,6 +32,9 @@
 import { ref } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { requestPasswordResetLink } from '../services/authProfile';
+import { usePageMeta } from '../composables/usePageMeta';
+
+usePageMeta({ title: 'Forgot Password', robots: 'noindex,nofollow' });
 
 const { t } = useI18n();
 const email = ref('');

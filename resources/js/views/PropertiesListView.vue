@@ -156,6 +156,12 @@ import { hasActiveSellerSubscription } from '../services/sellerBilling';
 import { listProperties } from '../services/properties';
 import { listLocations, listCitiesByDistrict } from '../services/locations';
 import { formatPrice } from '../utils/formatters';
+import { usePageMeta } from '../composables/usePageMeta';
+
+usePageMeta({
+	title: 'Properties for Rent & Sale in Uganda',
+	description: 'Browse apartments, houses, land and commercial properties across Uganda. Search by district, city, type and price.',
+});
 
 const route = useRoute();
 const router = useRouter();

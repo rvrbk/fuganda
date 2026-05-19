@@ -81,6 +81,9 @@ import { onMounted, onUnmounted, ref } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { useI18n } from 'vue-i18n';
 import { cancelSellerBilling, getSellerBillingStatus, initiateSellerBillingCheckout } from '../services/sellerBilling';
+import { usePageMeta } from '../composables/usePageMeta';
+
+usePageMeta({ title: 'Seller Onboarding', robots: 'noindex,nofollow' });
 
 const route = useRoute();
 const router = useRouter();

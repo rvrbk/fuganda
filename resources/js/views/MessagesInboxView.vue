@@ -93,6 +93,9 @@
 import { computed, onMounted, ref, watch } from 'vue';
 import { createMessage, listMessages } from '../services/messages';
 import { getProfile } from '../services/authProfile';
+import { usePageMeta } from '../composables/usePageMeta';
+
+usePageMeta({ title: 'Messages', robots: 'noindex,nofollow' });
 
 const emit = defineEmits(['auth-changed']);
 

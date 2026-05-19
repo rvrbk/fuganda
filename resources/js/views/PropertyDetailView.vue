@@ -116,11 +116,19 @@ import { canManageListings, getProfile } from '../services/authProfile';
 import { createGuestPropertyContact, createMessage } from '../services/messages';
 import { getProperty } from '../services/properties';
 import { formatPrice } from '../utils/formatters';
+import { usePageMeta } from '../composables/usePageMeta';
 
 const route = useRoute();
 const { t } = useI18n();
 const loading = ref(true);
 const property = ref(null);
+
+usePageMeta(() => ({
+	title: property.value?.title ?? '',
+	description: property.value?.description ?? '',
+	image: property.value?.imageUrl ?? '',
+	type: 'article',
+}));
 const message = ref({ email: '', subject: '', body: '' });
 const messageFeedback = ref(null);
 const profile = ref(null);

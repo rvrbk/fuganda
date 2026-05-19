@@ -40,6 +40,9 @@ import { ref } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { useI18n } from 'vue-i18n';
 import { resetPassword } from '../services/authProfile';
+import { usePageMeta } from '../composables/usePageMeta';
+
+usePageMeta({ title: 'Reset Password', robots: 'noindex,nofollow' });
 
 const route = useRoute();
 const router = useRouter();

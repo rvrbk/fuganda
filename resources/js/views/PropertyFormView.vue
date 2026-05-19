@@ -163,11 +163,14 @@ import L from 'leaflet';
 import { hasActiveSellerSubscription } from '../services/sellerBilling';
 import { createProperty, extractApiErrorMessage, getProperty, updateProperty, uploadPropertyMedia } from '../services/properties';
 import { listCitiesByDistrict, listLocations } from '../services/locations';
+import { usePageMeta } from '../composables/usePageMeta';
 
 const route = useRoute();
 const router = useRouter();
 const { t } = useI18n();
 const isEdit = computed(() => Boolean(route.params.id));
+
+usePageMeta(() => ({ title: isEdit.value ? 'Edit Listing' : 'Create Listing', robots: 'noindex,nofollow' }));
 const mapHost = ref(null);
 const districtOptions = ref([]);
 const citiesByDistrict = ref({});

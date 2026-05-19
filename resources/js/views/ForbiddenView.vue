@@ -21,6 +21,9 @@
 <script setup>
 import { computed } from 'vue';
 import { useRoute } from 'vue-router';
+import { usePageMeta } from '../composables/usePageMeta';
+
+usePageMeta({ title: 'Access Denied', robots: 'noindex,nofollow' });
 
 const route = useRoute();
 

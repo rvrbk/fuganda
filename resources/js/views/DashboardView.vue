@@ -44,6 +44,9 @@ import { getProfile } from '../services/authProfile';
 import { getUnreadMessageCount } from '../services/messages';
 import { hasActiveSellerSubscription } from '../services/sellerBilling';
 import { formatPrice } from '../utils/formatters';
+import { usePageMeta } from '../composables/usePageMeta';
+
+usePageMeta({ title: 'Seller Dashboard', robots: 'noindex,nofollow' });
 
 const unreadCount = ref(0);
 const showSubscriptionBlock = ref(false);

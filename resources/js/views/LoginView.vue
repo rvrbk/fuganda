@@ -112,11 +112,14 @@
 </template>
 
 <script setup>
-    import { computed, ref, watch } from 'vue';
+import { computed, ref, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { useI18n } from 'vue-i18n';
 import { canManageListings, login, register } from '../services/authProfile';
 import { hasActiveSellerSubscription } from '../services/sellerBilling';
+import { usePageMeta } from '../composables/usePageMeta';
+
+usePageMeta({ title: 'Sign in', robots: 'noindex,nofollow' });
 
 const route = useRoute();
 const router = useRouter();
