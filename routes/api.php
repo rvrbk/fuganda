@@ -15,6 +15,11 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
 });
 
+// Demo mode status - public endpoint for frontend to check
+Route::get('demo-mode', function () {
+    return response()->json(['demo_mode' => config('app.demo_mode')]);
+});
+
 Route::get('properties', [PropertyController::class, 'index']);
 Route::get('properties/{id}', [PropertyController::class, 'show'])->whereNumber('id');
 Route::get('locations', [LocationController::class, 'index']);
