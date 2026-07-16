@@ -639,6 +639,10 @@ class SellerBillingService
 
     public function enforcePublishRequirements(User $user): void
     {
+        if (config('app.demo_mode')) {
+            return;
+        }
+
         if ($user->isAdmin() || ! $user->isSeller()) {
             return;
         }

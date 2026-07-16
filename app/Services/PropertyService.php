@@ -26,11 +26,12 @@ class PropertyService
             $publishFeePaymentRequired = false;
             $isSellerPublish = $isPublishing && $user->isSeller() && ! $user->isAdmin();
 
-            if ($isPublishing) {
+            // In demo mode, bypass subscription requirements
+            if (! config('app.demo_mode') && $isPublishing) {
                 $this->sellerBillingService->enforcePublishRequirements($user);
             }
 
-            if ($isSellerPublish) {
+            if ($isSellerPublish && ! config('app.demo_mode')) {
                 // Require publish-fee settlement before switching listing to published.
                 $data['status'] = 'draft';
                 $data['published_at'] = null;
@@ -41,7 +42,16 @@ class PropertyService
             $property = Property::query()->create($data);
             $this->syncImages($property, $attributes['images'] ?? []);
 
-            if ($isSellerPublish) {
+            // In demo mode, auto-publish if requested
+            if (config('app.demo_mode') && $isPublishing && empty($property->published_at)) {
+                $property->fill([
+                    'status' => 'published',
+                    'published_at' => now(),
+                ]);
+                $property->save();
+            }
+
+            if ($isSellerPublish && ! config('app.demo_mode')) {
                 $publishFee = $this->sellerBillingService->requestPublishFeeCheckout($user, $property, $attributes);
                 if (! ($publishFee['paid'] ?? false)) {
                     $publishFeeCheckoutUrl = (string) ($publishFee['checkout_url'] ?? '');
@@ -77,11 +87,12 @@ class PropertyService
             $publishFeePaymentRequired = false;
             $isSellerPublish = $isPublishing && $user->isSeller() && ! $user->isAdmin();
 
-            if ($isPublishing) {
+            // In demo mode, bypass subscription requirements
+            if (! config('app.demo_mode') && $isPublishing) {
                 $this->sellerBillingService->enforcePublishRequirements($user);
             }
 
-            if ($isSellerPublish) {
+            if ($isSellerPublish && ! config('app.demo_mode')) {
                 $publishFee = $this->sellerBillingService->requestPublishFeeCheckout($user, $property, $attributes);
                 if (! ($publishFee['paid'] ?? false)) {
                     $publishFeeCheckoutUrl = (string) ($publishFee['checkout_url'] ?? '');
@@ -97,6 +108,11 @@ class PropertyService
 
             if (array_key_exists('status', $data) && $data['status'] !== 'published') {
                 $data['published_at'] = null;
+            }
+
+            // In demo mode, allow direct publishing
+            if (config('app.demo_mode') && $isPublishing) {
+                $data['published_at'] = now();
             }
 
             $property->fill($data);
@@ -125,6 +141,8 @@ class PropertyService
 
     private function authorizeOwnership(User $user, Property $property): void
     {
+        // In demo mode, allow users to edit their own properties
+        // (normal behavior is already to check ownership)
         if ((int) $property->user_id !== (int) $user->id) {
             throw new AuthorizationException('Only the listing owner can modify this property.');
         }

@@ -9,7 +9,7 @@ return [
     |
     | This value is the name of your application, which will be used when the
     | framework needs to place the application's name in a notification or
-    | other UI elements where an application name needs to be displayed.
+    | other UI elements where an application's name needs to be displayed.
     |
     */
 
@@ -122,5 +122,17 @@ return [
         'driver' => env('APP_MAINTENANCE_DRIVER', 'file'),
         'store' => env('APP_MAINTENANCE_STORE', 'database'),
     ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | Demo/Test Mode
+    |--------------------------------------------------------------------------
+    |
+    | When enabled, allows anyone to create properties without requiring
+    | a seller subscription. Useful for testing and populating the platform.
+    |
+    */
+
+    'demo_mode' => (bool) env('DEMO_MODE', false),
 
 ];

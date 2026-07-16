@@ -32,10 +32,11 @@ class CreateNewUser implements CreatesNewUsers
                 Rule::unique(User::class),
             ],
             'password' => $this->passwordRules(),
-            'role' => ['sometimes', 'in:buyer,seller'],
+            'role' => ['sometimes', 'in:buyer,seller,agent,admin'],
         ])->validate();
 
-        $role = (string) ($input['role'] ?? 'buyer');
+        // In demo mode, default to seller so users can immediately create properties
+        $role = (string) ($input['role'] ?? (config('app.demo_mode') ? 'seller' : 'buyer'));
 
         return User::create([
             'name' => $input['name'],

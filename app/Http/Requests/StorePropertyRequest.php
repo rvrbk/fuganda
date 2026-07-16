@@ -8,6 +8,11 @@ class StorePropertyRequest extends FormRequest
 {
     public function authorize(): bool
     {
+        // In demo mode, allow anyone to create properties
+        if (config('app.demo_mode')) {
+            return $this->user() !== null;
+        }
+
         $user = $this->user();
 
         return $user !== null && ($user->isSeller() || $user->isAdmin());
