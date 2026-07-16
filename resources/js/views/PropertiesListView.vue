@@ -158,15 +158,28 @@ import { listLocations, listCitiesByDistrict } from '../services/locations';
 import { formatPrice } from '../utils/formatters';
 import { usePageMeta } from '../composables/usePageMeta';
 
-usePageMeta({
-	title: 'Properties for Rent & Sale in Uganda',
-	description: 'Browse apartments, houses, land and commercial properties across Uganda. Search by district, city, type and price.',
-});
-
 const route = useRoute();
 const router = useRouter();
 const loading = ref(true);
 const properties = ref([]);
+
+usePageMeta(() => ({
+	title: 'Properties for Rent & Sale in Uganda',
+	description: 'Browse apartments, houses, land and commercial properties across Uganda. Search by district, city, type and price.',
+	jsonLd: properties.value.length ? {
+		'@context': 'https://schema.org',
+		'@type': 'ItemList',
+		name: 'Properties for Rent & Sale in Uganda',
+		url: window.location.origin + '/properties',
+		numberOfItems: properties.value.length,
+		itemListElement: properties.value.slice(0, 50).map((p, index) => ({
+			'@type': 'ListItem',
+			position: index + 1,
+			url: `${window.location.origin}/properties/${p.id}`,
+			name: p.title,
+		})),
+	} : null,
+}));
 const locations = ref({ districts: [], propertyTypes: [] });
 const canCreateListing = ref(false);
 const showSubscriptionBlock = ref(false);

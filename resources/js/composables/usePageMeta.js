@@ -3,6 +3,7 @@ import { onBeforeUnmount, toValue, watchEffect } from 'vue';
 const APP = 'Fuganda';
 const DEFAULT_DESCRIPTION =
     'Discover properties for rent and sale across Uganda with quick map search.';
+const IS_PRODUCTION = window.APP_ENV === 'production';
 
 function upsertMeta(attr, attrValue, content) {
     if (!content) return;
@@ -13,6 +14,21 @@ function upsertMeta(attr, attrValue, content) {
         document.head.appendChild(el);
     }
     el.setAttribute('content', content);
+}
+
+function upsertJsonLd(data) {
+    let el = document.querySelector('script[data-id="page-jsonld"]');
+    if (!el) {
+        el = document.createElement('script');
+        el.setAttribute('type', 'application/ld+json');
+        el.setAttribute('data-id', 'page-jsonld');
+        document.head.appendChild(el);
+    }
+    el.textContent = JSON.stringify(data);
+}
+
+function removeJsonLd() {
+    document.querySelector('script[data-id="page-jsonld"]')?.remove();
 }
 
 function upsertCanonical(url) {
@@ -33,6 +49,7 @@ function resolveOptions(optsOrFactory) {
         image: toValue(optsOrFactory.image),
         robots: toValue(optsOrFactory.robots),
         type: toValue(optsOrFactory.type),
+        jsonLd: toValue(optsOrFactory.jsonLd),
     };
 }
 
@@ -46,10 +63,11 @@ function resolveOptions(optsOrFactory) {
  *   - image       {string}  Absolute URL for og:image / twitter:image
  *   - robots      {string}  robots content, e.g. 'noindex,nofollow'
  *   - type        {string}  og:type, defaults to 'website'
+ *   - jsonLd      {Object}  JSON-LD structured data object injected as application/ld+json
  */
 export function usePageMeta(optsOrFactory = {}) {
     const stop = watchEffect(() => {
-        const { title, description, image, robots, type } = resolveOptions(optsOrFactory);
+        const { title, description, image, robots, type, jsonLd } = resolveOptions(optsOrFactory);
 
         const fullTitle = title ? `${title} | ${APP}` : `${APP} — Uganda Property Listings`;
         const metaDescription = description || DEFAULT_DESCRIPTION;
@@ -59,7 +77,7 @@ export function usePageMeta(optsOrFactory = {}) {
         document.title = fullTitle;
 
         upsertMeta('name', 'description', metaDescription);
-        upsertMeta('name', 'robots', robots || 'index,follow');
+        upsertMeta('name', 'robots', robots || (IS_PRODUCTION ? 'index,follow' : 'noindex,nofollow'));
         upsertCanonical(canonicalUrl);
 
         // Open Graph
@@ -81,7 +99,15 @@ export function usePageMeta(optsOrFactory = {}) {
         if (image) {
             upsertMeta('name', 'twitter:image', image);
         }
+
+        // JSON-LD structured data
+        if (jsonLd) {
+            upsertJsonLd(jsonLd);
+        }
     });
 
-    onBeforeUnmount(() => stop());
+    onBeforeUnmount(() => {
+        stop();
+        removeJsonLd();
+    });
 }

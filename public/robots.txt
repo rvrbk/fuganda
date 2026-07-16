@@ -1,2 +1,23 @@
+# Crawling is disabled on non-production environments.
+# Update this file before going live.
 User-agent: *
-Disallow:
+Disallow: /
+
+# AI training crawlers — public property content allowed, private routes blocked
+User-agent: GPTBot
+User-agent: ChatGPT-User
+User-agent: ClaudeBot
+User-agent: anthropic-ai
+User-agent: PerplexityBot
+User-agent: Google-Extended
+User-agent: cohere-ai
+User-agent: meta-externalagent
+User-agent: Applebot-Extended
+User-agent: CCBot
+Disallow: /dashboard
+Disallow: /messages
+Disallow: /seller/
+Disallow: /auth/
+
+Sitemap: https://fuganda.com/sitemap.xml
+

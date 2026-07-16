@@ -123,12 +123,47 @@ const { t } = useI18n();
 const loading = ref(true);
 const property = ref(null);
 
-usePageMeta(() => ({
-	title: property.value?.title ?? '',
-	description: property.value?.description ?? '',
-	image: property.value?.imageUrl ?? '',
-	type: 'article',
-}));
+usePageMeta(() => {
+	const p = property.value;
+	return {
+		title: p?.title ?? '',
+		description: p?.description ?? '',
+		image: p?.imageUrl ?? '',
+		type: 'article',
+		jsonLd: p ? {
+			'@context': 'https://schema.org',
+			'@type': 'RealEstateListing',
+			name: p.title,
+			description: p.description,
+			url: window.location.href,
+			...(p.imageUrl ? { image: [p.imageUrl] } : {}),
+			address: {
+				'@type': 'PostalAddress',
+				...(p.address ? { streetAddress: p.address } : {}),
+				addressLocality: p.city ?? '',
+				addressRegion: p.district ?? '',
+				addressCountry: 'UG',
+			},
+			...(p.latitude != null && p.longitude != null ? {
+				geo: {
+					'@type': 'GeoCoordinates',
+					latitude: p.latitude,
+					longitude: p.longitude,
+				},
+			} : {}),
+			...(p.bedrooms ? { numberOfBedrooms: p.bedrooms } : {}),
+			...(p.bathrooms ? { numberOfBathroomsTotal: p.bathrooms } : {}),
+			offers: {
+				'@type': 'Offer',
+				price: p.price,
+				priceCurrency: p.priceCurrency || 'UGX',
+				businessFunction: p.listingType === 'sale'
+					? 'http://purl.org/goodrelations/v1#Sell'
+					: 'http://purl.org/goodrelations/v1#LeaseOut',
+			},
+		} : null,
+	};
+});
 const message = ref({ email: '', subject: '', body: '' });
 const messageFeedback = ref(null);
 const profile = ref(null);

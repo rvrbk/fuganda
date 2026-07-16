@@ -110,4 +110,15 @@ router.onError((error, to) => {
     window.location.assign(to?.fullPath || window.location.href);
 });
 
+// Track SPA page views in Google Analytics 4.
+// The gtag snippet in welcome.blade.php sets send_page_view: false so only
+// this hook fires page_view events, preventing a duplicate on the initial load.
+router.afterEach((to) => {
+    if (typeof window.gtag !== 'function') return;
+    window.gtag('event', 'page_view', {
+        page_path: to.fullPath,
+        page_title: document.title,
+    });
+});
+
 export default router;

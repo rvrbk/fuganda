@@ -1,0 +1,30 @@
+# Fuganda
+
+> Fuganda is Uganda's property listings platform — find apartments, houses, land and commercial properties for rent and sale across all districts of Uganda.
+
+## What Fuganda does
+
+- Searchable property listings for rent and sale across Uganda
+- Property details including bedrooms, bathrooms, price in UGX, photos and map location
+- District- and city-level filtering across all Ugandan regions
+- Direct contact with property owners and agents
+
+## Key pages
+
+- [Homepage](https://fuganda.com/): Map-based property search and discovery
+- [All Properties](https://fuganda.com/properties): Full property search with filters by district, city, type and price
+- [Sitemap](https://fuganda.com/sitemap.xml): Index of all published property listings
+
+## Content notes
+
+Property listings include: title, full description, listing type (rent or sale), property type (apartment, house, land, commercial, etc.), number of bedrooms and bathrooms, price in Ugandan Shillings (UGX), and a precise location (district, city, street address, latitude/longitude) within Uganda (country code: UG).
+
+Prices are quoted in UGX (Ugandan Shilling) unless otherwise stated.
+
+## About
+
+Fuganda connects property seekers with property owners and agents in Uganda. The platform is focused exclusively on properties located in Uganda.
+
+## Optional
+
+- [Sitemap XML](https://fuganda.com/sitemap.xml)
