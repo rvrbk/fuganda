@@ -18,18 +18,15 @@ This is perfect for:
 
 ## How to Enable
 
-### Step 1: Backend Configuration
+### Single Variable Setup
 
 Add this to your `.env` file:
 
 ```bash
 DEMO_MODE=true
-VITE_DEMO_MODE=true
 ```
 
-> **Note**: Both variables are needed:
-> - `DEMO_MODE` - for backend PHP checks
-> - `VITE_DEMO_MODE` - for frontend JavaScript checks
+That's it! Just **one variable** controls both backend and frontend behavior.
 
 ### Step 2: Clear Configuration Cache
 
@@ -56,14 +53,13 @@ php artisan serve
 
 ## How to Disable
 
-Set both variables to false or remove them:
+Set to false or remove the line:
 
 ```bash
 DEMO_MODE=false
-VITE_DEMO_MODE=false
 ```
 
-Or simply remove both lines from your `.env` file (defaults to `false`).
+Or simply remove the line from your `.env` file (defaults to `false`).
 
 Then:
 ```bash
@@ -71,6 +67,19 @@ php artisan config:clear
 npm run build
 php artisan serve
 ```
+
+## How It Works
+
+### Backend
+The backend checks `config('app.demo_mode')` which reads from the `DEMO_MODE` environment variable.
+
+### Frontend
+The frontend fetches the demo mode status from the backend via a simple API endpoint:
+- `GET /api/demo-mode` returns `{"demo_mode": true/false}`
+- The result is cached for the session
+- Cache is reset on login, logout, and registration
+
+This means **you only need to set `DEMO_MODE` in your `.env`** - no separate frontend variable needed!
 
 ## What Changes in Demo Mode
 
@@ -111,14 +120,13 @@ php artisan serve
 2. **Payments**: No actual payments are processed in demo mode - everything is free
 3. **Data**: All properties and users created in demo mode are real database records
 4. **Cleanup**: You may want to clean up test data after disabling demo mode
-5. **Both Variables Required**: You must set BOTH `DEMO_MODE` and `VITE_DEMO_MODE` for it to work fully
+5. **Single Variable**: Only `DEMO_MODE` is needed - the frontend automatically detects it from the backend
 
 ## Recommended Workflow
 
 1. **Enable demo mode** in your `.env` file:
    ```bash
    DEMO_MODE=true
-   VITE_DEMO_MODE=true
    ```
 
 2. **Create a test database** or use your existing one
@@ -134,8 +142,8 @@ php artisan serve
 7. **Disable demo mode** when ready to go live:
    ```bash
    DEMO_MODE=false
-   VITE_DEMO_MODE=false
    ```
+   or remove the line entirely
 
 8. **Rebuild and restart**:
    ```bash
@@ -147,16 +155,17 @@ php artisan serve
 ## Files Modified
 
 ### Backend
-- `.env.example` - Added `DEMO_MODE` and `VITE_DEMO_MODE` variables
+- `.env.example` - Added `DEMO_MODE` variable
 - `config/app.php` - Added `demo_mode` configuration
+- `routes/api.php` - Added `/api/demo-mode` endpoint
 - `app/Http/Requests/StorePropertyRequest.php` - Bypasses authorization in demo mode
 - `app/Services/PropertyService.php` - Bypasses subscription checks in demo mode
 - `app/Services/SellerBillingService.php` - Skips publish requirement enforcement in demo mode
 - `app/Actions/Fortify/CreateNewUser.php` - Defaults to seller role in demo mode
 
 ### Frontend
-- `resources/js/services/sellerBilling.js` - Returns active status in demo mode
-- `resources/js/services/authProfile.js` - Allows listing management for all users in demo mode
+- `resources/js/services/sellerBilling.js` - Fetches demo mode from API, returns active status when enabled
+- `resources/js/services/authProfile.js` - Fetches demo mode from API, allows listing management for all users when enabled
 
 ## Troubleshooting
 
@@ -164,18 +173,19 @@ php artisan serve
 
 Make sure you have:
 1. Set `DEMO_MODE=true` in your `.env`
-2. Set `VITE_DEMO_MODE=true` in your `.env`
-3. Run `php artisan config:clear`
-4. Rebuilt your frontend with `npm run build` or `npm run dev`
-5. Restarted your Laravel server
+2. Run `php artisan config:clear`
+3. Rebuilt your frontend with `npm run build` or `npm run dev`
+4. Restarted your Laravel server
+5. **Hard refresh** your browser (Ctrl+Shift+R or Cmd+Shift+R)
 
 ### "I can't create properties"
 
 Check that:
 1. You're logged in
-2. Both demo mode variables are set to `true`
+2. `DEMO_MODE=true` is set in `.env`
 3. You've cleared the config cache
 4. You've rebuilt the frontend
+5. The `/api/demo-mode` endpoint returns `{"demo_mode": true}` (test in browser)
 
 ### "Changes aren't taking effect"
 
@@ -186,3 +196,14 @@ php artisan cache:clear
 npm run build
 php artisan serve
 ```
+
+Then hard refresh your browser.
+
+### "I get a 404 on /api/demo-mode"
+
+Make sure you've:
+1. Set `DEMO_MODE=true` in `.env`
+2. Run `php artisan config:clear`
+3. Restarted your Laravel server
+
+The endpoint should be available at `http://localhost:8000/api/demo-mode`
