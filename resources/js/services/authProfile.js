@@ -2,6 +2,11 @@ import axios from './http';
 
 let cachedProfile = null;
 
+// Check if demo mode is enabled from frontend environment
+function isDemoMode() {
+    return import.meta.env.VITE_DEMO_MODE === 'true' || import.meta.env.VITE_DEMO_MODE === true;
+}
+
 function normalizeRole(value) {
 	return String(value ?? '').trim().toLowerCase();
 }
@@ -30,6 +35,11 @@ export function isBuyerProfile(profile) {
 }
 
 export function canManageListings(profile) {
+	// In demo mode, allow anyone to manage listings
+	if (isDemoMode()) {
+		return true;
+	}
+
 	const role = getUserRole(profile);
 	return role === 'seller' || role === 'admin';
 }

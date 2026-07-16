@@ -1,5 +1,10 @@
 import axios from './http';
 
+// Check if demo mode is enabled from frontend environment
+function isDemoMode() {
+    return import.meta.env.VITE_DEMO_MODE === 'true' || import.meta.env.VITE_DEMO_MODE === true;
+}
+
 function toBoolean(value) {
     if (typeof value === 'boolean') {
         return value;
@@ -59,6 +64,11 @@ function normalizeCheckout(payload) {
 }
 
 export async function getSellerBillingStatus() {
+    // In demo mode, return active status immediately
+    if (isDemoMode()) {
+        return { active: true, raw: { seller_has_active_subscription: true, seller_subscription_status: 'active' } };
+    }
+
     try {
         const { data } = await axios.get('/api/seller/billing/status');
         return normalizeStatus(data);
@@ -77,21 +87,45 @@ export async function getSellerBillingStatus() {
 }
 
 export async function subscribeSellerBilling(payload = {}) {
+    // In demo mode, just return active
+    if (isDemoMode()) {
+        return { active: true, raw: { seller_has_active_subscription: true } };
+    }
+
     const { data } = await axios.post('/api/seller/billing/subscribe', payload);
     return normalizeStatus(data);
 }
 
 export async function initiateSellerBillingCheckout(payload = {}) {
+    // In demo mode, return a mock successful checkout
+    if (isDemoMode()) {
+        return {
+            active: true,
+            redirectUrl: null,
+            raw: { seller_has_active_subscription: true }
+        };
+    }
+
     const { data } = await axios.post('/api/seller/billing/subscribe', payload);
     return normalizeCheckout(data);
 }
 
 export async function cancelSellerBilling() {
+    // In demo mode, just return inactive
+    if (isDemoMode()) {
+        return { active: false, raw: { seller_has_active_subscription: false } };
+    }
+
     const { data } = await axios.post('/api/seller/billing/cancel');
     return normalizeStatus(data);
 }
 
 export async function hasActiveSellerSubscription() {
+    // In demo mode, always return true
+    if (isDemoMode()) {
+        return true;
+    }
+
     const status = await getSellerBillingStatus();
     return Boolean(status.active);
 }
