@@ -1,8 +1,45 @@
 import axios from './http';
 
-// Check if demo mode is enabled from frontend environment
-function isDemoMode() {
-    return import.meta.env.VITE_DEMO_MODE === 'true' || import.meta.env.VITE_DEMO_MODE === true;
+// Cache for demo mode status
+let demoModeCache = null;
+let demoModePromise = null;
+
+/**
+ * Check if demo mode is enabled by fetching from backend
+ * Caches the result for the session
+ */
+async function isDemoMode() {
+    // Return cached value if available
+    if (demoModeCache !== null) {
+        return demoModeCache;
+    }
+
+    // If a fetch is already in progress, return its promise
+    if (demoModePromise) {
+        return demoModePromise;
+    }
+
+    demoModePromise = axios.get('/api/demo-mode')
+        .then(response => {
+            demoModeCache = Boolean(response.data?.demo_mode);
+            demoModePromise = null;
+            return demoModeCache;
+        })
+        .catch(() => {
+            demoModePromise = null;
+            demoModeCache = false;
+            return false;
+        });
+
+    return demoModePromise;
+}
+
+/**
+ * Reset demo mode cache (useful after login/logout)
+ */
+export function resetDemoModeCache() {
+    demoModeCache = null;
+    demoModePromise = null;
 }
 
 function toBoolean(value) {
@@ -65,7 +102,8 @@ function normalizeCheckout(payload) {
 
 export async function getSellerBillingStatus() {
     // In demo mode, return active status immediately
-    if (isDemoMode()) {
+    const demoEnabled = await isDemoMode();
+    if (demoEnabled) {
         return { active: true, raw: { seller_has_active_subscription: true, seller_subscription_status: 'active' } };
     }
 
@@ -88,7 +126,8 @@ export async function getSellerBillingStatus() {
 
 export async function subscribeSellerBilling(payload = {}) {
     // In demo mode, just return active
-    if (isDemoMode()) {
+    const demoEnabled = await isDemoMode();
+    if (demoEnabled) {
         return { active: true, raw: { seller_has_active_subscription: true } };
     }
 
@@ -98,7 +137,8 @@ export async function subscribeSellerBilling(payload = {}) {
 
 export async function initiateSellerBillingCheckout(payload = {}) {
     // In demo mode, return a mock successful checkout
-    if (isDemoMode()) {
+    const demoEnabled = await isDemoMode();
+    if (demoEnabled) {
         return {
             active: true,
             redirectUrl: null,
@@ -112,7 +152,8 @@ export async function initiateSellerBillingCheckout(payload = {}) {
 
 export async function cancelSellerBilling() {
     // In demo mode, just return inactive
-    if (isDemoMode()) {
+    const demoEnabled = await isDemoMode();
+    if (demoEnabled) {
         return { active: false, raw: { seller_has_active_subscription: false } };
     }
 
@@ -122,7 +163,8 @@ export async function cancelSellerBilling() {
 
 export async function hasActiveSellerSubscription() {
     // In demo mode, always return true
-    if (isDemoMode()) {
+    const demoEnabled = await isDemoMode();
+    if (demoEnabled) {
         return true;
     }
 

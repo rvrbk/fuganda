@@ -2,9 +2,46 @@ import axios from './http';
 
 let cachedProfile = null;
 
-// Check if demo mode is enabled from frontend environment
-function isDemoMode() {
-    return import.meta.env.VITE_DEMO_MODE === 'true' || import.meta.env.VITE_DEMO_MODE === true;
+// Cache for demo mode status
+let demoModeCache = null;
+let demoModePromise = null;
+
+/**
+ * Check if demo mode is enabled by fetching from backend
+ * Caches the result for the session
+ */
+async function isDemoMode() {
+    // Return cached value if available
+    if (demoModeCache !== null) {
+        return demoModeCache;
+    }
+
+    // If a fetch is already in progress, return its promise
+    if (demoModePromise) {
+        return demoModePromise;
+    }
+
+    demoModePromise = axios.get('/api/demo-mode')
+        .then(response => {
+            demoModeCache = Boolean(response.data?.demo_mode);
+            demoModePromise = null;
+            return demoModeCache;
+        })
+        .catch(() => {
+            demoModePromise = null;
+            demoModeCache = false;
+            return false;
+        });
+
+    return demoModePromise;
+}
+
+/**
+ * Reset demo mode cache (useful after login/logout)
+ */
+export function resetDemoModeCache() {
+    demoModeCache = null;
+    demoModePromise = null;
 }
 
 function normalizeRole(value) {
@@ -34,9 +71,10 @@ export function isBuyerProfile(profile) {
 	return getUserRole(profile) === 'buyer';
 }
 
-export function canManageListings(profile) {
+export async function canManageListings(profile) {
 	// In demo mode, allow anyone to manage listings
-	if (isDemoMode()) {
+	const demoEnabled = await isDemoMode();
+	if (demoEnabled) {
 		return true;
 	}
 
@@ -62,6 +100,8 @@ export async function getProfile(force = false) {
 export async function login(credentials) {
 	await axios.get('/sanctum/csrf-cookie');
 	await axios.post('/login', credentials);
+	// Reset demo mode cache on login
+	resetDemoModeCache();
 	return getProfile(true);
 }
 
@@ -74,6 +114,8 @@ export async function register(payload) {
 		return profile;
 	}
 
+	// Reset demo mode cache on register
+	resetDemoModeCache();
 	return login({ email: payload.email, password: payload.password });
 }
 
@@ -94,4 +136,6 @@ export async function resetPassword(payload) {
 export async function logout() {
 	await axios.post('/logout');
 	cachedProfile = null;
+	// Reset demo mode cache on logout
+	resetDemoModeCache();
 }
