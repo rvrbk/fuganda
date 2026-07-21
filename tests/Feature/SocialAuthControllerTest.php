@@ -72,8 +72,8 @@ class SocialAuthControllerTest extends TestCase
 
     public function test_google_callback_falls_back_to_callback_host_when_state_origin_is_different_host(): void
     {
-        config()->set('app.url', 'http://fuganda.test');
-        config()->set('sanctum.stateful', ['localhost', 'localhost:8000', 'fuganda.test']);
+        config()->set('app.url', 'https://real-estates.verbeek.ug');
+        config()->set('sanctum.stateful', ['localhost', 'localhost:8000', 'real-estates.verbeek.ug']);
 
         $provider = $this->mockSocialiteProvider(
             email: 'cross-host@example.test',
@@ -86,7 +86,7 @@ class SocialAuthControllerTest extends TestCase
         $state = base64_encode(json_encode([
             'role' => 'buyer',
             'nonce' => 'crosshost123',
-            'origin' => 'http://fuganda.test',
+            'origin' => 'http://verbeek-ug-real-estates.test',
         ], JSON_THROW_ON_ERROR));
 
         $response = $this

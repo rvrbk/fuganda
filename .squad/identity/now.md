@@ -6,4 +6,4 @@ active_issues: []
 
 # What We're Focused On
 
-Team initialized and preparing a phased build plan for the fuganda platform.
+Team initialized and preparing a phased build plan for the Verbeek.ug Real Estates platform.

@@ -6,4 +6,4 @@
 <p><strong>Message:</strong></p>
 <p>{{ $messageModel->body }}</p>
 
-<p>You can view and respond from your inbox in Fuganda.</p>
+<p>You can view and respond from your inbox in Verbeek.ug Real Estates.</p>

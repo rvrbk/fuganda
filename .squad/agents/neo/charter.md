@@ -4,7 +4,7 @@ Owns Laravel backend services, API design, and data model evolution.
 
 ## Project Context
 
-**Project:** fuganda
+**Project:** Verbeek.ug Real Estates
 **Requested By:** rvrbk
 **Domain:** Ugandan real estate marketplace
 

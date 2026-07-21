@@ -4,5 +4,5 @@ test('spa shell mounts app root', async ({ page }) => {
     await page.goto('/');
 
     await expect(page.locator('#app')).toBeVisible();
-    await expect(page).toHaveTitle(/Fuganda/i);
+    await expect(page).toHaveTitle(/Verbeek.ug Real Estates/i);
 });

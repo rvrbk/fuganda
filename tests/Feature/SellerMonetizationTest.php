@@ -137,7 +137,7 @@ class SellerMonetizationTest extends TestCase
         config()->set('services.pesapal.consumer_secret', 'cs_test_123');
         config()->set('services.pesapal.notification_id', 'ipn_test_123');
         config()->set('services.pesapal.webhook_secret', 'pesapal_whsec_test_123');
-        config()->set('services.pesapal.callback_url', 'https://app.fuganda.test/api/callbacks/pesapal');
+        config()->set('services.pesapal.callback_url', 'https://app.verbeek-ug-real-estates.test/api/callbacks/pesapal');
 
         Http::fake([
             'https://pay.pesapal.test/v3/api/Auth/RequestToken' => Http::response([
@@ -219,7 +219,7 @@ class SellerMonetizationTest extends TestCase
         config()->set('services.pesapal.consumer_secret', 'cs_test_123');
         config()->set('services.pesapal.notification_id', 'ipn_test_123');
         config()->set('services.pesapal.webhook_secret', 'pesapal_whsec_test_123');
-        config()->set('services.pesapal.callback_url', 'https://app.fuganda.test/api/callbacks/pesapal');
+        config()->set('services.pesapal.callback_url', 'https://app.verbeek-ug-real-estates.test/api/callbacks/pesapal');
 
         Http::fake([
             'https://pay.pesapal.test/v3/api/Auth/RequestToken' => Http::response([

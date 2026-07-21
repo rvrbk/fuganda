@@ -15,21 +15,21 @@
         <meta name="theme-color" content="#0ea5e9">
         <meta name="apple-mobile-web-app-capable" content="yes">
         <meta name="apple-mobile-web-app-status-bar-style" content="default">
-        <meta name="apple-mobile-web-app-title" content="Fuganda">
-        <title>{{ config('app.name', 'Fuganda') }} — Uganda Property Listings</title>
+        <meta name="apple-mobile-web-app-title" content="Verbeek.ug Real Estates">
+        <title>{{ config('app.name', 'Verbeek.ug Real Estates') }} — Uganda Property Listings</title>
         <meta name="description" content="Discover properties for rent and sale across Uganda with quick map search.">
         <meta name="robots" content="{{ app()->isProduction() ? 'index,follow' : 'noindex,nofollow' }}">
 
         <!-- Open Graph defaults (overridden per-page by usePageMeta composable) -->
-        <meta property="og:site_name" content="{{ config('app.name', 'Fuganda') }}">
+        <meta property="og:site_name" content="{{ config('app.name', 'Verbeek.ug Real Estates') }}">
         <meta property="og:type" content="website">
-        <meta property="og:title" content="{{ config('app.name', 'Fuganda') }} — Uganda Property Listings">
+        <meta property="og:title" content="{{ config('app.name', 'Verbeek.ug Real Estates') }} — Uganda Property Listings">
         <meta property="og:description" content="Discover properties for rent and sale across Uganda with quick map search.">
         <meta property="og:url" content="{{ url('/') }}">
 
         <!-- Twitter Card defaults -->
         <meta name="twitter:card" content="summary">
-        <meta name="twitter:title" content="{{ config('app.name', 'Fuganda') }} — Uganda Property Listings">
+        <meta name="twitter:title" content="{{ config('app.name', 'Verbeek.ug Real Estates') }} — Uganda Property Listings">
         <meta name="twitter:description" content="Discover properties for rent and sale across Uganda with quick map search.">
 
         <link rel="canonical" href="{{ url('/') }}">
@@ -40,14 +40,14 @@
             [
                 '@context' => 'https://schema.org',
                 '@type'    => 'Organization',
-                'name'     => config('app.name', 'Fuganda'),
+                'name'     => config('app.name', 'Verbeek.ug Real Estates'),
                 'url'      => url('/'),
                 'description' => 'Uganda property listings — find apartments, houses, land and commercial properties for rent and sale across Uganda.',
             ],
             [
                 '@context' => 'https://schema.org',
                 '@type'    => 'WebSite',
-                'name'     => config('app.name', 'Fuganda'),
+                'name'     => config('app.name', 'Verbeek.ug Real Estates'),
                 'url'      => url('/'),
                 'potentialAction' => [
                     '@type'  => 'SearchAction',

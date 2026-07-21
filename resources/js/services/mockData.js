@@ -63,6 +63,6 @@ export const mockMessages = [
 		propertyId: 1,
 		createdAt: '2026-05-01T10:30:00Z',
 		from: 'tenant@example.com',
-		to: 'agent@fuganda.test',
+		to: 'agent@verbeek-ug-real-estates.test',
 	},
 ];

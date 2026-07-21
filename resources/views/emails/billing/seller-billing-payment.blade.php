@@ -15,4 +15,4 @@
     <p><a href="{{ $actionUrl }}">{{ $actionLabel ?? 'Complete payment' }}</a></p>
 @endif
 
-<p>Thank you,<br>Fuganda Team</p>
+<p>Thank you,<br>Verbeek.ug Real Estates Team</p>

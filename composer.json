@@ -1,9 +1,9 @@
 {
     "$schema": "https://getcomposer.org/schema.json",
-    "name": "laravel/laravel",
+    "name": "verbeek-ug/real-estates",
     "type": "project",
-    "description": "The skeleton application for the Laravel framework.",
-    "keywords": ["laravel", "framework"],
+    "description": "Verbeek.ug Real Estates - Uganda-focused real estate platform for buying, renting, and selling property.",
+    "keywords": ["laravel", "framework", "real-estate", "uganda"],
     "license": "MIT",
     "require": {
         "php": "^8.3",

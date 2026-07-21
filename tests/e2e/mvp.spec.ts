@@ -4,7 +4,7 @@ test('spa shell loads with primary app heading', async ({ page }) => {
     await page.goto('/');
 
     await expect(page.locator('#app')).toBeVisible();
-    await expect(page.getByRole('heading', { name: /fuganda tenant portal/i })).toBeVisible();
+    await expect(page.getByRole('heading', { name: /Verbeek.ug Real Estates tenant portal/i })).toBeVisible();
 });
 
 test('properties page renders filter controls', async ({ page }) => {

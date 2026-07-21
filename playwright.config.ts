@@ -1,6 +1,6 @@
 import { defineConfig } from '@playwright/test';
 
-const baseURL = process.env.PLAYWRIGHT_BASE_URL ?? 'http://fuganda.test';
+const baseURL = process.env.PLAYWRIGHT_BASE_URL ?? 'http://verbeek-ug-real-estates.test';
 
 export default defineConfig({
     testDir: './tests/e2e',

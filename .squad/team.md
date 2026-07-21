@@ -1,6 +1,6 @@
 # Squad Team
 
-> fuganda
+> Verbeek.ug Real Estates
 
 ## Coordinator
 
@@ -22,7 +22,7 @@
 
 ## Project Context
 
-- **Project:** fuganda
+- **Project:** Verbeek.ug Real Estates
 - **Created:** 2026-05-05
 - **Requested By:** rvrbk
 - **Stack:** Laravel (headless API), Sanctum, Fortify, Vue.js SPA

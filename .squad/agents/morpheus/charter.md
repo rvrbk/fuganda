@@ -4,7 +4,7 @@ Leads technical direction, project sequencing, and architecture governance.
 
 ## Project Context
 
-**Project:** fuganda
+**Project:** Verbeek.ug Real Estates
 **Requested By:** rvrbk
 **Domain:** Ugandan real estate marketplace
 

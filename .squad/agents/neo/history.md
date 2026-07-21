@@ -1,6 +1,6 @@
 # Project Context
 
-- **Project:** fuganda
+- **Project:** Verbeek.ug Real Estates
 - **Created:** 2026-05-05
 - **Requested By:** rvrbk
 - **Stack:** Laravel headless API with Sanctum and Fortify

@@ -19,7 +19,7 @@ class NewPropertyMessageMail extends Mailable
     public function build(): self
     {
         return $this
-            ->subject('New message about a property on Fuganda')
+            ->subject('New message about a property on Verbeek.ug Real Estates')
             ->view('emails.messages.new-property-message', [
                 'messageModel' => $this->messageModel,
             ]);

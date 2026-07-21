@@ -19,16 +19,16 @@ class SpaSessionLoginTest extends TestCase
 
         $headers = [
             'Accept' => 'application/json',
-            'Origin' => 'http://fuganda.test',
-            'Referer' => 'http://fuganda.test',
+            'Origin' => 'https://real-estates.verbeek.ug',
+            'Referer' => 'https://real-estates.verbeek.ug',
         ];
 
-        $this->withServerVariables(['HTTP_HOST' => 'fuganda.test'])
+        $this->withServerVariables(['HTTP_HOST' => 'real-estates.verbeek.ug'])
             ->withHeaders($headers)
             ->get('/sanctum/csrf-cookie')
             ->assertNoContent();
 
-        $this->withServerVariables(['HTTP_HOST' => 'fuganda.test'])
+        $this->withServerVariables(['HTTP_HOST' => 'real-estates.verbeek.ug'])
             ->withHeaders($headers)
             ->post('/login', [
                 'email' => $user->email,
@@ -36,7 +36,7 @@ class SpaSessionLoginTest extends TestCase
             ])
             ->assertSuccessful();
 
-        $this->withServerVariables(['HTTP_HOST' => 'fuganda.test'])
+        $this->withServerVariables(['HTTP_HOST' => 'real-estates.verbeek.ug'])
             ->withHeaders($headers)
             ->getJson('/api/auth/me')
             ->assertOk()

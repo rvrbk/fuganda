@@ -1,8 +1,8 @@
-# Fuganda
+# Verbeek.ug Real Estates
 
-> Fuganda is Uganda's property listings platform — find apartments, houses, land and commercial properties for rent and sale across all districts of Uganda.
+> Verbeek.ug Real Estates is Uganda's property listings platform — find apartments, houses, land and commercial properties for rent and sale across all districts of Uganda.
 
-## What Fuganda does
+## What Verbeek.ug Real Estates does
 
 - Searchable property listings for rent and sale across Uganda
 - Property details including bedrooms, bathrooms, price in UGX, photos and map location
@@ -11,9 +11,9 @@
 
 ## Key pages
 
-- [Homepage](https://fuganda.com/): Map-based property search and discovery
-- [All Properties](https://fuganda.com/properties): Full property search with filters by district, city, type and price
-- [Sitemap](https://fuganda.com/sitemap.xml): Index of all published property listings
+- [Homepage](https://real-estates.verbeek.ug/): Map-based property search and discovery
+- [All Properties](https://real-estates.verbeek.ug/properties): Full property search with filters by district, city, type and price
+- [Sitemap](https://real-estates.verbeek.ug/sitemap.xml): Index of all published property listings
 
 ## Content notes
 
@@ -23,8 +23,8 @@ Prices are quoted in UGX (Ugandan Shilling) unless otherwise stated.
 
 ## About
 
-Fuganda connects property seekers with property owners and agents in Uganda. The platform is focused exclusively on properties located in Uganda.
+Verbeek.ug Real Estates connects property seekers with property owners and agents in Uganda. The platform is focused exclusively on properties located in Uganda.
 
 ## Optional
 
-- [Sitemap XML](https://fuganda.com/sitemap.xml)
+- [Sitemap XML](https://verbeek-ug-real-estates.com/sitemap.xml)

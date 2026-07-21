@@ -1,6 +1,6 @@
 import { onBeforeUnmount, toValue, watchEffect } from 'vue';
 
-const APP = 'Fuganda';
+const APP = 'Verbeek.ug Real Estates';
 const DEFAULT_DESCRIPTION =
     'Discover properties for rent and sale across Uganda with quick map search.';
 const IS_PRODUCTION = window.APP_ENV === 'production';
@@ -69,7 +69,7 @@ export function usePageMeta(optsOrFactory = {}) {
     const stop = watchEffect(() => {
         const { title, description, image, robots, type, jsonLd } = resolveOptions(optsOrFactory);
 
-        const fullTitle = title ? `${title} | ${APP}` : `${APP} — Uganda Property Listings`;
+        const fullTitle = title ? `${title} | ${APP}` : `${APP} — Uganda Real Estate Listings`;
         const metaDescription = description || DEFAULT_DESCRIPTION;
         const ogType = type || 'website';
         const canonicalUrl = window.location.origin + window.location.pathname;

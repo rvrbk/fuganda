@@ -6,7 +6,7 @@ const i18n = createI18n({
 	fallbackLocale: 'en',
 	messages: {
 		en: {
-			title: 'Fuganda Property Discovery',
+			title: 'Verbeek.ug Real Estates Property Discovery',
 			tagline: 'Discover listings across Uganda with quick map search.',
 			nav: {
 				home: 'Home',
@@ -191,7 +191,7 @@ const i18n = createI18n({
 			},
 		},
 		lg: {
-			title: 'Fuganda Okunoonya Ebizimbe',
+			title: 'Verbeek.ug Real Estates Okunoonya Ebizimbe',
 			tagline: 'Ebigambo bya Luganda bikyali bya kusembera.',
 			nav: {
 				home: 'Awatandikira',

@@ -4,7 +4,7 @@ Owns quality strategy, test planning, and release confidence.
 
 ## Project Context
 
-**Project:** fuganda
+**Project:** Verbeek.ug Real Estates
 **Requested By:** rvrbk
 **Domain:** Ugandan real estate marketplace
 

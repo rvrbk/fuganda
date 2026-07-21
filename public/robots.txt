@@ -19,5 +19,5 @@ Disallow: /messages
 Disallow: /seller/
 Disallow: /auth/
 
-Sitemap: https://fuganda.com/sitemap.xml
+Sitemap: https://real-estates.verbeek.ug/sitemap.xml
 

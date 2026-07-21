@@ -1,6 +1,6 @@
-# Fuganda
+# Verbeek.ug Real Estates
 
-Laravel 13 API-first multi-tenant SPA scaffold.
+Laravel 13 API-first multi-tenant SPA scaffold for Uganda-focused real estate platform.
 
 ## Stack
 
@@ -66,7 +66,7 @@ php artisan schedule:work
 Production cron entry:
 
 ```bash
-* * * * * cd /path/to/fuganda && php artisan schedule:run >> storage/logs/scheduler-cron.log 2>&1
+* * * * * cd /path/to/verbeek-ug-real-estates && php artisan schedule:run >> storage/logs/scheduler-cron.log 2>&1
 ```
 
 Heartbeat sample writes to `storage/logs/laravel.log`.
