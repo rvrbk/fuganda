@@ -101,11 +101,18 @@ class SocialAuthController extends Controller
                 'oauth_provider_id' => (string) $socialUser->getId(),
             ]);
         } else {
-            $user->forceFill([
+            $updatePayload = [
                 'oauth_provider' => $provider,
                 'oauth_provider_id' => (string) $socialUser->getId(),
                 'email_verified_at' => $user->email_verified_at ?? now(),
-            ])->save();
+            ];
+
+            // If user doesn't have OAuth set up yet, update their role based on the requested role
+            if (empty($user->oauth_provider) && empty($user->oauth_provider_id)) {
+                $updatePayload['role'] = $requestedRole;
+            }
+
+            $user->forceFill($updatePayload)->save();
         }
 
         Auth::login($user, true);
