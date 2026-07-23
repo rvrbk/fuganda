@@ -58,13 +58,6 @@
                 required
             />
 
-            <div v-if="mode === 'signup'" class="space-y-2">
-                <label class="flex cursor-pointer items-center gap-3 rounded-md border border-slate-300 px-3 py-2 text-sm text-slate-700 hover:bg-slate-50">
-                    <input v-model="wantsSellerRole" type="checkbox" class="h-4 w-4 rounded border-slate-300 text-slate-900 focus:ring-slate-500" />
-                    <span>{{ $t('login.sellerOptInLabel') }}</span>
-                </label>
-            </div>
-
             <button class="w-full rounded bg-slate-900 px-4 py-2 text-sm text-white" type="submit">
                 {{ mode === 'signin' ? $t('login.submitSignIn') : $t('login.submitSignUp') }}
             </button>
@@ -104,6 +97,13 @@
             >
                 {{ $t('login.signUpWithEmail') }}
             </button>
+
+            <div v-if="mode === 'signup'" class="space-y-2 pt-2">
+                <label class="flex cursor-pointer items-center gap-3 rounded-md border border-slate-300 px-3 py-2 text-sm text-slate-700 hover:bg-slate-50">
+                    <input v-model="wantsSellerRole" type="checkbox" class="h-4 w-4 rounded border-slate-300 text-slate-900 focus:ring-slate-500" />
+                    <span>{{ $t('login.sellerOptInLabel') }}</span>
+                </label>
+            </div>
         </div>
 
         <p v-if="error" class="mt-3 text-sm text-rose-600">{{ specificError || (mode === 'signin' ? $t('login.errorSignIn') : $t('login.errorSignUp')) }}</p>
@@ -126,7 +126,7 @@ const router = useRouter();
 const { t } = useI18n();
 const error = ref(false);
 const specificError = ref('');
-const mode = ref('signin');
+const mode = ref(route.query.mode === 'signup' ? 'signup' : 'signin');
 const wantsSellerRole = ref(false);
 const socialError = computed(() => {
     if (route.query.social_error === 'role_not_allowed') {
@@ -242,6 +242,14 @@ watch(
     ],
     clearAuthError,
 );
+
+watch(() => route.query.mode, (newMode) => {
+    if (newMode === 'signup') {
+        mode.value = 'signup';
+    } else if (newMode === 'signin') {
+        mode.value = 'signin';
+    }
+});
 
 function loginWithProvider(provider) {
     const baseUrl = window.BACKEND_URL || window.location.origin;

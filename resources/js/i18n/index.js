@@ -14,6 +14,7 @@ const i18n = createI18n({
 				messages: 'Messages',
 				dashboard: 'Dashboard',
 				login: 'Login',
+				signup: 'Sign up',
 				logout: 'Logout',
 			},
 			filters: {
@@ -199,6 +200,7 @@ const i18n = createI18n({
 				messages: 'Obubaka',
 				dashboard: 'Pawulo',
 				login: 'Yingira',
+				signup: 'Okola akawunti',
 				logout: 'Fuluma',
 			},
 			filters: {

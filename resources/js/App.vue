@@ -49,6 +49,7 @@
                 </RouterLink>
                 <RouterLink v-if="profile && canManageListings(profile)" class="rounded px-2 py-1 text-slate-700 hover:bg-slate-100" :to="{ name: 'dashboard' }">{{ $t('nav.dashboard') }}</RouterLink>
                 <RouterLink v-if="!profile" class="rounded px-2 py-1 text-slate-700 hover:bg-slate-100" :to="{ name: 'login' }">{{ $t('nav.login') }}</RouterLink>
+                <RouterLink v-if="!profile" class="rounded px-2 py-1 text-slate-700 hover:bg-slate-100" :to="{ name: 'login', query: { mode: 'signup' } }">{{ $t('nav.signup') }}</RouterLink>
             </nav>
             <div v-if="mobileMenuOpen" id="app-mobile-menu" class="border-t border-slate-200 px-4 pb-4 sm:hidden">
                 <nav class="grid gap-2 pt-3 text-sm">
@@ -64,6 +65,7 @@
                     </RouterLink>
                     <RouterLink v-if="profile && canManageListings(profile)" class="rounded px-2 py-2 text-slate-700 hover:bg-slate-100" :to="{ name: 'dashboard' }">{{ $t('nav.dashboard') }}</RouterLink>
                     <RouterLink v-if="!profile" class="rounded px-2 py-2 text-slate-700 hover:bg-slate-100" :to="{ name: 'login' }">{{ $t('nav.login') }}</RouterLink>
+                    <RouterLink v-if="!profile" class="rounded px-2 py-2 text-slate-700 hover:bg-slate-100" :to="{ name: 'login', query: { mode: 'signup' } }">{{ $t('nav.signup') }}</RouterLink>
                     <button
                         v-if="profile"
                         class="rounded bg-slate-900 px-3 py-2 text-left text-sm text-white"
