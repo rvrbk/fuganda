@@ -106,11 +106,12 @@ function getLoginLinkClass(linkMode) {
 	
 	// 'signin' link is active when current mode is NOT 'signup' (or no mode)
 	if (linkMode === 'signin') {
-		return currentMode !== 'signup' ? 'bg-slate-100 !text-slate-900 font-semibold' : 'text-slate-700 hover:bg-slate-100';
+		return currentMode === 'signin' ? 'bg-slate-100 !text-slate-900 font-semibold' : 'text-slate-700 hover:bg-slate-100';
 	}
-	
-	// 'signup' link is active when current mode IS 'signup'
-	return currentMode === 'signup' ? 'bg-slate-100 !text-slate-900 font-semibold' : 'text-slate-700 hover:bg-slate-100';
+
+    if (linkMode === 'signup') {
+		return currentMode === 'signup' ? 'bg-slate-100 !text-slate-900 font-semibold' : 'text-slate-700 hover:bg-slate-100';
+	}
 }
 let headerObserver = null;
 let removeRouteGuard = null;
