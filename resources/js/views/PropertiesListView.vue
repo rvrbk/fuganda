@@ -291,8 +291,8 @@ async function load() {
 
 onMounted(async () => {
 	const profile = await getProfile();
-	canCreateListing.value = Boolean(profile) && canManageListings(profile);
-	if (canCreateListing.value && !isBuyerProfile(profile)) {
+	canCreateListing.value = Boolean(profile) && canManageListings(profile) && !isBuyerProfile(profile);
+	if (canCreateListing.value) {
 		try {
 			showSubscriptionBlock.value = !(await hasActiveSellerSubscription());
 		} catch {
