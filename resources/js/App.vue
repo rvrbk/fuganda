@@ -48,8 +48,8 @@
                     </span>
                 </RouterLink>
                 <RouterLink v-if="profile && canManageListings(profile)" class="rounded px-2 py-1 text-slate-700 hover:bg-slate-100" :to="{ name: 'dashboard' }">{{ $t('nav.dashboard') }}</RouterLink>
-                <RouterLink v-if="!profile" :class="'rounded px-2 py-1 ' + getLoginLinkClass({ name: 'login' })" :to="{ name: 'login' }">{{ $t('nav.login') }}</RouterLink>
-                <RouterLink v-if="!profile" :class="'rounded px-2 py-1 ' + getLoginLinkClass({ name: 'login', query: { mode: 'signup' } })" :to="{ name: 'login', query: { mode: 'signup' } }">{{ $t('nav.signup') }}</RouterLink>
+                <RouterLink v-if="!profile" :class="'rounded px-2 py-1 ' + getLoginLinkClass('signin')" :to="{ name: 'login' }">{{ $t('nav.login') }}</RouterLink>
+                <RouterLink v-if="!profile" :class="'rounded px-2 py-1 ' + getLoginLinkClass('signup')" :to="{ name: 'login', query: { mode: 'signup' } }">{{ $t('nav.signup') }}</RouterLink>
             </nav>
             <div v-if="mobileMenuOpen" id="app-mobile-menu" class="border-t border-slate-200 px-4 pb-4 sm:hidden">
                 <nav class="grid gap-2 pt-3 text-sm">
@@ -64,8 +64,8 @@
                         </span>
                     </RouterLink>
                     <RouterLink v-if="profile && canManageListings(profile)" class="rounded px-2 py-2 text-slate-700 hover:bg-slate-100" :to="{ name: 'dashboard' }">{{ $t('nav.dashboard') }}</RouterLink>
-                    <RouterLink v-if="!profile" :class="'rounded px-2 py-2 ' + getLoginLinkClass({ name: 'login' })" :to="{ name: 'login' }">{{ $t('nav.login') }}</RouterLink>
-                    <RouterLink v-if="!profile" :class="'rounded px-2 py-2 ' + getLoginLinkClass({ name: 'login', query: { mode: 'signup' } })" :to="{ name: 'login', query: { mode: 'signup' } }">{{ $t('nav.signup') }}</RouterLink>
+                    <RouterLink v-if="!profile" :class="'rounded px-2 py-2 ' + getLoginLinkClass('signin')" :to="{ name: 'login' }">{{ $t('nav.login') }}</RouterLink>
+                    <RouterLink v-if="!profile" :class="'rounded px-2 py-2 ' + getLoginLinkClass('signup')" :to="{ name: 'login', query: { mode: 'signup' } }">{{ $t('nav.signup') }}</RouterLink>
                     <button
                         v-if="profile"
                         class="rounded bg-slate-900 px-3 py-2 text-left text-sm text-white"
@@ -99,18 +99,17 @@ const appHeader = ref(null);
 const mobileMenuOpen = ref(false);
 const { locale } = useI18n();
 
-function getLoginLinkClass(to) {
+function getLoginLinkClass(linkMode) {
 	if (route.name !== 'login') return 'text-slate-700 hover:bg-slate-100';
 	
-	const targetMode = to.query?.mode;
 	const currentMode = route.query.mode;
 	
-	// If link has no mode (default is signin), it's active when current mode is not 'signup'
-	if (!targetMode) {
+	// 'signin' link is active when current mode is NOT 'signup' (or no mode)
+	if (linkMode === 'signin') {
 		return currentMode !== 'signup' ? 'bg-slate-100 !text-slate-900 font-semibold' : 'text-slate-700 hover:bg-slate-100';
 	}
 	
-	// If link has mode='signup', it's active when current mode is 'signup'
+	// 'signup' link is active when current mode IS 'signup'
 	return currentMode === 'signup' ? 'bg-slate-100 !text-slate-900 font-semibold' : 'text-slate-700 hover:bg-slate-100';
 }
 let headerObserver = null;
