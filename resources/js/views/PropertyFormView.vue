@@ -161,6 +161,7 @@ import { useRoute, useRouter } from 'vue-router';
 import { useI18n } from 'vue-i18n';
 import L from 'leaflet';
 import { hasActiveSellerSubscription } from '../services/sellerBilling';
+import { getProfile, isBuyerProfile } from '../services/authProfile';
 import { createProperty, extractApiErrorMessage, getProperty, updateProperty, uploadPropertyMedia } from '../services/properties';
 import { listCitiesByDistrict, listLocations } from '../services/locations';
 import { usePageMeta } from '../composables/usePageMeta';
@@ -618,10 +619,13 @@ function removeMedia(index) {
 }
 
 async function load() {
-	try {
-		showSubscriptionBlock.value = !(await hasActiveSellerSubscription());
-	} catch {
-		showSubscriptionBlock.value = true;
+	const profile = await getProfile();
+	if (!isBuyerProfile(profile)) {
+		try {
+			showSubscriptionBlock.value = !(await hasActiveSellerSubscription());
+		} catch {
+			showSubscriptionBlock.value = true;
+		}
 	}
 
 	const locations = await listLocations();

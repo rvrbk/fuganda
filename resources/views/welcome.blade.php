@@ -63,6 +63,7 @@
         <script type="application/ld+json" data-id="page-jsonld">{!! $structuredData !!}</script>
 
         <script>window.APP_ENV = '{{ app()->environment() }}';</script>
+        <script>window.BACKEND_URL = '{{ rtrim(config("app.url"), "/") }}';</script>
         @vite(['resources/css/app.css', 'resources/js/app.js'])
 
         @if(env('GA_MEASUREMENT_ID'))

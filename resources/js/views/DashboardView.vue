@@ -40,7 +40,7 @@
 
 <script setup>
 import { computed, onMounted, ref } from 'vue';
-import { getProfile } from '../services/authProfile';
+import { getProfile, isBuyerProfile } from '../services/authProfile';
 import { getUnreadMessageCount } from '../services/messages';
 import { hasActiveSellerSubscription } from '../services/sellerBilling';
 import { formatPrice } from '../utils/formatters';
@@ -81,10 +81,12 @@ const loadUnreadCount = async () => {
 onMounted(async () => {
     profile.value = await getProfile(true);
 
-    try {
-        showSubscriptionBlock.value = !(await hasActiveSellerSubscription());
-    } catch {
-        showSubscriptionBlock.value = true;
+    if (!isBuyerProfile(profile.value)) {
+        try {
+            showSubscriptionBlock.value = !(await hasActiveSellerSubscription());
+        } catch {
+            showSubscriptionBlock.value = true;
+        }
     }
 
     await loadUnreadCount();

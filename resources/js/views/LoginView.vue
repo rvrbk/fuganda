@@ -244,12 +244,14 @@ watch(
 );
 
 function loginWithProvider(provider) {
+    const baseUrl = window.BACKEND_URL || window.location.origin;
+    
     if (mode.value === 'signup') {
         const encodedRole = encodeURIComponent(wantsSellerRole.value ? 'seller' : 'buyer');
-        window.location.assign(`/auth/${provider}/redirect?role=${encodedRole}`);
+        window.location.assign(`${baseUrl}/auth/${provider}/redirect?role=${encodedRole}`);
         return;
     }
 
-    window.location.assign(`/auth/${provider}/redirect`);
+    window.location.assign(`${baseUrl}/auth/${provider}/redirect`);
 }
 </script>

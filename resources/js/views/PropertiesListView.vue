@@ -151,7 +151,7 @@
 import { computed, nextTick, onMounted, ref, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import PropertyMap from '../components/PropertyMap.vue';
-import { canManageListings, getProfile } from '../services/authProfile';
+import { canManageListings, getProfile, isBuyerProfile } from '../services/authProfile';
 import { hasActiveSellerSubscription } from '../services/sellerBilling';
 import { listProperties } from '../services/properties';
 import { listLocations, listCitiesByDistrict } from '../services/locations';
@@ -292,7 +292,7 @@ async function load() {
 onMounted(async () => {
 	const profile = await getProfile();
 	canCreateListing.value = Boolean(profile) && canManageListings(profile);
-	if (canCreateListing.value) {
+	if (canCreateListing.value && !isBuyerProfile(profile)) {
 		try {
 			showSubscriptionBlock.value = !(await hasActiveSellerSubscription());
 		} catch {
