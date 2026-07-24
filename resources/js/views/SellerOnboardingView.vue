@@ -4,16 +4,11 @@
         <h2 class="mt-2 text-2xl font-semibold text-slate-900">{{ $t('sellerOnboarding.title') }}</h2>
         <p class="mt-2 text-sm text-slate-600">{{ $t('sellerOnboarding.intro') }}</p>
 
-        <div class="mt-5 grid gap-3 md:grid-cols-2">
+        <div class="mt-5 grid gap-3 md:grid-cols-1">
             <article class="rounded-md border border-slate-200 bg-slate-50 p-4">
                 <h3 class="text-sm font-semibold text-slate-900">{{ $t('sellerOnboarding.monthlyTitle') }}</h3>
                 <p class="mt-1 text-base font-semibold text-slate-900">{{ $t('sellerOnboarding.monthlyPrice') }}</p>
                 <p class="mt-1 text-sm text-slate-600">{{ $t('sellerOnboarding.monthlyCopy') }}</p>
-            </article>
-            <article class="rounded-md border border-slate-200 bg-slate-50 p-4">
-                <h3 class="text-sm font-semibold text-slate-900">{{ $t('sellerOnboarding.publishFeeTitle') }}</h3>
-                <p class="mt-1 text-base font-semibold text-slate-900">{{ $t('sellerOnboarding.publishFeePrice') }}</p>
-                <p class="mt-1 text-sm text-slate-600">{{ $t('sellerOnboarding.publishFeeCopy') }}</p>
             </article>
         </div>
 
