@@ -15,7 +15,7 @@ use Throwable;
 
 class SocialAuthController extends Controller
 {
-    private const ALLOWED_PROVIDERS = ['google', 'apple'];
+    private const ALLOWED_PROVIDERS = ['google'];
     private const ALLOWED_ROLES = ['buyer', 'seller'];
 
     public function redirect(string $provider): RedirectResponse

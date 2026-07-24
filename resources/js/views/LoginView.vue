@@ -80,16 +80,6 @@
                 {{ $t('login.continueWithGoogle') }}
             </button>
             <button
-                class="flex w-full items-center justify-center gap-2 rounded border border-slate-300 px-4 py-2 text-sm text-slate-700 hover:bg-slate-50"
-                type="button"
-                @click="loginWithProvider('apple')"
-            >
-                <svg aria-hidden="true" class="h-4 w-4" viewBox="0 0 24 24" fill="currentColor">
-                    <path d="M17.04 12.68c.03 2.64 2.3 3.52 2.32 3.53-.02.06-.36 1.24-1.18 2.46-.71 1.05-1.45 2.09-2.6 2.11-1.13.02-1.5-.67-2.8-.67-1.3 0-1.72.65-2.77.69-1.11.04-1.96-1.12-2.68-2.16-1.47-2.13-2.6-6.01-1.09-8.64.75-1.31 2.1-2.14 3.57-2.16 1.11-.02 2.16.75 2.8.75.64 0 1.86-.93 3.14-.79.54.02 2.05.22 3.02 1.64-.08.05-1.8 1.05-1.77 3.24Zm-2.23-6.11c.59-.72.99-1.71.88-2.71-.85.03-1.88.57-2.49 1.28-.54.62-1.01 1.62-.88 2.58.95.07 1.91-.48 2.49-1.15Z"/>
-                </svg>
-                {{ $t('login.continueWithApple') }}
-            </button>
-            <button
                 v-if="mode === 'signin'"
                 class="w-full rounded border border-slate-300 px-4 py-2 text-sm text-slate-700 hover:bg-slate-50"
                 type="button"

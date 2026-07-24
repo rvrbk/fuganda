@@ -18,11 +18,11 @@ Route::get('/sitemap.xml', function () {
 })->name('sitemap');
 
 Route::get('/auth/{provider}/redirect', [SocialAuthController::class, 'redirect'])
-    ->whereIn('provider', ['google', 'apple'])
+    ->whereIn('provider', ['google'])
     ->name('auth.social.redirect');
 
 Route::get('/auth/{provider}/callback', [SocialAuthController::class, 'callback'])
-    ->whereIn('provider', ['google', 'apple'])
+    ->whereIn('provider', ['google'])
     ->name('auth.social.callback');
 
 Route::get('/reset-password/{token}', function () {

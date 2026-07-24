@@ -41,12 +41,6 @@ return [
         'redirect' => env('GOOGLE_REDIRECT_URI'),
     ],
 
-    'apple' => [
-        'client_id' => env('APPLE_CLIENT_ID'),
-        'client_secret' => env('APPLE_CLIENT_SECRET'),
-        'redirect' => env('APPLE_REDIRECT_URI'),
-    ],
-
     'pesapal' => [
         'base_url' => env('PESAPAL_BASE_URL', 'https://pay.pesapal.com/v3'),
         'consumer_key' => env('PESAPAL_CONSUMER_KEY'),
