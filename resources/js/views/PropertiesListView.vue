@@ -316,6 +316,11 @@ watch(() => route.query, (query) => {
 	.properties-filters-pane {
 		max-width: calc(100% - 0.75rem);
 	}
+	
+	.properties-filters-pane form {
+		max-height: 80vh;
+		overflow-y: auto;
+	}
 }
 
 :deep(.leaflet-control-container .leaflet-top) {
