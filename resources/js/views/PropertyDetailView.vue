@@ -69,41 +69,54 @@
 
 		<PropertyMap :markers="propertyMarkers" />
 
-		<form v-if="canSendMessage" class="space-y-2 rounded-lg border border-slate-200 bg-slate-50 p-4" @submit.prevent="sendMessage">
+		<div v-if="canSendMessage" class="space-y-2 rounded-lg border border-slate-200 bg-slate-50 p-4">
 			<h3 class="font-medium text-slate-900">{{ $t('messages.contactAgent') }}</h3>
-			<p
-				v-if="messageFeedback"
-				class="rounded border px-3 py-2 text-sm"
-				:class="messageFeedback.type === 'success' ? 'border-emerald-200 bg-emerald-50 text-emerald-800' : 'border-rose-200 bg-rose-50 text-rose-800'"
-			>
-				{{ messageFeedback.text }}
-			</p>
-			<input
-				v-if="isGuestUser"
-				v-model="message.email"
-				class="w-full rounded border border-slate-300 px-3 py-2 text-sm"
-				type="email"
-				:placeholder="$t('messages.guestEmail')"
-				required
-				@input="clearMessageFeedback"
-			/>
-			<input
-				v-model="message.subject"
-				class="w-full rounded border border-slate-300 px-3 py-2 text-sm"
-				:placeholder="$t('messages.subject')"
-				required
-				@input="clearMessageFeedback"
-			/>
-			<textarea
-				v-model="message.body"
-				class="w-full rounded border border-slate-300 px-3 py-2 text-sm"
-				rows="3"
-				:placeholder="$t('messages.body')"
-				required
-				@input="clearMessageFeedback"
-			></textarea>
-			<button class="rounded bg-sky-700 px-3 py-2 text-sm text-white" type="submit">{{ $t('actions.send') }}</button>
-		</form>
+			
+			<div v-if="!hasBuyerSubscription && !isGuestUser" class="rounded-lg border border-amber-300 bg-amber-50 px-3 py-2 text-sm text-amber-900">
+				<p>{{ $t('buyerOnboarding.blockingCallout') }}</p>
+				<button
+					class="mt-2 rounded bg-sky-700 px-3 py-1.5 text-xs text-white"
+					@click="initiateBuyerSubscription"
+				>
+					{{ $t('buyerOnboarding.subscribeNow') }}
+				</button>
+			</div>
+			
+			<form v-else @submit.prevent="sendMessage">
+				<p
+					v-if="messageFeedback"
+					class="rounded border px-3 py-2 text-sm"
+					:class="messageFeedback.type === 'success' ? 'border-emerald-200 bg-emerald-50 text-emerald-800' : 'border-rose-200 bg-rose-50 text-rose-800'"
+				>
+					{{ messageFeedback.text }}
+				</p>
+				<input
+					v-if="isGuestUser"
+					v-model="message.email"
+					class="w-full rounded border border-slate-300 px-3 py-2 text-sm"
+					type="email"
+					:placeholder="$t('messages.guestEmail')"
+					required
+					@input="clearMessageFeedback"
+				/>
+				<input
+					v-model="message.subject"
+					class="w-full rounded border border-slate-300 px-3 py-2 text-sm"
+					:placeholder="$t('messages.subject')"
+					required
+					@input="clearMessageFeedback"
+				/>
+				<textarea
+					v-model="message.body"
+					class="w-full rounded border border-slate-300 px-3 py-2 text-sm"
+					rows="3"
+					:placeholder="$t('messages.body')"
+					required
+					@input="clearMessageFeedback"
+				></textarea>
+				<button class="rounded bg-sky-700 px-3 py-2 text-sm text-white" type="submit">{{ $t('actions.send') }}</button>
+			</form>
+		</div>
 	</section>
 </template>
 
@@ -117,6 +130,7 @@ import { createGuestPropertyContact, createMessage } from '../services/messages'
 import { getProperty } from '../services/properties';
 import { formatPrice } from '../utils/formatters';
 import { usePageMeta } from '../composables/usePageMeta';
+import { hasActiveBuyerSubscription, initiateBuyerBillingCheckout } from '../services/buyerBilling';
 
 const route = useRoute();
 const { t } = useI18n();
@@ -168,6 +182,8 @@ const message = ref({ email: '', subject: '', body: '' });
 const messageFeedback = ref(null);
 const profile = ref(null);
 const activeMediaIndex = ref(0);
+const hasBuyerSubscription = ref(false);
+const isCheckingSubscription = ref(false);
 
 const mediaItems = computed(() => {
 	if (!property.value) {
@@ -265,9 +281,43 @@ function clearMessageFeedback() {
 	}
 }
 
+async function checkBuyerSubscription() {
+	if (isGuestUser.value) {
+		hasBuyerSubscription.value = false;
+		return;
+	}
+	
+	isCheckingSubscription.value = true;
+	try {
+		hasBuyerSubscription.value = await hasActiveBuyerSubscription();
+	} catch {
+		hasBuyerSubscription.value = false;
+	} finally {
+		isCheckingSubscription.value = false;
+	}
+}
+
+async function initiateBuyerSubscription() {
+	try {
+		const result = await initiateBuyerBillingCheckout({
+			payment_method: 'mobile_money',
+			billing_email: profile.value?.email || '',
+		});
+		
+		if (result.redirectUrl) {
+			window.location.href = result.redirectUrl;
+		} else if (result.active) {
+			hasBuyerSubscription.value = true;
+		}
+	} catch (error) {
+		console.error('Failed to initiate buyer subscription:', error);
+	}
+}
+
 onMounted(async () => {
 	profile.value = await getProfile();
-
+	
 	await load();
+	await checkBuyerSubscription();
 });
 </script>

@@ -3,7 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
-use App\Services\SellerBillingService;
+use App\Services\BuyerBillingService;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\JsonResponse;
@@ -11,23 +11,19 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 
-class SellerBillingController extends Controller
+class BuyerBillingController extends Controller
 {
-    public function __construct(private readonly SellerBillingService $billingService)
+    public function __construct(private readonly BuyerBillingService $billingService)
     {
     }
 
     public function status(Request $request): JsonResponse
     {
-        $this->authorizeSellerAccess($request);
-
         return response()->json($this->billingService->statusFor($request->user()));
     }
 
     public function subscribe(Request $request): JsonResponse
     {
-        $this->authorizeSellerAccess($request);
-
         $validated = $request->validate([
             'plan_code' => ['sometimes', 'string', 'max:100'],
             'amount_ugx' => ['sometimes', 'integer', 'min:0'],
@@ -42,8 +38,8 @@ class SellerBillingController extends Controller
         $subscription = $result['subscription'];
 
         return response()->json([
-            'seller_has_active_subscription' => $this->billingService->hasActiveSubscription($request->user()->fresh('sellerSubscription')),
-            'seller_subscription_status' => $subscription->status,
+            'buyer_has_active_subscription' => $this->billingService->hasActiveSubscription($request->user()->fresh('buyerSubscription')),
+            'buyer_subscription_status' => $subscription->status,
             'subscription' => $subscription,
             'checkout' => $result['checkout'],
             'checkout_url' => data_get($result, 'checkout.url'),
@@ -61,10 +57,6 @@ class SellerBillingController extends Controller
         }
 
         $this->billingService->handlePesapalWebhookPayload($payload);
-
-        // Also handle buyer subscriptions from the same webhook
-        $buyerBillingService = app(\App\Services\BuyerBillingService::class);
-        $buyerBillingService->handlePesapalWebhookPayload($payload);
 
         return response()->json(['received' => true]);
     }
@@ -92,15 +84,6 @@ class SellerBillingController extends Controller
             'order_tracking_id' => $orderTrackingId,
         ]));
 
-        // Also try to process as buyer subscription if not processed as seller
-        if (! $processed) {
-            $buyerBillingService = app(\App\Services\BuyerBillingService::class);
-            $processed = $buyerBillingService->handlePesapalCallbackPayload(array_filter([
-                'merchant_reference' => $merchantReference,
-                'order_tracking_id' => $orderTrackingId,
-            ]));
-        }
-
         if (! $processed) {
             Log::warning('Pesapal callback could not be processed.', [
                 'query' => $request->query(),
@@ -125,6 +108,17 @@ class SellerBillingController extends Controller
         return response()->json(['received' => true]);
     }
 
+    public function cancel(Request $request): JsonResponse
+    {
+        $subscription = $this->billingService->cancel($request->user());
+
+        return response()->json([
+            'buyer_has_active_subscription' => false,
+            'buyer_subscription_status' => $subscription->status,
+            'subscription' => $subscription,
+        ]);
+    }
+
     private function firstNonEmpty(Request $request, array $keys): string
     {
         foreach ($keys as $key) {
@@ -140,43 +134,13 @@ class SellerBillingController extends Controller
     private function resolveCallbackRedirectPath(string $merchantReference, bool $processed): string
     {
         $reference = strtolower(trim($merchantReference));
-        $isPublishFeeReference = str_starts_with($reference, 'pub_');
-        $isBuyerSubscriptionReference = str_starts_with($reference, 'buyer_sub_');
 
-        if ($isPublishFeeReference) {
-            return $processed
-                ? '/?owned=1&created=1'
-                : '/?owned=1&created=1&billing_result=pending';
-        }
-
-        if ($isBuyerSubscriptionReference) {
+        if (str_starts_with($reference, 'buyer_sub_')) {
             return $processed
                 ? '/properties?buyer_subscription=active'
                 : '/properties?buyer_subscription=pending';
         }
 
-        return '/seller/onboarding?billing_result=pending';
-    }
-
-    public function cancel(Request $request): JsonResponse
-    {
-        $this->authorizeSellerAccess($request);
-
-        $subscription = $this->billingService->cancel($request->user());
-
-        return response()->json([
-            'seller_has_active_subscription' => false,
-            'seller_subscription_status' => $subscription->status,
-            'subscription' => $subscription,
-        ]);
-    }
-
-    private function authorizeSellerAccess(Request $request): void
-    {
-        $user = $request->user();
-
-        if (! $user->isSeller() && ! $user->isAdmin()) {
-            throw new AuthorizationException('Only sellers can manage billing.');
-        }
+        return '/properties?billing_result=pending';
     }
 }

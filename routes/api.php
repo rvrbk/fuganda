@@ -54,6 +54,12 @@ Route::middleware('auth:sanctum')->prefix('seller/billing')->group(function () {
     Route::post('cancel', [SellerBillingController::class, 'cancel']);
 });
 
+Route::middleware('auth:sanctum')->prefix('buyer/billing')->group(function () {
+    Route::get('status', [\App\Http\Controllers\Api\BuyerBillingController::class, 'status']);
+    Route::post('subscribe', [\App\Http\Controllers\Api\BuyerBillingController::class, 'subscribe']);
+    Route::post('cancel', [\App\Http\Controllers\Api\BuyerBillingController::class, 'cancel']);
+});
+
 Route::post('webhooks/pesapal', [SellerBillingController::class, 'pesapalWebhook']);
 Route::post('callbacks/pesapal', [SellerBillingController::class, 'pesapalCallback']);
 Route::get('callbacks/pesapal', [SellerBillingController::class, 'pesapalCallback']);

@@ -54,6 +54,11 @@ class User extends Authenticatable
         return $this->hasMany(SellerPublishFee::class);
     }
 
+    public function buyerSubscription(): HasOne
+    {
+        return $this->hasOne(BuyerSubscription::class)->ofMany('id', 'max');
+    }
+
     public function sentMessages(): HasMany
     {
         return $this->hasMany(Message::class, 'sender_id');

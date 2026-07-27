@@ -186,6 +186,10 @@ const i18n = createI18n({
 				blockingCallout: 'You need an active seller subscription before creating or publishing listings.',
 				openOnboarding: 'Open seller onboarding',
 			},
+			buyerOnboarding: {
+				blockingCallout: 'You need an active buyer subscription to contact sellers and view contact details.',
+				subscribeNow: 'Subscribe for UGX 10,000/month',
+			},
 		},
 		lg: {
 			title: 'Verbeek.ug Real Estates Okunoonya Ebizimbe',
@@ -367,6 +371,10 @@ const i18n = createI18n({
 				continueBlocked: 'Subscription tennaba kukola. Sooka osobozese nga tonneyongera.',
 				blockingCallout: 'Weetaaga seller subscription ekola nga tonnakola oba okutwaliza listing ku maapu.',
 				openOnboarding: 'Ggulawo seller onboarding',
+			},
+			buyerOnboarding: {
+				blockingCallout: 'Weetaaga buyer subscription ekola nga tonna kiyita ku seller ne kulyoka contact details.',
+				subscribeNow: 'Ssobozesa ku UGX 10,000/buli mwezi',
 			},
 		},
 	},
