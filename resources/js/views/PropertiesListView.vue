@@ -86,7 +86,7 @@
 			</form>
 		</div>
 
-		<div class="absolute inset-x-0 bottom-0 z-[1000]">
+		<div class="absolute inset-x-0 bottom-0 z-[1000]" :class="mobileFiltersOpen ? 'sm:block hidden' : ''">
 			<div class="border-t border-slate-200 bg-white/95 px-3 pb-3 pt-2 shadow-2xl backdrop-blur sm:px-4 sm:pb-4">
 				<div class="mb-2 flex items-center justify-between">
 					<p class="text-xs font-semibold text-slate-700 sm:text-sm">{{ $t('properties.results', { n: properties.length }) }}</p>
