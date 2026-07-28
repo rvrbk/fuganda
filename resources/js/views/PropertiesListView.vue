@@ -264,6 +264,7 @@ function search() {
 		Object.entries(filters.value).filter(([, value]) => value !== '' && value !== null && !Number.isNaN(value)),
 	);
 	router.replace({ name: 'home', query });
+	mobileFiltersOpen.value = false;
 }
 
 function clearFilters() {
@@ -278,6 +279,7 @@ function clearFilters() {
 	}
 
 	router.replace({ name: 'home', query });
+	mobileFiltersOpen.value = false;
 }
 
 async function load() {
