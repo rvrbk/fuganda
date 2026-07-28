@@ -72,7 +72,17 @@
 		<div v-if="canSendMessage" class="space-y-2 rounded-lg border border-slate-200 bg-slate-50 p-4">
 			<h3 class="font-medium text-slate-900">{{ $t('messages.contactAgent') }}</h3>
 			
-			<div v-if="!hasPaidContactFee && !isGuestUser" class="rounded-lg border border-amber-300 bg-amber-50 px-3 py-2 text-sm text-amber-900">
+			<div v-if="isGuestUser" class="rounded-lg border border-amber-300 bg-amber-50 px-3 py-2 text-sm text-amber-900">
+				<p>{{ $t('buyerContact.loginRequired') }}</p>
+				<RouterLink
+					class="mt-2 inline-block rounded bg-sky-700 px-3 py-1.5 text-xs text-white"
+					:to="{ name: 'login', query: { redirect: `/properties/${property?.id}` } }"
+				>
+					{{ $t('nav.login') }}
+				</RouterLink>
+			</div>
+			
+			<div v-else-if="!hasPaidContactFee" class="rounded-lg border border-amber-300 bg-amber-50 px-3 py-2 text-sm text-amber-900">
 				<p>{{ $t('buyerContact.blockingCallout', { amount: formatPrice(10000, 'UGX') }) }}</p>
 				<button
 					class="mt-2 rounded bg-sky-700 px-3 py-1.5 text-xs text-white"
@@ -90,15 +100,6 @@
 				>
 					{{ messageFeedback.text }}
 				</p>
-				<input
-					v-if="isGuestUser"
-					v-model="message.email"
-					class="w-full rounded border border-slate-300 px-3 py-2 text-sm"
-					type="email"
-					:placeholder="$t('messages.guestEmail')"
-					required
-					@input="clearMessageFeedback"
-				/>
 				<input
 					v-model="message.subject"
 					class="w-full rounded border border-slate-300 px-3 py-2 text-sm"
@@ -126,7 +127,7 @@ import { useI18n } from 'vue-i18n';
 import { useRoute } from 'vue-router';
 import PropertyMap from '../components/PropertyMap.vue';
 import { canManageListings, getProfile } from '../services/authProfile';
-import { createGuestPropertyContact, createMessage } from '../services/messages';
+import { createMessage } from '../services/messages';
 import { getProperty } from '../services/properties';
 import { formatPrice } from '../utils/formatters';
 import { usePageMeta } from '../composables/usePageMeta';
@@ -242,27 +243,13 @@ async function load() {
 }
 
 async function sendMessage() {
-	if (!property.value || !canSendMessage.value) {
+	if (!property.value || !canSendMessage.value || !hasPaidContactFee.value) {
 		return;
 	}
 
 	try {
-		if (isGuestUser.value) {
-			await createGuestPropertyContact({
-				...message.value,
-				propertyId: property.value.id,
-			});
-
-			message.value = { email: '', subject: '', body: '' };
-			messageFeedback.value = {
-				type: 'success',
-				text: t('messages.guestSendSuccess'),
-			};
-			return;
-		}
-
 		await createMessage({ ...message.value, propertyId: property.value.id });
-		message.value = { email: '', subject: '', body: '' };
+		message.value = { subject: '', body: '' };
 		messageFeedback.value = {
 			type: 'success',
 			text: t('messages.sendSuccess'),

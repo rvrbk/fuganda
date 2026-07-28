@@ -188,6 +188,7 @@ const i18n = createI18n({
 			},
 			buyerContact: {
 				blockingCallout: 'To contact the seller, pay {amount} per property.',
+				loginRequired: 'Please log in to contact the seller.',
 				payNow: 'Pay {amount} now',
 				paymentSuccess: 'Payment received! You can now contact the seller.',
 			},
@@ -375,6 +376,7 @@ const i18n = createI18n({
 			},
 			buyerContact: {
 				blockingCallout: 'Okukyita ku seller, lasa {amount} ku property.',
+				loginRequired: 'Wanjoyze okwengera obuyambi obwogera okukyita ku seller.',
 				payNow: 'Lasa {amount} kati',
 				paymentSuccess: 'Ssente ezaatebwa! Kati osobola okukyita ku seller.',
 			},
