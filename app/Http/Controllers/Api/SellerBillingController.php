@@ -62,6 +62,10 @@ class SellerBillingController extends Controller
 
         $this->billingService->handlePesapalWebhookPayload($payload);
 
+        // Also handle buyer contact fees from the same webhook
+        $contactService = app(\App\Services\BuyerContactService::class);
+        $contactService->handlePesapalWebhookPayload($payload);
+
         return response()->json(['received' => true]);
     }
 
@@ -87,6 +91,15 @@ class SellerBillingController extends Controller
             'merchant_reference' => $merchantReference,
             'order_tracking_id' => $orderTrackingId,
         ]));
+
+        // Also try to process as buyer contact fee if not processed as seller fee
+        if (! $processed) {
+            $contactService = app(\App\Services\BuyerContactService::class);
+            $processed = $contactService->handlePesapalCallbackPayload(array_filter([
+                'merchant_reference' => $merchantReference,
+                'order_tracking_id' => $orderTrackingId,
+            ]));
+        }
 
         if (! $processed) {
             Log::warning('Pesapal callback could not be processed.', [
@@ -128,11 +141,21 @@ class SellerBillingController extends Controller
     {
         $reference = strtolower(trim($merchantReference));
         $isPublishFeeReference = str_starts_with($reference, 'pub_');
+        $isContactFeeReference = str_starts_with($reference, 'contact_');
 
         if ($isPublishFeeReference) {
             return $processed
                 ? '/?owned=1&created=1'
                 : '/?owned=1&created=1&billing_result=pending';
+        }
+
+        if ($isContactFeeReference) {
+            // Extract property ID from reference format: contact_{user_id}_{property_id}_{timestamp}
+            $parts = explode('_', $reference);
+            $propertyId = $parts[2] ?? null;
+            return $processed && $propertyId
+                ? "/properties/{$propertyId}?contact_paid=1"
+                : "/properties/{$propertyId}?contact_pending=1";
         }
 
         return '/seller/onboarding?billing_result=pending';

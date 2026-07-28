@@ -1,0 +1,54 @@
+<?php
+
+namespace App\Models;
+
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+
+class BuyerContactFee extends Model
+{
+    protected $fillable = [
+        'user_id',
+        'property_id',
+        'provider',
+        'amount_ugx',
+        'currency',
+        'payment_method',
+        'payment_reference_masked',
+        'billing_email',
+        'checkout_session_id',
+        'provider_transaction_id',
+        'provider_last_event_id',
+        'reference',
+        'status',
+        'payment_status',
+        'charged_at',
+        'callback_received_at',
+        'payment_request_sent_at',
+    ];
+
+    protected function casts(): array
+    {
+        return [
+            'amount_ugx' => 'integer',
+            'charged_at' => 'datetime',
+            'callback_received_at' => 'datetime',
+            'payment_request_sent_at' => 'datetime',
+        ];
+    }
+
+    public function user(): BelongsTo
+    {
+        return $this->belongsTo(User::class);
+    }
+
+    public function property(): BelongsTo
+    {
+        return $this->belongsTo(Property::class);
+    }
+
+    public function isPaid(): bool
+    {
+        return $this->status === 'charged' || $this->payment_status === 'paid';
+    }
+}
