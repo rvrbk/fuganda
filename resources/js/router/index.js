@@ -62,11 +62,11 @@ router.beforeEach(async (to) => {
             return { name: 'login', query: { redirect: to.fullPath } };
         }
 
-        if (to.meta.requiresSellerRole && !canManageListings(profile)) {
+        if (to.meta.requiresSellerRole && !await canManageListings(profile)) {
             return { name: 'forbidden', query: { from: to.fullPath } };
         }
 
-        if (canManageListings(profile)) {
+        if (await canManageListings(profile)) {
             let hasActiveSubscription = false;
             try {
                 hasActiveSubscription = await hasActiveSellerSubscription();

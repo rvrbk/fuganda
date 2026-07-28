@@ -313,7 +313,7 @@ async function initiateContactPayment() {
 
 onMounted(async () => {
 	profile.value = await getProfile();
-
+	
 	await load();
 	await checkContactFeePayment();
 });

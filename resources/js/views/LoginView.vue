@@ -191,7 +191,7 @@ async function submit() {
 
         emit('auth-changed');
 
-        const isSellerAccount = canManageListings(profile);
+        const isSellerAccount = await canManageListings(profile);
         if (isSellerAccount) {
             let hasActiveSubscription = false;
             try {
@@ -206,7 +206,7 @@ async function submit() {
             }
         }
 
-        const fallbackRoute = canManageListings(profile)
+        const fallbackRoute = await canManageListings(profile)
             ? { name: 'dashboard' }
             : { name: 'home' };
 
