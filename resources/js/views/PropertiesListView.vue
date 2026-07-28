@@ -46,7 +46,7 @@
 			<form
 				class="gap-2 sm:grid sm:grid-cols-2 md:grid-cols-4"
 				:class="mobileFiltersOpen
-					? 'absolute left-0 right-0 top-full z-[1010] mt-2 grid rounded-lg border border-slate-200 bg-white p-3 shadow-xl sm:static sm:mt-0 sm:border-0 sm:bg-transparent sm:p-0 sm:shadow-none'
+					? 'absolute left-0 right-0 top-full z-[1010] mt-2 grid max-h-[80vh] overflow-y-auto rounded-lg border border-slate-200 bg-white p-3 shadow-xl sm:static sm:mt-0 sm:border-0 sm:bg-transparent sm:max-h-none sm:overflow-visible sm:p-0 sm:shadow-none'
 					: 'hidden sm:grid'"
 				@submit.prevent="search"
 			>
@@ -315,11 +315,6 @@ watch(() => route.query, (query) => {
 @media (max-width: 639px) {
 	.properties-filters-pane {
 		max-width: calc(100% - 0.75rem);
-	}
-	
-	.properties-filters-pane form {
-		max-height: 80vh;
-		overflow-y: auto;
 	}
 }
 
