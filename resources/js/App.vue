@@ -3,7 +3,7 @@
         <header ref="appHeader" class="relative z-40 border-b border-slate-200 bg-white">
             <div class="mx-auto flex max-w-6xl items-center justify-between gap-3 px-4 py-4">
                 <div>
-                    <h1 class="text-xl font-semibold text-slate-900">{{ $t('title') }}</h1>
+                    <h1 class="text-xl font-semibold text-slate-900"><span class="sm:inline hidden">verbeek.ug </span>Real Estates</h1>
                     <p class="text-sm text-slate-500">{{ $t('tagline') }}</p>
                 </div>
                 <div class="flex items-center gap-2">
