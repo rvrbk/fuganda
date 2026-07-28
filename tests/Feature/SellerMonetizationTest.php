@@ -59,7 +59,7 @@ class SellerMonetizationTest extends TestCase
         $this->assertDatabaseCount('seller_publish_fees', 0);
     }
 
-    public function test_seller_pays_publish_fee_once_per_property(): void
+    public function test_seller_can_publish_multiple_times_with_active_subscription(): void
     {
         $seller = User::factory()->seller()->create();
 
@@ -77,7 +77,7 @@ class SellerMonetizationTest extends TestCase
             'corporation_id' => null,
             'user_id' => $seller->id,
             'title' => 'Republish Listing',
-            'description' => 'Used to verify one-time publish fee behavior',
+            'description' => 'Used to verify publish behavior with subscription',
             'price_ugx' => 1300000,
             'listing_type' => 'sale',
             'property_type' => 'house',
@@ -101,12 +101,12 @@ class SellerMonetizationTest extends TestCase
             'status' => 'published',
         ])->assertOk();
 
-        $this->assertDatabaseCount('seller_publish_fees', 1);
+        // No per-listing fees - sellers with active subscriptions can publish freely
+        $this->assertDatabaseCount('seller_publish_fees', 0);
 
-        $fee = SellerPublishFee::query()->where('property_id', $property->id)->first();
-        $this->assertNotNull($fee);
-        $this->assertSame('charged', $fee->status);
-        $this->assertSame(500, (int) $fee->amount_ugx);
+        $property->refresh();
+        $this->assertSame('published', $property->status);
+        $this->assertNotNull($property->published_at);
     }
 
     public function test_admin_can_publish_without_subscription_and_is_fee_exempt(): void

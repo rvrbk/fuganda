@@ -264,12 +264,10 @@ async function setupMockedPaymentEnvironment(page: Page, options: SetupOptions):
                 bathrooms: 2,
                 latitude: 0.3476,
                 longitude: 32.5825,
-                status: 'draft',
-                published_at: null,
+                status: 'published',
+                published_at: new Date().toISOString(),
                 user: { id: 101, name: 'Seller Test User' },
                 images: [],
-                publish_fee_payment_required: true,
-                publish_fee_checkout_url: '/?owned=1&created=1',
             };
 
             await route.fulfill({
@@ -368,14 +366,12 @@ test.describe('seller payment flow with screenshots', () => {
     });
 
     /**
-     * Scenario 2: Active seller creates a listing — per-property publish fee
+     * Scenario 2: Active seller creates a listing — direct publish with subscription
      *
-     * After saving the form the API returns publish_fee_payment_required=true
-     * together with a checkout URL.  The component redirects the browser to that
-     * URL (mocked to return to /?owned=1&created=1).  The success notice
-     * "Property placed successfully." is shown on the home/listings screen.
+     * Sellers with active subscriptions can create and publish listings directly
+     * without per-property fees. The property is created with published status.
      */
-    test('pay per property — create listing triggers publish fee and shows confirmation', async ({
+    test('direct publish — seller with subscription creates listing without per-property fee', async ({
         page,
     }, testInfo) => {
         const billingState: BillingSessionState = {
@@ -404,12 +400,10 @@ test.describe('seller payment flow with screenshots', () => {
                 bathrooms: 2,
                 latitude: 0.3476,
                 longitude: 32.5825,
-                status: 'draft',
+                status: 'published',
+                published_at: new Date().toISOString(),
                 user: { id: 101, name: 'Seller Test User' },
                 images: [],
-                // Triggers window.location.assign() in the form component
-                publish_fee_payment_required: true,
-                publish_fee_checkout_url: '/?owned=1&created=1',
             }),
             propertiesList: [
                 {
@@ -428,7 +422,7 @@ test.describe('seller payment flow with screenshots', () => {
                     latitude: 0.3476,
                     longitude: 32.5825,
                     status: 'published',
-                    published_at: null,
+                    published_at: new Date().toISOString(),
                     user: { id: 101, name: 'Seller Test User' },
                     images: [
                         { path: '/storage/test-property.jpg', sort_order: 0, mime_type: 'image/jpeg' },
@@ -440,26 +434,26 @@ test.describe('seller payment flow with screenshots', () => {
         // ── Step 1: Create Listing form loads ─────────────────────────────
         await page.goto('/properties/new');
         await expect(page.getByRole('heading', { name: /Create listing/i })).toBeVisible();
-        await captureScenarioStep(page, testInfo, 'pay-per-property', 1, 'create-listing-loaded');
+        await captureScenarioStep(page, testInfo, 'direct-publish', 1, 'create-listing-loaded');
 
         // ── Step 2: Fill in the property form ────────────────────────────
         await fillPropertyForm(page);
-        await captureScenarioStep(page, testInfo, 'pay-per-property', 2, 'form-filled');
+        await captureScenarioStep(page, testInfo, 'direct-publish', 2, 'form-filled');
 
-        // ── Step 3: Save — API returns publish fee checkout URL ──────────
+        // ── Step 3: Save — property is created and published directly ────
         const saveButton = page.getByRole('button', { name: /^Save$/i });
         await expect(saveButton).toBeEnabled();
-        await captureScenarioStep(page, testInfo, 'pay-per-property', 3, 'save-button-enabled');
+        await captureScenarioStep(page, testInfo, 'direct-publish', 3, 'save-button-enabled');
         await saveButton.click();
 
         // ── Step 4: Browser redirected to /?owned=1&created=1 ────────────
         await page.waitForURL((url) => url.pathname === '/' && url.searchParams.get('owned') === '1');
         await expect(page.getByText(/Property placed successfully\./i)).toBeVisible();
-        await captureScenarioStep(page, testInfo, 'pay-per-property', 4, 'placed-success-notice');
+        await captureScenarioStep(page, testInfo, 'direct-publish', 4, 'placed-success-notice');
 
         // ── Step 5: Listing title is visible in the properties list ───────
         await expect(page.getByText(/Test Payment Property/i)).toBeVisible();
-        await captureScenarioStep(page, testInfo, 'pay-per-property', 5, 'listing-visible-in-list');
+        await captureScenarioStep(page, testInfo, 'direct-publish', 5, 'listing-visible-in-list');
     });
 
     /**

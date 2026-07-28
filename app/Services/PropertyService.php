@@ -22,8 +22,6 @@ class PropertyService
             $data['user_id'] = $user->id;
 
             $isPublishing = ($data['status'] ?? null) === 'published';
-            $publishFeeCheckoutUrl = null;
-            $publishFeePaymentRequired = false;
             $isSellerPublish = $isPublishing && $user->isSeller() && ! $user->isAdmin();
 
             // In demo mode, bypass subscription requirements
@@ -31,11 +29,7 @@ class PropertyService
                 $this->sellerBillingService->enforcePublishRequirements($user);
             }
 
-            if ($isSellerPublish && ! config('app.demo_mode')) {
-                // Require publish-fee settlement before switching listing to published.
-                $data['status'] = 'draft';
-                $data['published_at'] = null;
-            } elseif ($isPublishing && empty($data['published_at'])) {
+            if ($isPublishing && empty($data['published_at'])) {
                 $data['published_at'] = now();
             }
 
@@ -51,25 +45,7 @@ class PropertyService
                 $property->save();
             }
 
-            if ($isSellerPublish && ! config('app.demo_mode')) {
-                $publishFee = $this->sellerBillingService->requestPublishFeeCheckout($user, $property, $attributes);
-                if (! ($publishFee['paid'] ?? false)) {
-                    $publishFeeCheckoutUrl = (string) ($publishFee['checkout_url'] ?? '');
-                    $publishFeePaymentRequired = true;
-                } else {
-                    $property->fill([
-                        'status' => 'published',
-                        'published_at' => now(),
-                    ]);
-                    $property->save();
-                }
-            }
-
             $loadedProperty = $property->load(['images', 'user:id,name']);
-            if ($publishFeePaymentRequired) {
-                $loadedProperty->setAttribute('publish_fee_payment_required', true);
-                $loadedProperty->setAttribute('publish_fee_checkout_url', $publishFeeCheckoutUrl);
-            }
 
             return $loadedProperty;
         });
@@ -83,8 +59,6 @@ class PropertyService
             $data = Arr::except($attributes, ['images']);
 
             $isPublishing = ($data['status'] ?? null) === 'published';
-            $publishFeeCheckoutUrl = null;
-            $publishFeePaymentRequired = false;
             $isSellerPublish = $isPublishing && $user->isSeller() && ! $user->isAdmin();
 
             // In demo mode, bypass subscription requirements
@@ -92,17 +66,7 @@ class PropertyService
                 $this->sellerBillingService->enforcePublishRequirements($user);
             }
 
-            if ($isSellerPublish && ! config('app.demo_mode')) {
-                $publishFee = $this->sellerBillingService->requestPublishFeeCheckout($user, $property, $attributes);
-                if (! ($publishFee['paid'] ?? false)) {
-                    $publishFeeCheckoutUrl = (string) ($publishFee['checkout_url'] ?? '');
-                    $publishFeePaymentRequired = true;
-                    $data['status'] = 'draft';
-                    $data['published_at'] = null;
-                }
-            }
-
-            if ($isPublishing && ! $publishFeePaymentRequired && empty($property->published_at) && empty($data['published_at'])) {
+            if ($isPublishing && empty($property->published_at) && empty($data['published_at'])) {
                 $data['published_at'] = now();
             }
 
@@ -123,10 +87,6 @@ class PropertyService
             }
 
             $loadedProperty = $property->load(['images', 'user:id,name']);
-            if ($publishFeePaymentRequired) {
-                $loadedProperty->setAttribute('publish_fee_payment_required', true);
-                $loadedProperty->setAttribute('publish_fee_checkout_url', $publishFeeCheckoutUrl);
-            }
 
             return $loadedProperty;
         });

@@ -59,15 +59,10 @@ class PropertyCreateWithoutTenantTest extends TestCase
         $this->assertNotNull($property);
         $this->assertSame($user->id, (int) $property->user_id);
         $this->assertNull($property->corporation_id);
+        $this->assertSame('published', $property->status);
+        $this->assertNotNull($property->published_at);
 
-        $this->assertDatabaseHas('seller_publish_fees', [
-            'user_id' => $user->id,
-            'property_id' => $property->id,
-            'status' => 'charged',
-        ]);
-
-        $fee = SellerPublishFee::query()->where('property_id', $property->id)->first();
-        $this->assertNotNull($fee);
-        $this->assertSame(500, (int) $fee->amount_ugx);
+        // No per-listing fees - sellers with active subscriptions can publish freely
+        $this->assertDatabaseCount('seller_publish_fees', 0);
     }
 }

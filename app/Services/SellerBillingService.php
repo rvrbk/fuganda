@@ -53,10 +53,6 @@ class SellerBillingService
                     'UGX' => $subscriptionAmountUgx,
                     'USD' => self::DEFAULT_SUBSCRIPTION_AMOUNT_USD,
                 ],
-                'publish_fee' => [
-                    'UGX' => $this->effectivePublishFeeAmountUgx(),
-                    'USD' => self::DEFAULT_PUBLISH_FEE_USD,
-                ],
             ],
         ];
     }

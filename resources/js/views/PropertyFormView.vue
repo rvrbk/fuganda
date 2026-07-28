@@ -685,19 +685,11 @@ async function save() {
 
 	if (isEdit.value) {
 		const updated = await updateProperty(route.params.id, form.value);
-		if (updated?.publishFeePaymentRequired && updated?.publishFeeCheckoutUrl) {
-			window.location.assign(updated.publishFeeCheckoutUrl);
-			return;
-		}
 		router.push({ name: 'property-detail', params: { id: route.params.id } });
 		return;
 	}
 
 	const created = await createProperty(form.value);
-	if (created?.publishFeePaymentRequired && created?.publishFeeCheckoutUrl) {
-		window.location.assign(created.publishFeeCheckoutUrl);
-		return;
-	}
 	router.push({ name: 'home', query: { owned: '1', created: '1' } });
 }
 

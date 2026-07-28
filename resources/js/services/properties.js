@@ -85,8 +85,6 @@ function normalizeProperty(item) {
 		media,
 		ownerId: item.user?.id ?? item.user_id ?? null,
 		ownerName: item.user?.name ?? null,
-		publishFeePaymentRequired: Boolean(item.publish_fee_payment_required ?? false),
-		publishFeeCheckoutUrl: item.publish_fee_checkout_url ?? null,
 	};
 }
 
