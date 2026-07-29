@@ -1,6 +1,6 @@
 <template>
     <section class="space-y-4 rounded-lg border border-slate-200 bg-white p-6 shadow-sm">
-        <h2 class="text-xl font-semibold text-slate-900">Seller Dashboard</h2>
+        <h2 class="text-xl font-semibold text-slate-900">Agent Dashboard</h2>
 
         <div v-if="billingSummary" class="rounded-md border border-sky-200 bg-sky-50 p-3 text-sm text-sky-900">
             <p class="font-semibold">{{ $t('dashboard.billingTitle') }}</p>
@@ -8,9 +8,9 @@
         </div>
 
         <div v-if="showSubscriptionBlock" class="rounded-md border border-amber-300 bg-amber-50 p-3 text-sm text-amber-900">
-            <p>{{ $t('sellerOnboarding.blockingCallout') }}</p>
+            <p>{{ $t('agentOnboarding.blockingCallout') }}</p>
             <RouterLink class="mt-2 inline-block font-semibold text-amber-900 underline" :to="{ name: 'seller-onboarding' }">
-                {{ $t('sellerOnboarding.openOnboarding') }}
+                {{ $t('agentOnboarding.openOnboarding') }}
             </RouterLink>
         </div>
 
@@ -46,7 +46,7 @@ import { hasActiveSellerSubscription } from '../services/sellerBilling';
 import { formatPrice } from '../utils/formatters';
 import { usePageMeta } from '../composables/usePageMeta';
 
-usePageMeta({ title: 'Seller Dashboard', robots: 'noindex,nofollow' });
+usePageMeta({ title: 'Agent Dashboard', robots: 'noindex,nofollow' });
 
 const unreadCount = ref(0);
 const showSubscriptionBlock = ref(false);

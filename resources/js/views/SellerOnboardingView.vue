@@ -1,43 +1,43 @@
 <template>
     <section class="mx-auto max-w-2xl rounded-lg border border-slate-200 bg-white p-6 shadow-sm">
-        <p class="text-xs font-semibold uppercase tracking-wide text-sky-700">{{ $t('sellerOnboarding.badge') }}</p>
-        <h2 class="mt-2 text-2xl font-semibold text-slate-900">{{ $t('sellerOnboarding.title') }}</h2>
-        <p class="mt-2 text-sm text-slate-600">{{ $t('sellerOnboarding.intro') }}</p>
+        <p class="text-xs font-semibold uppercase tracking-wide text-sky-700">{{ $t('agentOnboarding.badge') }}</p>
+        <h2 class="mt-2 text-2xl font-semibold text-slate-900">{{ $t('agentOnboarding.title') }}</h2>
+        <p class="mt-2 text-sm text-slate-600">{{ $t('agentOnboarding.intro') }}</p>
 
         <div class="mt-5 grid gap-3 md:grid-cols-1">
             <article class="rounded-md border border-slate-200 bg-slate-50 p-4">
-                <h3 class="text-sm font-semibold text-slate-900">{{ $t('sellerOnboarding.monthlyTitle') }}</h3>
-                <p class="mt-1 text-base font-semibold text-slate-900">{{ $t('sellerOnboarding.monthlyPrice') }}</p>
-                <p class="mt-1 text-sm text-slate-600">{{ $t('sellerOnboarding.monthlyCopy') }}</p>
+                <h3 class="text-sm font-semibold text-slate-900">{{ $t('agentOnboarding.monthlyTitle') }}</h3>
+                <p class="mt-1 text-base font-semibold text-slate-900">{{ $t('agentOnboarding.monthlyPrice') }}</p>
+                <p class="mt-1 text-sm text-slate-600">{{ $t('agentOnboarding.monthlyCopy') }}</p>
             </article>
         </div>
 
         <div class="mt-4 rounded-md border border-slate-200 bg-slate-50 p-3">
-            <p class="text-sm font-medium text-slate-800">{{ $t('sellerOnboarding.paymentDetailsTitle') }}</p>
+            <p class="text-sm font-medium text-slate-800">{{ $t('agentOnboarding.paymentDetailsTitle') }}</p>
             <div class="mt-3 grid gap-3">
                 <label class="block">
-                    <span class="text-sm font-medium text-slate-700">{{ $t('sellerOnboarding.billingEmailLabel') }}</span>
+                    <span class="text-sm font-medium text-slate-700">{{ $t('agentOnboarding.billingEmailLabel') }}</span>
                     <input
                         v-model.trim="billingEmail"
                         type="email"
                         class="mt-1 w-full rounded border border-slate-300 px-3 py-2 text-sm text-slate-700"
                         :disabled="isLoading || isActive"
-                        :placeholder="$t('sellerOnboarding.billingEmailPlaceholder')"
+                        :placeholder="$t('agentOnboarding.billingEmailPlaceholder')"
                     >
                 </label>
             </div>
-            <p class="mt-2 text-xs text-slate-500">{{ $t('sellerOnboarding.paymentDetailsHint') }}</p>
+            <p class="mt-2 text-xs text-slate-500">{{ $t('agentOnboarding.paymentDetailsHint') }}</p>
         </div>
 
         <div class="mt-4 rounded-md border border-sky-100 bg-sky-50 p-3">
-            <p class="text-sm font-semibold text-sky-900">{{ $t('sellerOnboarding.checkoutTitle') }}</p>
-            <p class="mt-1 text-xs text-sky-800">{{ $t('sellerOnboarding.checkoutHint') }}</p>
+            <p class="text-sm font-semibold text-sky-900">{{ $t('agentOnboarding.checkoutTitle') }}</p>
+            <p class="mt-1 text-xs text-sky-800">{{ $t('agentOnboarding.checkoutHint') }}</p>
             <p v-if="isPaymentPending" class="mt-3 rounded border border-amber-200 bg-amber-50 px-3 py-2 text-sm text-amber-700">
-                {{ $t('sellerOnboarding.processingMessage') }}
+                {{ $t('agentOnboarding.processingMessage') }}
             </p>
         </div>
 
-        <p class="mt-3 text-sm text-slate-600">{{ $t('sellerOnboarding.billingSummary') }}</p>
+        <p class="mt-3 text-sm text-slate-600">{{ $t('agentOnboarding.billingSummary') }}</p>
 
         <p v-if="errorMessage" class="mt-4 rounded border border-rose-200 bg-rose-50 px-3 py-2 text-sm text-rose-700">{{ errorMessage }}</p>
         <p v-if="successMessage" class="mt-4 rounded border border-emerald-200 bg-emerald-50 px-3 py-2 text-sm text-emerald-700">{{ successMessage }}</p>
@@ -49,7 +49,7 @@
                 :disabled="isLoading || isActive || isPaymentPending"
                 @click="handleActivate"
             >
-                {{ isLoading ? $t('sellerOnboarding.activating') : $t('sellerOnboarding.payWithPesapalButton') }}
+                {{ isLoading ? $t('agentOnboarding.activating') : $t('agentOnboarding.payWithPesapalButton') }}
             </button>
             <button
                 type="button"
@@ -57,7 +57,7 @@
                 :disabled="isLoading || !isActive"
                 @click="handleContinue"
             >
-                {{ $t('sellerOnboarding.continueButton') }}
+                {{ $t('agentOnboarding.continueButton') }}
             </button>
             <button
                 type="button"
@@ -65,7 +65,7 @@
                 :disabled="isLoading || !isActive"
                 @click="handleCancel"
             >
-                {{ $t('sellerOnboarding.cancelButton') }}
+                {{ $t('agentOnboarding.cancelButton') }}
             </button>
         </div>
     </section>
@@ -78,7 +78,7 @@ import { useI18n } from 'vue-i18n';
 import { cancelSellerBilling, getSellerBillingStatus, initiateSellerBillingCheckout } from '../services/sellerBilling';
 import { usePageMeta } from '../composables/usePageMeta';
 
-usePageMeta({ title: 'Seller Onboarding', robots: 'noindex,nofollow' });
+usePageMeta({ title: 'Agent Onboarding', robots: 'noindex,nofollow' });
 
 const route = useRoute();
 const router = useRouter();
@@ -139,7 +139,7 @@ function startPendingStatusPolling() {
         await refreshStatus();
         if (isActive.value) {
             isPaymentPending.value = false;
-            successMessage.value = t('sellerOnboarding.activatedSuccess');
+            successMessage.value = t('agentOnboarding.activatedSuccess');
             stopPendingStatusPolling();
         }
     }, 10000);
@@ -163,17 +163,17 @@ function processReturnState() {
 
     if (successStates.includes(returnState)) {
         // A return flag alone does not guarantee settlement; confirm via status polling.
-        successMessage.value = t('sellerOnboarding.returnPending');
+        successMessage.value = t('agentOnboarding.returnPending');
         errorMessage.value = '';
         isPaymentPending.value = true;
         startPendingStatusPolling();
     } else if (cancelStates.includes(returnState)) {
-        errorMessage.value = t('sellerOnboarding.returnCanceled');
+        errorMessage.value = t('agentOnboarding.returnCanceled');
         successMessage.value = '';
         isPaymentPending.value = false;
         stopPendingStatusPolling();
     } else if (pendingStates.includes(returnState)) {
-        successMessage.value = t('sellerOnboarding.returnPending');
+        successMessage.value = t('agentOnboarding.returnPending');
         errorMessage.value = '';
         isPaymentPending.value = true;
         startPendingStatusPolling();
@@ -211,7 +211,7 @@ async function refreshStatus() {
         } else if (pending) {
             isPaymentPending.value = true;
             if (!successMessage.value) {
-                successMessage.value = t('sellerOnboarding.activationPending');
+                successMessage.value = t('agentOnboarding.activationPending');
             }
             startPendingStatusPolling();
         } else if (failed) {
@@ -223,7 +223,7 @@ async function refreshStatus() {
             stopPendingStatusPolling();
         }
     } catch {
-        errorMessage.value = t('sellerOnboarding.statusError');
+        errorMessage.value = t('agentOnboarding.statusError');
     } finally {
         isLoading.value = false;
     }
@@ -239,7 +239,7 @@ async function handleActivate() {
     if (wasPendingBefore) {
         await refreshStatus();
         if (!isActive.value) {
-            successMessage.value = t('sellerOnboarding.activationPending');
+            successMessage.value = t('agentOnboarding.activationPending');
             isPaymentPending.value = true;
             startPendingStatusPolling();
             isLoading.value = false;
@@ -248,7 +248,7 @@ async function handleActivate() {
     }
 
     if (!billingEmail.value) {
-        errorMessage.value = t('sellerOnboarding.paymentDetailsRequired');
+        errorMessage.value = t('agentOnboarding.paymentDetailsRequired');
         isLoading.value = false;
         return;
     }
@@ -274,11 +274,11 @@ async function handleActivate() {
 
         isActive.value = Boolean(checkout.active);
         if (isActive.value) {
-            successMessage.value = t('sellerOnboarding.activatedSuccess');
+            successMessage.value = t('agentOnboarding.activatedSuccess');
             stopPendingStatusPolling();
         } else {
             isPaymentPending.value = true;
-            successMessage.value = t('sellerOnboarding.activationPending');
+            successMessage.value = t('agentOnboarding.activationPending');
             startPendingStatusPolling();
         }
     } catch (error) {
@@ -288,7 +288,7 @@ async function handleActivate() {
             || error?.response?.data?.message
             || null;
 
-        errorMessage.value = apiError || t('sellerOnboarding.activateError');
+        errorMessage.value = apiError || t('agentOnboarding.activateError');
     } finally {
         isLoading.value = false;
     }
@@ -302,7 +302,7 @@ async function handleContinue() {
     }
 
     if (!isActive.value) {
-        errorMessage.value = t('sellerOnboarding.continueBlocked');
+        errorMessage.value = t('agentOnboarding.continueBlocked');
         return;
     }
 
@@ -326,9 +326,9 @@ async function handleCancel() {
     try {
         const status = await cancelSellerBilling();
         isActive.value = Boolean(status.active);
-        successMessage.value = t('sellerOnboarding.cancelledSuccess');
+        successMessage.value = t('agentOnboarding.cancelledSuccess');
     } catch {
-        errorMessage.value = t('sellerOnboarding.cancelError');
+        errorMessage.value = t('agentOnboarding.cancelError');
     } finally {
         isLoading.value = false;
     }

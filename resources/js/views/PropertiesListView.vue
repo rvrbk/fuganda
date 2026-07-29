@@ -16,9 +16,9 @@
 			</div>
 
 			<div v-if="showSubscriptionBlock" class="mb-2 rounded-md border border-amber-300 bg-amber-50 px-3 py-2 text-xs text-amber-900 sm:mb-3 sm:text-sm">
-				<p>{{ $t('sellerOnboarding.blockingCallout') }}</p>
+				<p>{{ $t('agentOnboarding.blockingCallout') }}</p>
 				<RouterLink class="mt-1 inline-block font-semibold underline" :to="{ name: 'seller-onboarding', query: { redirect: '/properties/new' } }">
-					{{ $t('sellerOnboarding.openOnboarding') }}
+					{{ $t('agentOnboarding.openOnboarding') }}
 				</RouterLink>
 			</div>
 

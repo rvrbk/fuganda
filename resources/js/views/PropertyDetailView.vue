@@ -73,7 +73,7 @@
 			<h3 class="font-medium text-slate-900">{{ $t('messages.contactAgent') }}</h3>
 			
 			<div v-if="isGuestUser" class="rounded-lg border border-amber-300 bg-amber-50 px-3 py-2 text-sm text-amber-900">
-				<p>{{ $t('buyerContact.loginRequired') }}</p>
+				<p>{{ $t('userContact.loginRequired') }}</p>
 				<RouterLink
 					class="mt-2 inline-block rounded bg-sky-700 px-3 py-1.5 text-xs text-white"
 					:to="{ name: 'login', query: { redirect: `/properties/${property?.id}` } }"
@@ -83,12 +83,12 @@
 			</div>
 			
 			<div v-else-if="!hasPaidContactFee" class="rounded-lg border border-amber-300 bg-amber-50 px-3 py-2 text-sm text-amber-900">
-				<p>{{ $t('buyerContact.blockingCallout', { amount: formatPrice(10000, 'UGX') }) }}</p>
+				<p>{{ $t('userContact.blockingCallout', { amount: formatPrice(10000, 'UGX') }) }}</p>
 				<button
 					class="mt-2 rounded bg-sky-700 px-3 py-1.5 text-xs text-white"
 					@click="initiateContactPayment"
 				>
-					{{ $t('buyerContact.payNow', { amount: formatPrice(10000, 'UGX') }) }}
+					{{ $t('userContact.payNow', { amount: formatPrice(10000, 'UGX') }) }}
 				</button>
 			</div>
 			

@@ -91,7 +91,7 @@
             <div v-if="mode === 'signup'" class="space-y-2 pt-2">
                 <label class="flex cursor-pointer items-center gap-3 rounded-md border border-slate-300 px-3 py-2 text-sm text-slate-700 hover:bg-slate-50">
                     <input v-model="wantsSellerRole" type="checkbox" class="h-4 w-4 rounded border-slate-300 text-slate-900 focus:ring-slate-500" />
-                    <span>{{ $t('login.sellerOptInLabel') }}</span>
+                    <span>{{ $t('login.agentOptInLabel') }}</span>
                 </label>
             </div>
         </div>

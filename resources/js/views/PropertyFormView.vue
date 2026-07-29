@@ -3,9 +3,9 @@
 		<h2 class="mb-4 text-xl font-semibold text-slate-900">{{ isEdit ? $t('actions.editListing') : $t('actions.createListing') }}</h2>
 
 		<div v-if="showSubscriptionBlock" class="mb-4 rounded-md border border-amber-300 bg-amber-50 p-3 text-sm text-amber-900">
-			<p>{{ $t('sellerOnboarding.blockingCallout') }}</p>
+			<p>{{ $t('agentOnboarding.blockingCallout') }}</p>
 			<RouterLink class="mt-2 inline-block font-semibold underline" :to="{ name: 'seller-onboarding', query: { redirect: route.fullPath } }">
-				{{ $t('sellerOnboarding.openOnboarding') }}
+				{{ $t('agentOnboarding.openOnboarding') }}
 			</RouterLink>
 		</div>
 
