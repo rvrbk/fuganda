@@ -4,7 +4,7 @@
             <div class="mx-auto flex max-w-6xl items-center justify-between gap-3 px-4 py-4">
                 <div>
                     <h1 class="text-xl font-semibold text-slate-900"><span class="sm:inline hidden">verbeek.ug </span>Real Estates</h1>
-                    <p class="text-sm text-slate-500">{{ $t('tagline') }}</p>
+                    <p class="hidden text-sm text-slate-500 sm:block">{{ $t('tagline') }}</p>
                 </div>
                 <div class="flex items-center gap-2">
                     <select
