@@ -150,6 +150,7 @@
 			</div>
 			<div class="md:col-span-2">
 				<button class="rounded bg-slate-900 px-4 py-2 text-sm text-white disabled:cursor-not-allowed disabled:bg-slate-500" type="submit" :disabled="isUploadingMedia || showSubscriptionBlock">{{ $t('actions.save') }}</button>
+				<button v-if="isEdit" type="button" class="ml-2 rounded bg-rose-600 px-4 py-2 text-sm text-white hover:bg-rose-700 disabled:cursor-not-allowed disabled:bg-rose-400" :disabled="isUploadingMedia || showSubscriptionBlock" @click="confirmDelete">{{ $t('actions.delete') }}</button>
 			</div>
 		</form>
 	</section>
@@ -162,7 +163,7 @@ import { useI18n } from 'vue-i18n';
 import L from 'leaflet';
 import { hasActiveSellerSubscription } from '../services/sellerBilling';
 import { getProfile, isBuyerProfile } from '../services/authProfile';
-import { createProperty, extractApiErrorMessage, getProperty, updateProperty, uploadPropertyMedia } from '../services/properties';
+import { createProperty, deleteProperty, extractApiErrorMessage, getProperty, updateProperty, uploadPropertyMedia } from '../services/properties';
 import { listCitiesByDistrict, listLocations } from '../services/locations';
 import { usePageMeta } from '../composables/usePageMeta';
 
@@ -691,6 +692,28 @@ async function save() {
 
 	const created = await createProperty(form.value);
 	router.push({ name: 'home', query: { owned: '1', created: '1' } });
+}
+
+function confirmDelete() {
+	if (confirm(t('actions.deleteConfirm'))) {
+		handleDelete();
+	}
+}
+
+async function handleDelete() {
+	if (showSubscriptionBlock.value) {
+		router.push({ name: 'seller-onboarding', query: { redirect: route.fullPath } });
+		return;
+	}
+
+	try {
+		const propertyId = route.params.id;
+		await deleteProperty(propertyId);
+		router.push({ name: 'home', query: { owned: '1', deleted: '1' } });
+	} catch (error) {
+		const message = extractApiErrorMessage(error) || t('propertyForm.deleteError');
+		alert(message);
+	}
 }
 
 watch(

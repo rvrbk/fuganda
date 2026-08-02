@@ -47,7 +47,13 @@
 					playsinline
 					class="h-72 w-full bg-black object-contain"
 				></video>
-				<div v-else class="flex h-72 items-center justify-center text-sm text-slate-500">{{ $t('properties.notFound') }}</div>
+				<img
+					v-else
+					:src="placeholderImageUrl"
+					:alt="property.title"
+					loading="lazy"
+					class="h-72 w-full object-cover"
+				/>
 			</div>
 
 			<div v-if="mediaItems.length" class="flex gap-2 overflow-x-auto pb-1">
@@ -185,6 +191,7 @@ const profile = ref(null);
 const activeMediaIndex = ref(0);
 const hasPaidContactFee = ref(false);
 const isCheckingContactFee = ref(false);
+const placeholderImageUrl = '/images/property-placeholder.jpg';
 
 const mediaItems = computed(() => {
 	if (!property.value) {

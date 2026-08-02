@@ -39,6 +39,8 @@ const i18n = createI18n({
 				cancel: 'Cancel',
 				send: 'Send',
 				save: 'Save',
+				delete: 'Delete',
+				deleteConfirm: 'Are you sure you want to delete this listing? This action cannot be undone.',
 				loadPayload: 'Load Dashboard Data',
 			},
 			properties: {
@@ -98,6 +100,7 @@ const i18n = createI18n({
 				addressLabel: 'Address',
 				mapPickerLabel: 'Map picker',
 				mapPickerHint: 'Click on the map to set the exact location and auto-fill address, latitude, and longitude.',
+				deleteError: 'Failed to delete listing. Please try again.',
 			},
 			login: {
 				title: 'Sign in',
@@ -228,6 +231,8 @@ const i18n = createI18n({
 				send: 'Sindika',
 				save: 'Tereka',
 				loadPayload: 'Funa data ya dashboard',
+				delete: 'Sazaamu',
+				deleteConfirm: 'Oyagala kkuddwa kuti osazaamu ekizimbe kino? Ennyangu eno teyiba kuggyawo.',
 			},
 			properties: {
 				empty: 'Tewali bizimbe bisangiddwa.',
@@ -286,6 +291,7 @@ const i18n = createI18n({
 				addressLabel: 'Endagiriro',
 				mapPickerLabel: 'Maapu yendawo',
 				mapPickerHint: 'Nyiga ku maapu okuteeka ekifo ekituufu era ojjuze mu bwangu endagiriro, latitude ne longitude.',
+				deleteError: 'Tetusobodde kusazaamu ekizimbe. Gezaako nate.',
 			},
 			login: {
 				title: 'Yingira',

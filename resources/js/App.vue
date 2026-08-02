@@ -2,14 +2,14 @@
     <main class="min-h-screen bg-slate-50">
         <header ref="appHeader" class="relative z-40 border-b border-slate-200 bg-white">
             <div class="mx-auto flex max-w-6xl items-center justify-between gap-3 px-4 py-4">
-                <div>
-                    <h1 class="text-xl font-semibold text-slate-900"><span class="sm:inline hidden">verbeek.ug </span>Real Estates</h1>
-                    <p class="hidden text-sm text-slate-500 sm:block">{{ $t('tagline') }}</p>
+                <div class="logo-container">
+                    <h1 class="main-text">MyCanopy</h1>
+                    <span class="subtext hidden sm:inline">a verbeek<span class="dot">.</span>ug platform</span>
                 </div>
                 <div class="flex items-center gap-2">
                     <select
                         v-model="locale"
-                        class="rounded border border-slate-300 px-2 py-1 text-xs text-slate-700"
+                        class="rounded border border-slate-300 px-2 py-2 text-xs text-slate-700"
                         aria-label="Select language"
                     >
                         <option value="en">EN</option>

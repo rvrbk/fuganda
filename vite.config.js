@@ -16,18 +16,18 @@ export default defineConfig({
             registerType: 'autoUpdate',
             // Registration is handled explicitly in app.js via virtual:pwa-register
             injectRegister: null,
-            // Output SW and manifest directly to public/ so they're served at /sw.js and /manifest.webmanifest
-            outDir: 'public',
-            filename: 'sw.js',
+            // Output SW and manifest to public/build/ to match laravel-vite-plugin output
+            outDir: 'public/build',
+            filename: '../sw.js',
             manifestFilename: 'manifest.webmanifest',
             includeAssets: [
-                'favicon.ico',
-                'icon.svg',
-                'apple-touch-icon-180x180.png',
-                'pwa-64x64.png',
-                'pwa-192x192.png',
-                'pwa-512x512.png',
-                'maskable-icon-512x512.png',
+                '../favicon.ico',
+                '../icon.svg',
+                '../apple-touch-icon-180x180.png',
+                '../pwa-64x64.png',
+                '../pwa-192x192.png',
+                '../pwa-512x512.png',
+                '../maskable-icon-512x512.png',
             ],
             manifest: {
                 name: 'Verbeek.ug Real Estates — Uganda Property Listings',
@@ -54,11 +54,14 @@ export default defineConfig({
                 categories: ['business'],
             },
             workbox: {
+                cleanupOutdatedCaches: true,
                 // Precache the compiled JS/CSS bundles
                 globDirectory: 'public/build',
                 globPatterns: ['**/*.{js,css,woff2}'],
                 // Don't set a navigate fallback — Laravel handles SPA routing server-side
                 navigateFallback: null,
+                // Prepend /build/ to all precached URLs since assets are served from /build/
+                modifyURLPrefix: { '': '/build/' },
                 runtimeCaching: [
                     {
                         // Cache API property listings for 5 minutes (network-first)

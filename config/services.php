@@ -49,9 +49,7 @@ return [
         'webhook_secret' => env('PESAPAL_WEBHOOK_SECRET'),
         'callback_url' => env('PESAPAL_CALLBACK_URL', env('APP_URL').'/api/callbacks/pesapal'),
         'non_production_mock_payment_status' => env('PESAPAL_NON_PRODUCTION_MOCK_PAYMENT_STATUS'),
-        'non_production_min_subscription_amount_ugx' => env('PESAPAL_NON_PRODUCTION_MIN_SUBSCRIPTION_AMOUNT_UGX', 500),
         'publish_fee_amount_ugx' => env('PESAPAL_PUBLISH_FEE_AMOUNT_UGX', 7500),
-        'non_production_min_publish_fee_amount_ugx' => env('PESAPAL_NON_PRODUCTION_MIN_PUBLISH_FEE_AMOUNT_UGX', 500),
         'subscription_grace_period_days' => env('SUBSCRIPTION_GRACE_PERIOD_DAYS', 7),
     ],
 

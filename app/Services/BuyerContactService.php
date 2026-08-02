@@ -21,15 +21,9 @@ class BuyerContactService
     private const PESAPAL_SUBMIT_ORDER_PATH = '/api/Transactions/SubmitOrderRequest';
     private const PESAPAL_STATUS_PATH = '/api/Transactions/GetTransactionStatus';
 
-    private const NON_PRODUCTION_MIN_FEE_UGX = 500;
-
     public function effectiveContactFeeAmountUgx(): int
     {
-        if (app()->isProduction()) {
-            return self::CONTACT_FEE_AMOUNT_UGX;
-        }
-
-        return self::NON_PRODUCTION_MIN_FEE_UGX;
+        return self::CONTACT_FEE_AMOUNT_UGX;
     }
 
     public function hasPaidForProperty(User $user, Property $property): bool
@@ -384,7 +378,7 @@ class BuyerContactService
             ],
             [
                 'provider' => 'mock',
-                'amount_ugx' => self::NON_PRODUCTION_MIN_FEE_UGX,
+                'amount_ugx' => self::CONTACT_FEE_AMOUNT_UGX,
                 'currency' => 'UGX',
                 'status' => 'charged',
                 'payment_status' => 'paid',

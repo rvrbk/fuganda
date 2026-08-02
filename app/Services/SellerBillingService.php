@@ -28,9 +28,6 @@ class SellerBillingService
     private const PESAPAL_SUBMIT_ORDER_PATH = '/api/Transactions/SubmitOrderRequest';
     private const PESAPAL_STATUS_PATH = '/api/Transactions/GetTransactionStatus';
 
-    private const NON_PRODUCTION_MIN_SUBSCRIPTION_AMOUNT_UGX = 500;
-    private const NON_PRODUCTION_MIN_PUBLISH_FEE_AMOUNT_UGX = 500;
-
     public function statusFor(User $user): array
     {
         $subscription = $user->sellerSubscription;
@@ -522,11 +519,7 @@ class SellerBillingService
         $currency = 'UGX';
 
         $defaultAmount = $this->effectiveSubscriptionAmountUgx();
-
         $amount = (int) ($attributes['amount_ugx'] ?? $defaultAmount);
-        if (! app()->isProduction()) {
-            $amount = $defaultAmount;
-        }
 
         $billingEmail = (string) ($attributes['billing_email'] ?? $user->email);
         $planCode = (string) ($attributes['plan_code'] ?? self::DEFAULT_PLAN_CODE);
@@ -536,16 +529,7 @@ class SellerBillingService
 
     private function effectivePublishFeeAmountUgx(): int
     {
-        if (app()->isProduction()) {
-            return (int) config('services.pesapal.publish_fee_amount_ugx', self::DEFAULT_PUBLISH_FEE_UGX);
-        }
-
-        $configured = (int) config(
-            'services.pesapal.non_production_min_publish_fee_amount_ugx',
-            self::NON_PRODUCTION_MIN_PUBLISH_FEE_AMOUNT_UGX
-        );
-
-        return max(1, $configured);
+        return (int) config('services.pesapal.publish_fee_amount_ugx', self::DEFAULT_PUBLISH_FEE_UGX);
     }
 
     private function subscriptionGracePeriodDays(): int
@@ -575,16 +559,7 @@ class SellerBillingService
 
     private function effectiveSubscriptionAmountUgx(): int
     {
-        if (app()->isProduction()) {
-            return self::DEFAULT_SUBSCRIPTION_AMOUNT_UGX;
-        }
-
-        $configured = (int) config(
-            'services.pesapal.non_production_min_subscription_amount_ugx',
-            self::NON_PRODUCTION_MIN_SUBSCRIPTION_AMOUNT_UGX
-        );
-
-        return max(1, $configured);
+        return self::DEFAULT_SUBSCRIPTION_AMOUNT_UGX;
     }
 
     private function syncPendingPesapalSubscription(SellerSubscription $subscription): SellerSubscription

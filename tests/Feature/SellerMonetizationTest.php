@@ -513,7 +513,7 @@ class SellerMonetizationTest extends TestCase
             'user_id' => $seller->id,
             'property_id' => $property->id,
             'provider' => 'pesapal',
-            'amount_ugx' => 500,
+            'amount_ugx' => 39000,
             'currency' => 'UGX',
             'payment_method' => 'mobile_money',
             'checkout_session_id' => 'TRACK_PUB_MOCK_PAID_123',

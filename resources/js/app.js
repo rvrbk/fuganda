@@ -17,4 +17,8 @@ createApp(App)
 	.use(ElementPlus)
 	.mount('#app');
 
-registerSW({ immediate: true });
+// Only register service worker in production
+// In development, the service worker from public/ will interfere with Vite's HMR
+if (import.meta.env.PROD) {
+	registerSW({ immediate: true });
+}

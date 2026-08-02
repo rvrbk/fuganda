@@ -23,8 +23,6 @@ class BuyerBillingService
     private const PESAPAL_SUBMIT_ORDER_PATH = '/api/Transactions/SubmitOrderRequest';
     private const PESAPAL_STATUS_PATH = '/api/Transactions/GetTransactionStatus';
 
-    private const NON_PRODUCTION_MIN_SUBSCRIPTION_AMOUNT_UGX = 500;
-
     public function statusFor(User $user): array
     {
         $subscription = $user->buyerSubscription;
@@ -53,11 +51,7 @@ class BuyerBillingService
 
     public function effectiveSubscriptionAmountUgx(): int
     {
-        if (app()->isProduction()) {
-            return self::DEFAULT_SUBSCRIPTION_AMOUNT_UGX;
-        }
-
-        return self::NON_PRODUCTION_MIN_SUBSCRIPTION_AMOUNT_UGX;
+        return self::DEFAULT_SUBSCRIPTION_AMOUNT_UGX;
     }
 
     public function createCheckoutSession(User $user, array $attributes = []): array
@@ -419,7 +413,7 @@ class BuyerBillingService
             ['user_id' => $user->id],
             [
                 'plan_code' => self::DEFAULT_PLAN_CODE,
-                'amount_ugx' => self::NON_PRODUCTION_MIN_SUBSCRIPTION_AMOUNT_UGX,
+                'amount_ugx' => self::DEFAULT_SUBSCRIPTION_AMOUNT_UGX,
                 'currency' => 'UGX',
                 'provider' => 'mock',
                 'status' => 'active',

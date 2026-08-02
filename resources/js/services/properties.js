@@ -5,7 +5,7 @@ const SUPPORTED_CURRENCIES = new Set(['UGX', 'USD']);
 
 function normalizeImagePath(path) {
 	if (!path) {
-		return '';
+		return '/images/property-placeholder.jpg';
 	}
 
 	if (path.startsWith('/')) {
@@ -200,6 +200,11 @@ export async function uploadPropertyMedia(file) {
 	});
 
 	return data?.path ?? '';
+}
+
+export async function deleteProperty(id) {
+	const { data } = await axios.delete(`/api/properties/${id}`);
+	return data;
 }
 
 export const uploadPropertyImage = uploadPropertyMedia;
