@@ -850,7 +850,10 @@ async function load() {
 	if (isEdit.value) {
 		// Use watchEffect to handle the case where options load after form values
 		// watchEffect runs immediately and tracks dependencies automatically
-		const stopDistrictEffect = watchEffect(() => {
+		// Note: declare variables first to avoid temporal dead zone issues
+		let stopDistrictEffect;
+		let stopCityEffect;
+		stopDistrictEffect = watchEffect(() => {
 			// This runs when districtOptions or form.value.district changes
 			if (districtOptions.value.length > 0 && form.value.district) {
 				const matched = findBestMatch(form.value.district, districtOptions.value);
@@ -861,7 +864,7 @@ async function load() {
 			}
 		});
 		
-		const stopCityEffect = watchEffect(() => {
+		stopCityEffect = watchEffect(() => {
 			// This runs when allCities or form.value.city changes
 			if (allCities.value.length > 0 && form.value.city) {
 				const matched = findBestMatch(form.value.city, allCities.value);
