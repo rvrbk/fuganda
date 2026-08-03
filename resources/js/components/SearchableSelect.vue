@@ -102,7 +102,12 @@ const filteredOptions = computed(() => {
 
 const selectedLabel = computed(() => {
 	const selected = props.options.find(opt => getValue(opt) === props.modelValue);
-	return selected ? getLabel(selected) : '';
+	if (selected) return getLabel(selected);
+	// If no match found but modelValue exists, show it directly (handles case where options are empty or value doesn't match)
+	if (props.modelValue && !props.options.length) {
+		return String(props.modelValue);
+	}
+	return '';
 });
 
 function getValue(option) {
