@@ -1,7 +1,11 @@
 # Crawling is disabled on non-production environments.
 # Update this file before going live.
 User-agent: *
-Disallow: /
+Allow: /
+Disallow: /dashboard
+Disallow: /messages
+Disallow: /seller/
+Disallow: /auth/
 
 # AI training crawlers — public property content allowed, private routes blocked
 User-agent: GPTBot
@@ -19,5 +23,5 @@ Disallow: /messages
 Disallow: /seller/
 Disallow: /auth/
 
-Sitemap: https://real-estates.verbeek.ug/sitemap.xml
+Sitemap: https://mycanopy.verbeek.ug/sitemap.xml
 

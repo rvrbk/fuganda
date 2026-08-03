@@ -15,11 +15,11 @@ I am a **Senior PHP Developer** with a strong analytical brain and deep expertis
 - **Testing** - PHPUnit, Pest, feature tests, API tests
 - **DevOps** - Deployment, CI/CD, server configuration
 
-## Project: Verbeek.ug Real Estates
+## Project: MyCanopy
 
 ### Overview
 
-Verbeek.ug Real Estates is a **Uganda-focused real estate platform** designed for buying, renting, and selling property. The platform addresses the unique challenges and opportunities of the Ugandan real estate market with localized features, payment methods, and user experiences.
+MyCanopy is a **Uganda-focused real estate platform** designed for buying, renting, and selling property. The platform addresses the unique challenges and opportunities of the Ugandan real estate market with localized features, payment methods, and user experiences.
 
 ### Core Idea
 
@@ -356,5 +356,5 @@ As a Senior PHP Developer working on this project:
 ---
 
 *Last updated: August 2, 2026*
-*Project: Verbeek.ug Real Estates*
+*Project: MyCanopy*
 *Framework: Laravel 13*

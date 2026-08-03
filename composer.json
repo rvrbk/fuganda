@@ -1,8 +1,8 @@
 {
     "$schema": "https://getcomposer.org/schema.json",
-    "name": "verbeek-ug/real-estates",
+    "name": "mycanopy/mycanopy",
     "type": "project",
-    "description": "Verbeek.ug Real Estates - Uganda-focused real estate platform for buying, renting, and selling property.",
+    "description": "MyCanopy - Uganda-focused real estate platform for buying, renting, and selling property.",
     "keywords": ["laravel", "framework", "real-estate", "uganda"],
     "license": "MIT",
     "require": {

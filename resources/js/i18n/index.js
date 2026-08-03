@@ -6,7 +6,7 @@ const i18n = createI18n({
 	fallbackLocale: 'en',
 	messages: {
 		en: {
-			title: 'verbeek.ug Real Estates',
+			title: 'MyCanopy',
 			tagline: 'Discover listings across Uganda with quick map search.',
 			nav: {
 				home: 'Home',
@@ -197,7 +197,7 @@ const i18n = createI18n({
 			},
 		},
 		lg: {
-			title: 'Verbeek.ug Real Estates Okunoonya Ebizimbe',
+			title: 'MyCanopy Okunoonya Ebizimbe',
 			tagline: 'Ebigambo bya Luganda bikyali bya kusembera.',
 			nav: {
 				home: 'Awatandikira',

@@ -135,7 +135,7 @@ class BuyerContactService
             'description' => sprintf('Contact seller for property #%d', $property->id),
             'callback_url' => $callbackUrl,
             'notification_id' => $notificationId,
-            'branch' => 'verbeek-ug-real-estates',
+            'branch' => 'mycanopy',
             'channel' => $paymentMethod === 'mobile_money' ? 'MOBILE' : 'CARD',
             'billing_address' => [
                 'email_address' => (string) ($user->email ?? ''),

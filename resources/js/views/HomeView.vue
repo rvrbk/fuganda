@@ -39,8 +39,14 @@
 import { computed, onMounted, ref } from 'vue';
 import { useRouter } from 'vue-router';
 import { listLocations, listCitiesByDistrict } from '../services/locations';
+import { usePageMeta } from '../composables/usePageMeta';
 
 const router = useRouter();
+
+usePageMeta({
+    title: 'Find Properties in Uganda',
+    description: 'Discover apartments, houses, land and commercial properties for rent and sale across all districts of Uganda. Search by location, price, type, and more.',
+});
 const locations = ref({ districts: [], propertyTypes: [] });
 const filters = ref({
     district: '',

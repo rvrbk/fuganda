@@ -1,7 +1,7 @@
-# Verbeek.ug Real Estates Roadmap (6-9 Months)
+# MyCanopy Roadmap (6-9 Months)
 
 ## Project Overview and Goals
-Verbeek.ug Real Estates is a Uganda-focused real estate platform for buying, renting, and selling property. The product goal is to make property discovery and transactions easier and safer for buyers, sellers, agents, and administrators.
+MyCanopy is a Uganda-focused real estate platform for buying, renting, and selling property. The product goal is to make property discovery and transactions easier and safer for buyers, sellers, agents, and administrators.
 
 **Core product scope**
 - Listings with filters (price, location, type, status).

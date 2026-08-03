@@ -152,7 +152,7 @@ class SellerBillingService
             'description' => sprintf('Property publish fee (property #%d)', $property->id),
             'callback_url' => $callbackUrl,
             'notification_id' => $notificationId,
-            'branch' => 'verbeek-ug-real-estates',
+            'branch' => 'mycanopy',
             'channel' => $paymentMethod === 'mobile_money' ? 'MOBILE' : 'CARD',
             'billing_address' => [
                 'email_address' => (string) ($user->email ?? ''),
@@ -320,7 +320,7 @@ class SellerBillingService
             'description' => sprintf('Seller subscription (%s)', $planCode),
             'callback_url' => $callbackUrl,
             'notification_id' => $notificationId,
-            'branch' => 'verbeek-ug-real-estates',
+            'branch' => 'mycanopy',
             'channel' => $paymentMethod === 'mobile_money' ? 'MOBILE' : 'CARD',
             'billing_address' => [
                 'email_address' => $billingEmail,

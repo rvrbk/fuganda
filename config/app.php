@@ -13,7 +13,7 @@ return [
     |
     */
 
-    'name' => env('APP_NAME', 'Verbeek.ug Real Estates'),
+    'name' => env('APP_NAME', 'MyCanopy'),
 
     /*
     |--------------------------------------------------------------------------

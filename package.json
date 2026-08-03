@@ -1,6 +1,6 @@
 {
     "$schema": "https://www.schemastore.org/package.json",
-    "name": "Verbeek.ug Real Estates",
+    "name": "MyCanopy",
     "private": true,
     "type": "module",
     "scripts": {

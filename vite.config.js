@@ -30,8 +30,8 @@ export default defineConfig({
                 '../maskable-icon-512x512.png',
             ],
             manifest: {
-                name: 'Verbeek.ug Real Estates — Uganda Property Listings',
-                short_name: 'Verbeek.ug Real Estates',
+                name: 'MyCanopy — Uganda Property Listings',
+                short_name: 'MyCanopy',
                 description: 'Find apartments, houses, land and commercial properties for rent and sale across Uganda.',
                 start_url: '/',
                 display: 'standalone',

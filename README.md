@@ -1,4 +1,4 @@
-# Verbeek.ug Real Estates
+# MyCanopy
 
 Laravel 13 API-first multi-tenant SPA scaffold for Uganda-focused real estate platform.
 
@@ -66,7 +66,7 @@ php artisan schedule:work
 Production cron entry:
 
 ```bash
-* * * * * cd /path/to/verbeek-ug-real-estates && php artisan schedule:run >> storage/logs/scheduler-cron.log 2>&1
+* * * * * cd /path/to/mycanopy && php artisan schedule:run >> storage/logs/scheduler-cron.log 2>&1
 ```
 
 Heartbeat sample writes to `storage/logs/laravel.log`.

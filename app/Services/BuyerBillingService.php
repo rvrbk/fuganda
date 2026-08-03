@@ -131,7 +131,7 @@ class BuyerBillingService
             'description' => sprintf('Buyer subscription for %s', $user->name ?? 'User'),
             'callback_url' => $callbackUrl,
             'notification_id' => $notificationId,
-            'branch' => 'verbeek-ug-real-estates',
+            'branch' => 'mycanopy',
             'channel' => $paymentMethod === 'mobile_money' ? 'MOBILE' : 'CARD',
             'billing_address' => [
                 'email_address' => (string) ($user->email ?? ''),
