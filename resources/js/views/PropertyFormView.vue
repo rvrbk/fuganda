@@ -40,20 +40,38 @@
 				<p v-if="mediaUploadError" class="mt-1 text-xs text-rose-600">{{ mediaUploadError }}</p>
 				<div v-if="mediaItems.length" class="mt-2 grid grid-cols-2 gap-2 md:grid-cols-3">
 					<div v-for="(media, index) in mediaItems" :key="`${media.path}-${index}`" class="rounded border border-slate-200 p-2">
-						<img
-							v-if="media.kind === 'image'"
-							:src="media.path"
-							alt="Property media preview"
-							class="h-24 w-full rounded border border-slate-200 object-cover"
-						/>
-						<video
-							v-else
-							:src="media.path"
-							class="h-24 w-full rounded border border-slate-200 bg-slate-900"
-							controls
-							muted
-							preload="metadata"
-						></video>
+						<div class="relative">
+							<img
+								v-if="media.kind === 'image'"
+								:src="media.path"
+								alt="Property media preview"
+								class="h-24 w-full rounded border border-slate-200 object-cover"
+							/>
+							<video
+								v-else
+								:src="media.path"
+								class="h-24 w-full rounded border border-slate-200 bg-slate-900"
+								controls
+								muted
+								preload="metadata"
+							></video>
+							<button
+								type="button"
+								class="absolute right-2 top-1 rounded bg-white/80 px-1 py-0.5 text-xs hover:bg-white"
+								@click.stop="moveMediaUp(index)"
+								:disabled="index === 0"
+							>
+								▲
+							</button>
+							<button
+								type="button"
+								class="absolute right-2 top-6 rounded bg-white/80 px-1 py-0.5 text-xs hover:bg-white"
+								@click.stop="moveMediaDown(index)"
+								:disabled="index === mediaItems.length - 1"
+							>
+								▼
+							</button>
+						</div>
 						<button
 							type="button"
 							class="mt-2 w-full rounded border border-slate-300 px-2 py-1 text-xs text-slate-700 hover:bg-slate-50"
@@ -66,17 +84,23 @@
 			</div>
 			<div>
 				<label class="mb-1 block text-xs font-semibold uppercase tracking-wide text-slate-600" for="property-district">{{ $t('propertyForm.districtLabel') }}</label>
-				<select id="property-district" v-model="form.district" class="w-full rounded border border-slate-300 px-3 py-2 text-sm" required>
-					<option value="">{{ $t('propertyForm.districtLabel') }}</option>
-					<option v-for="district in districtOptions" :key="district" :value="district">{{ district }}</option>
-				</select>
+				<SearchableSelect
+					v-model="form.district"
+					:options="districtOptions"
+					:placeholder="$t('propertyForm.districtLabel')"
+					class="w-full"
+					required
+				/>
 			</div>
 			<div>
 				<label class="mb-1 block text-xs font-semibold uppercase tracking-wide text-slate-600" for="property-city">{{ $t('propertyForm.cityLabel') }}</label>
-				<select id="property-city" v-model="form.city" class="w-full rounded border border-slate-300 px-3 py-2 text-sm disabled:bg-slate-100 disabled:text-slate-400" :disabled="!form.district" required>
-					<option value="">{{ $t('propertyForm.cityLabel') }}</option>
-					<option v-for="city in cityOptions" :key="city" :value="city">{{ city }}</option>
-				</select>
+				<SearchableSelect
+					v-model="form.city"
+					:options="cityOptions"
+					:placeholder="$t('propertyForm.cityLabel')"
+					class="w-full"
+					required
+				/>
 			</div>
 			<div>
 				<label class="mb-1 block text-xs font-semibold uppercase tracking-wide text-slate-600" for="property-listing-type">{{ $t('propertyForm.listingTypeLabel') }}</label>
@@ -124,19 +148,13 @@
 				<label class="mb-1 block text-xs font-semibold uppercase tracking-wide text-slate-600" for="property-bathrooms">{{ $t('propertyForm.bathroomsLabel') }}</label>
 				<input id="property-bathrooms" v-model.number="form.bathrooms" type="number" min="0" class="w-full rounded border border-slate-300 px-3 py-2 text-sm" :placeholder="$t('propertyForm.bathroomsLabel')" required />
 			</div>
-			<div>
-				<label class="mb-1 block text-xs font-semibold uppercase tracking-wide text-slate-600" for="property-latitude">{{ $t('propertyForm.latitudeLabel') }}</label>
-				<input id="property-latitude" v-model.number="form.latitude" type="number" step="0.000001" class="w-full rounded border border-slate-300 px-3 py-2 text-sm" :placeholder="$t('propertyForm.latitudeLabel')" required />
-			</div>
-			<div>
-				<label class="mb-1 block text-xs font-semibold uppercase tracking-wide text-slate-600" for="property-longitude">{{ $t('propertyForm.longitudeLabel') }}</label>
-				<input id="property-longitude" v-model.number="form.longitude" type="number" step="0.000001" class="w-full rounded border border-slate-300 px-3 py-2 text-sm" :placeholder="$t('propertyForm.longitudeLabel')" required />
-			</div>
-
 			<div class="md:col-span-2 rounded border border-slate-200 p-3">
 				<p class="text-xs font-semibold uppercase tracking-wide text-slate-600">{{ $t('propertyForm.mapPickerLabel') }}</p>
 				<p class="mt-1 text-xs text-slate-500">{{ $t('propertyForm.mapPickerHint') }}</p>
 				<div ref="mapHost" class="mt-3 h-64 w-full rounded border border-slate-200"></div>
+				<p v-if="form.latitude && form.longitude" class="mt-2 text-xs text-slate-500">
+					{{ $t('propertyForm.latitudeLabel') }}: {{ form.latitude }}, {{ $t('propertyForm.longitudeLabel') }}: {{ form.longitude }}
+				</p>
 			</div>
 
 			<div class="md:col-span-2">
@@ -164,7 +182,8 @@ import L from 'leaflet';
 import { hasActiveSellerSubscription } from '../services/sellerBilling';
 import { getProfile, isBuyerProfile } from '../services/authProfile';
 import { createProperty, deleteProperty, extractApiErrorMessage, getProperty, updateProperty, uploadPropertyMedia } from '../services/properties';
-import { listCitiesByDistrict, listLocations } from '../services/locations';
+import { listCitiesByDistrict, listLocations, getDistrictByCity } from '../services/locations';
+import SearchableSelect from '../components/SearchableSelect.vue';
 import { usePageMeta } from '../composables/usePageMeta';
 
 const route = useRoute();
@@ -176,6 +195,7 @@ usePageMeta(() => ({ title: isEdit.value ? 'Edit Listing' : 'Create Listing', ro
 const mapHost = ref(null);
 const districtOptions = ref([]);
 const citiesByDistrict = ref({});
+const allCities = ref([]);
 const propertyTypeOptions = ref(['apartment', 'house', 'land', 'commercial']);
 const isUploadingMedia = ref(false);
 const mediaItems = ref([]);
@@ -191,6 +211,10 @@ const DEFAULT_CENTER = [0.3476, 32.5825];
 const SUPPORTED_CURRENCIES = ['UGX', 'USD'];
 const MAX_MEDIA_SIZE_MB = 100;
 const MAX_MEDIA_SIZE_BYTES = MAX_MEDIA_SIZE_MB * 1024 * 1024;
+const GEOCODE_DEBOUNCE_MS = 500;
+
+let geocodeTimeout = null;
+let isUpdatingFromMap = false;
 const SUPPORTED_MEDIA_MIME_TYPES = new Set([
 	'image/jpeg',
 	'image/png',
@@ -229,7 +253,24 @@ const form = ref({
 	mediaPaths: [],
 });
 
-const cityOptions = computed(() => listCitiesByDistrict(form.value.district));
+const cityOptions = computed(() => {
+	const district = form.value.district;
+	// Show all cities when no district is selected
+	if (!district || district === '') {
+		return allCities.value || listAllCities();
+	}
+	return listCitiesByDistrict(district);
+});
+
+// When a city is selected, automatically set the district
+watch(
+	() => form.value.city,
+	(newCity) => {
+		if (newCity && !form.value.district) {
+			form.value.district = getDistrictByCity(newCity);
+		}
+	}
+);
 
 function mapPickerIcon() {
 	return L.divIcon({
@@ -428,6 +469,49 @@ function moveMarker(latitude, longitude) {
 	}
 }
 
+async function forwardGeocode(query) {
+	if (!query || !map) {
+		return;
+	}
+
+	try {
+		const url = `https://nominatim.openstreetmap.org/search?format=jsonv2&q=${encodeURIComponent(query)}&countrycodes=ug&limit=1`;
+		const response = await fetch(url, {
+			headers: {
+				Accept: 'application/json',
+			},
+		});
+
+		if (!response.ok) {
+			return;
+		}
+
+		const data = await response.json();
+		const result = data?.[0];
+
+		if (result && validCoordinates(Number(result.lat), Number(result.lon))) {
+			const latitude = Number(result.lat);
+			const longitude = Number(result.lon);
+
+			isUpdatingFromMap = true;
+			form.value.latitude = latitude;
+			form.value.longitude = longitude;
+			form.value.address = result.display_name;
+			moveMarker(latitude, longitude);
+			map.setView([latitude, longitude], 15);
+
+			// Apply city/district from geocode result
+			// Forward geocode results have address fields directly on the result
+			applyLocationFromGeocode({ address: result });
+			await nextTick();
+			isUpdatingFromMap = false;
+		}
+	} catch {
+		// Silently fail - geocoding is a convenience feature
+		isUpdatingFromMap = false;
+	}
+}
+
 async function reverseGeocode(latitude, longitude) {
 	const fallback = fallbackAddress(latitude, longitude);
 
@@ -445,10 +529,14 @@ async function reverseGeocode(latitude, longitude) {
 		}
 
 		const data = await response.json();
+		isUpdatingFromMap = true;
 		applyLocationFromGeocode(data);
 		form.value.address = data?.display_name || fallback;
+		await nextTick();
+		isUpdatingFromMap = false;
 	} catch {
 		form.value.address = fallback;
+		isUpdatingFromMap = false;
 	}
 }
 
@@ -619,6 +707,24 @@ function removeMedia(index) {
 	syncMediaPathsFromItems();
 }
 
+function moveMediaUp(index) {
+	if (index > 0) {
+		const items = [...mediaItems.value];
+		[items[index], items[index - 1]] = [items[index - 1], items[index]];
+		mediaItems.value = items;
+		syncMediaPathsFromItems();
+	}
+}
+
+function moveMediaDown(index) {
+	if (index < mediaItems.value.length - 1) {
+		const items = [...mediaItems.value];
+		[items[index], items[index + 1]] = [items[index + 1], items[index]];
+		mediaItems.value = items;
+		syncMediaPathsFromItems();
+	}
+}
+
 async function load() {
 	const profile = await getProfile();
 	if (!isBuyerProfile(profile)) {
@@ -632,6 +738,7 @@ async function load() {
 	const locations = await listLocations();
 	districtOptions.value = locations.districts ?? [];
 	citiesByDistrict.value = locations.citiesByDistrict ?? {};
+	allCities.value = locations.allCities ?? [];
 	propertyTypeOptions.value = locations.propertyTypes?.length ? locations.propertyTypes : propertyTypeOptions.value;
 
 	if (isEdit.value) {
@@ -750,10 +857,31 @@ watch(
 
 onMounted(load);
 
+// Watch address field for geocoding
+watch(
+	() => form.value.address,
+	(newAddress) => {
+		if (isUpdatingFromMap) {
+			return;
+		}
+		if (geocodeTimeout) {
+			clearTimeout(geocodeTimeout);
+		}
+		geocodeTimeout = setTimeout(() => {
+			if (newAddress && newAddress.length >= 3) {
+				forwardGeocode(newAddress);
+			}
+		}, GEOCODE_DEBOUNCE_MS);
+	}
+);
+
 onBeforeUnmount(() => {
 	if (map) {
 		map.remove();
 		map = null;
+	}
+	if (geocodeTimeout) {
+		clearTimeout(geocodeTimeout);
 	}
 });
 </script>

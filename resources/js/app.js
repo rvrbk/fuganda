@@ -8,11 +8,15 @@ import App from './App.vue';
 import i18n from './i18n';
 import router from './router';
 import { bootHttp } from './services/http';
+import clickOutside from './directives/clickOutside';
 
 bootHttp();
 
-createApp(App)
-	.use(router)
+const app = createApp(App);
+
+app.directive('clickoutside', clickOutside);
+
+app.use(router)
 	.use(i18n)
 	.use(ElementPlus)
 	.mount('#app');

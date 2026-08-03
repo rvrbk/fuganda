@@ -50,15 +50,16 @@
 					: 'hidden sm:grid'"
 				@submit.prevent="search"
 			>
-				<select v-model="filters.district" class="rounded border border-slate-300 px-2 py-1.5 text-sm">
-					<option value="">{{ $t('filters.district') }}</option>
-					<option v-for="district in locations.districts" :key="district" :value="district">{{ district }}</option>
-				</select>
-
-				<select v-model="filters.city" class="rounded border border-slate-300 px-2 py-1.5 text-sm">
-					<option value="">{{ $t('filters.city') }}</option>
-					<option v-for="city in cityOptions" :key="city" :value="city">{{ city }}</option>
-				</select>
+					<SearchableSelect
+						v-model="filters.district"
+						:options="locations.districts"
+						:placeholder="$t('filters.district')"
+					/>
+					<SearchableSelect
+						v-model="filters.city"
+						:options="cityOptions"
+						:placeholder="$t('filters.city')"
+					/>
 
 				<select v-model="filters.listingType" class="rounded border border-slate-300 px-2 py-1.5 text-sm">
 					<option value="">{{ $t('filters.listingType') }}</option>
@@ -151,10 +152,11 @@
 import { computed, nextTick, onMounted, ref, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import PropertyMap from '../components/PropertyMap.vue';
+import SearchableSelect from '../components/SearchableSelect.vue';
 import { canManageListings, getProfile, getUserRole } from '../services/authProfile';
 import { hasActiveSellerSubscription } from '../services/sellerBilling';
 import { listProperties } from '../services/properties';
-import { listLocations, listCitiesByDistrict } from '../services/locations';
+import { listLocations, listCitiesByDistrict, listAllCities, getDistrictByCity } from '../services/locations';
 import { formatPrice } from '../utils/formatters';
 import { usePageMeta } from '../composables/usePageMeta';
 
@@ -257,7 +259,25 @@ function filtersFromQuery(query) {
 
 const filters = ref(filtersFromQuery(route.query));
 
-const cityOptions = computed(() => listCitiesByDistrict(filters.value.district));
+const cityOptions = computed(() => {
+	const district = filters.value.district;
+	// Show all cities when no district is selected
+	if (!district || district === '') {
+		// Use from locations ref or fallback to listAllCities
+		return locations.value.allCities || listAllCities();
+	}
+	return listCitiesByDistrict(district);
+});
+
+// When a city is selected, automatically set the district
+watch(
+	() => filters.value.city,
+	(newCity) => {
+		if (newCity && !filters.value.district) {
+			filters.value.district = getDistrictByCity(newCity);
+		}
+	}
+);
 
 function search() {
 	const query = Object.fromEntries(
