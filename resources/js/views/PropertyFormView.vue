@@ -848,32 +848,34 @@ async function load() {
 
 	// Re-match district and city when options become available (fixes race condition)
 	if (isEdit.value) {
-		// Use watchEffect to handle the case where options load after form values
-		// watchEffect runs immediately and tracks dependencies automatically
-		// Note: declare variables first to avoid temporal dead zone issues
-		let stopDistrictEffect;
-		let stopCityEffect;
-		stopDistrictEffect = watchEffect(() => {
-			// This runs when districtOptions or form.value.district changes
-			if (districtOptions.value.length > 0 && form.value.district) {
-				const matched = findBestMatch(form.value.district, districtOptions.value);
-				if (matched !== form.value.district) {
-					form.value.district = matched;
+		// Use regular watch to avoid temporal dead zone issues with watchEffect
+		const unwatchDistrict = watch(
+			() => districtOptions.value,
+			(newOptions) => {
+				if (newOptions.length > 0 && form.value.district) {
+					const matched = findBestMatch(form.value.district, newOptions);
+					if (matched !== form.value.district) {
+						form.value.district = matched;
+					}
+					unwatchDistrict();
 				}
-				stopDistrictEffect();
-			}
-		});
+			},
+			{ immediate: false }
+		);
 		
-		stopCityEffect = watchEffect(() => {
-			// This runs when allCities or form.value.city changes
-			if (allCities.value.length > 0 && form.value.city) {
-				const matched = findBestMatch(form.value.city, allCities.value);
-				if (matched !== form.value.city) {
-					form.value.city = matched;
+		const unwatchCity = watch(
+			() => allCities.value,
+			(newAllCities) => {
+				if (newAllCities.length > 0 && form.value.city) {
+					const matched = findBestMatch(form.value.city, newAllCities);
+					if (matched !== form.value.city) {
+						form.value.city = matched;
+					}
+					unwatchCity();
 				}
-				stopCityEffect();
-			}
-		});
+			},
+			{ immediate: false }
+		);
 	}
 
 	if (!form.value.address) {
