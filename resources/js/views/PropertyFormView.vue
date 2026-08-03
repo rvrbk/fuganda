@@ -83,26 +83,6 @@
 				</div>
 			</div>
 			<div>
-				<label class="mb-1 block text-xs font-semibold uppercase tracking-wide text-slate-600" for="property-district">{{ $t('propertyForm.districtLabel') }}</label>
-				<SearchableSelect
-					v-model="form.district"
-					:options="districtOptions"
-					:placeholder="$t('propertyForm.districtLabel')"
-					class="w-full"
-					required
-				/>
-			</div>
-			<div>
-				<label class="mb-1 block text-xs font-semibold uppercase tracking-wide text-slate-600" for="property-city">{{ $t('propertyForm.cityLabel') }}</label>
-				<SearchableSelect
-					v-model="form.city"
-					:options="cityOptions"
-					:placeholder="$t('propertyForm.cityLabel')"
-					class="w-full"
-					required
-				/>
-			</div>
-			<div>
 				<label class="mb-1 block text-xs font-semibold uppercase tracking-wide text-slate-600" for="property-listing-type">{{ $t('propertyForm.listingTypeLabel') }}</label>
 				<select id="property-listing-type" v-model="form.listingType" class="w-full rounded border border-slate-300 px-3 py-2 text-sm" required>
 					<option value="">{{ $t('propertyForm.listingTypeLabel') }}</option>
@@ -175,15 +155,14 @@
 </template>
 
 <script setup>
-import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch, watchEffect } from 'vue';
+import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { useI18n } from 'vue-i18n';
 import L from 'leaflet';
 import { hasActiveSellerSubscription } from '../services/sellerBilling';
 import { getProfile, isBuyerProfile } from '../services/authProfile';
 import { createProperty, deleteProperty, extractApiErrorMessage, getProperty, updateProperty, uploadPropertyMedia } from '../services/properties';
-import { listCitiesByDistrict, listLocations, getDistrictByCity } from '../services/locations';
-import SearchableSelect from '../components/SearchableSelect.vue';
+import { listLocations } from '../services/locations';
 import { usePageMeta } from '../composables/usePageMeta';
 
 const route = useRoute();
@@ -193,9 +172,6 @@ const isEdit = computed(() => Boolean(route.params.id));
 
 usePageMeta(() => ({ title: isEdit.value ? 'Edit Listing' : 'Create Listing', robots: 'noindex,nofollow' }));
 const mapHost = ref(null);
-const districtOptions = ref([]);
-const citiesByDistrict = ref({});
-const allCities = ref([]);
 const propertyTypeOptions = ref(['apartment', 'house', 'land', 'commercial']);
 const isUploadingMedia = ref(false);
 const mediaItems = ref([]);
@@ -233,15 +209,12 @@ const selectedMediaLabel = computed(() => {
 	if (!selectedMediaNames.value.length) {
 		return t('propertyForm.mediaNoFileChosen');
 	}
-
 	return selectedMediaNames.value.join(', ');
 });
 
 const form = ref({
 	title: '',
 	description: '',
-	district: '',
-	city: '',
 	address: '',
 	price: 0,
 	priceCurrency: 'UGX',
@@ -254,25 +227,6 @@ const form = ref({
 	imageUrl: '',
 	mediaPaths: [],
 });
-
-const cityOptions = computed(() => {
-	const district = form.value.district;
-	// Show all cities when no district is selected
-	if (!district || district === '') {
-		return allCities.value || listAllCities();
-	}
-	return listCitiesByDistrict(district);
-});
-
-// When a city is selected, automatically set the district
-watch(
-	() => form.value.city,
-	(newCity) => {
-		if (newCity && !form.value.district) {
-			form.value.district = getDistrictByCity(newCity);
-		}
-	}
-);
 
 function mapPickerIcon() {
 	return L.divIcon({
@@ -296,27 +250,8 @@ function parseCoordinate(value) {
 	if (value === '' || value === null || value === undefined) {
 		return null;
 	}
-
 	const parsed = Number(value);
 	return Number.isFinite(parsed) ? parsed : null;
-}
-
-function normalizeValue(value) {
-	return String(value ?? '').trim().toLowerCase();
-}
-
-function normalizeComparableText(value) {
-	return String(value ?? '')
-		.normalize('NFKD')
-		.replace(/[\u0300-\u036f]/g, '')
-		.toLowerCase()
-		.replace(/[^a-z0-9\s]/g, ' ')
-		.replace(/\s+/g, ' ')
-		.trim();
-}
-
-function tokenize(value) {
-	return normalizeComparableText(value).split(' ').filter(Boolean);
 }
 
 function normalizeCurrency(value) {
@@ -324,173 +259,10 @@ function normalizeCurrency(value) {
 	return SUPPORTED_CURRENCIES.includes(normalized) ? normalized : 'UGX';
 }
 
-function scoreMatch(candidate, option) {
-	const normalizedCandidate = normalizeComparableText(candidate);
-	const normalizedOption = normalizeComparableText(option);
-
-	if (!normalizedCandidate || !normalizedOption) {
-		return 0;
-	}
-
-	if (normalizedCandidate === normalizedOption) {
-		return 100;
-	}
-
-	if (normalizedCandidate.includes(normalizedOption) || normalizedOption.includes(normalizedCandidate)) {
-		return 75;
-	}
-
-	const candidateTokens = tokenize(candidate);
-	const optionTokens = tokenize(option);
-
-	if (!candidateTokens.length || !optionTokens.length) {
-		return 0;
-	}
-
-	const overlap = optionTokens.filter((token) => candidateTokens.includes(token)).length;
-	if (!overlap) {
-		return 0;
-	}
-
-	const coverage = overlap / optionTokens.length;
-	if (coverage >= 1) {
-		return 65;
-	}
-
-	if (coverage >= 0.5) {
-		return 55;
-	}
-
-	return 0;
-}
-
-function firstMatchingOption(candidates, options) {
-	let bestOption = '';
-	let bestScore = 0;
-
-	for (const candidate of candidates) {
-		for (const option of options) {
-			const score = scoreMatch(candidate, option);
-			if (score > bestScore) {
-				bestScore = score;
-				bestOption = option;
-			}
-
-			if (score === 100) {
-				return option;
-			}
-		}
-	}
-
-	return bestScore >= 55 ? bestOption : '';
-}
-
-function findBestMatch(value, options) {
-	if (!value || !options?.length) return '';
-	
-	// First try exact match (case-sensitive)
-	const exactMatch = options.find(opt => String(opt).trim() === String(value).trim());
-	if (exactMatch) return exactMatch;
-	
-	// Then try case-insensitive exact match
-	const normalizedValue = String(value).trim().toLowerCase();
-	const caseInsensitiveMatch = options.find(opt => String(opt).trim().toLowerCase() === normalizedValue);
-	if (caseInsensitiveMatch) return caseInsensitiveMatch;
-	
-	// Then try contains match (case-insensitive)
-	const containsMatch = options.find(opt => 
-		String(opt).trim().toLowerCase().includes(normalizedValue) ||
-		normalizedValue.includes(String(opt).trim().toLowerCase())
-	);
-	if (containsMatch) return containsMatch;
-	
-	// Then use firstMatchingOption with score >= 55
-	const scoredMatch = firstMatchingOption([value], options);
-	if (scoredMatch) return scoredMatch;
-	
-	// As last resort, return the first option or empty
-	return options[0] || '';
-}
-
-function findDistrictByCity(city) {
-	const normalizedCity = normalizeComparableText(city);
-
-	for (const [district, cities] of Object.entries(citiesByDistrict.value ?? {})) {
-		if (!Array.isArray(cities)) {
-			continue;
-		}
-
-		const hasCity = cities.some((entry) => {
-			const normalizedEntry = normalizeComparableText(entry);
-			if (!normalizedEntry || !normalizedCity) {
-				return false;
-			}
-
-			return normalizedEntry === normalizedCity || normalizedEntry.includes(normalizedCity) || normalizedCity.includes(normalizedEntry);
-		});
-		if (hasCity) {
-			return district;
-		}
-	}
-
-	return '';
-}
-
-function applyLocationFromGeocode(data) {
-	const address = data?.address ?? {};
-
-	const districtCandidates = [
-		address.city_district,
-		address.state_district,
-		address.county,
-		address.state,
-		address.municipality,
-	];
-
-	const cityCandidates = [
-		address.city,
-		address.town,
-		address.village,
-		address.suburb,
-		address.hamlet,
-		address.neighbourhood,
-		address.municipality,
-	];
-
-	const matchedCity = firstMatchingOption(cityCandidates, Object.values(citiesByDistrict.value ?? {}).flat());
-	let matchedDistrict = firstMatchingOption(districtCandidates, districtOptions.value);
-
-	if (!matchedDistrict && matchedCity) {
-		matchedDistrict = findDistrictByCity(matchedCity);
-	}
-
-	if (matchedDistrict) {
-		form.value.district = matchedDistrict;
-	} else {
-		// Prevent stale district selection when geocode has no known district match.
-		form.value.district = '';
-	}
-
-	const districtCityOptions = matchedDistrict
-		? (citiesByDistrict.value?.[matchedDistrict] ?? [])
-		: [];
-
-	const cityFromDistrict = firstMatchingOption(cityCandidates, districtCityOptions);
-	if (cityFromDistrict) {
-		form.value.city = cityFromDistrict;
-	} else if (!form.value.city && matchedCity) {
-		form.value.city = matchedCity;
-	} else if (!matchedCity) {
-		// Prevent stale city selection when geocode has no known city match.
-		form.value.city = '';
-	}
-}
-
 function moveMarker(latitude, longitude) {
 	if (!map || !validCoordinates(latitude, longitude)) {
 		return;
 	}
-
 	if (!marker) {
 		marker = L.marker([latitude, longitude], { icon: mapPickerIcon() }).addTo(map);
 	} else {
@@ -502,64 +274,44 @@ async function forwardGeocode(query) {
 	if (!query || !map) {
 		return;
 	}
-
 	try {
 		const url = `https://nominatim.openstreetmap.org/search?format=jsonv2&q=${encodeURIComponent(query)}&countrycodes=ug&limit=1`;
 		const response = await fetch(url, {
-			headers: {
-				Accept: 'application/json',
-			},
+			headers: { Accept: 'application/json' },
 		});
-
-		if (!response.ok) {
-			return;
-		}
-
+		if (!response.ok) return;
 		const data = await response.json();
 		const result = data?.[0];
-
 		if (result && validCoordinates(Number(result.lat), Number(result.lon))) {
 			const latitude = Number(result.lat);
 			const longitude = Number(result.lon);
-
 			isUpdatingFromMap = true;
 			form.value.latitude = latitude;
 			form.value.longitude = longitude;
 			form.value.address = result.display_name;
 			moveMarker(latitude, longitude);
 			map.setView([latitude, longitude], 15);
-
-			// Apply city/district from geocode result
-			// Forward geocode results have address fields directly on the result
-			applyLocationFromGeocode({ address: result });
 			await nextTick();
 			isUpdatingFromMap = false;
 		}
 	} catch {
-		// Silently fail - geocoding is a convenience feature
 		isUpdatingFromMap = false;
 	}
 }
 
 async function reverseGeocode(latitude, longitude) {
 	const fallback = fallbackAddress(latitude, longitude);
-
 	try {
 		const url = `https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${encodeURIComponent(latitude)}&lon=${encodeURIComponent(longitude)}`;
 		const response = await fetch(url, {
-			headers: {
-				Accept: 'application/json',
-			},
+			headers: { Accept: 'application/json' },
 		});
-
 		if (!response.ok) {
 			form.value.address = fallback;
 			return;
 		}
-
 		const data = await response.json();
 		isUpdatingFromMap = true;
-		applyLocationFromGeocode(data);
 		form.value.address = data?.display_name || fallback;
 		await nextTick();
 		isUpdatingFromMap = false;
@@ -570,13 +322,9 @@ async function reverseGeocode(latitude, longitude) {
 }
 
 function syncMapToCurrentCoordinates() {
-	if (!map) {
-		return;
-	}
-
+	if (!map) return;
 	const latitude = parseCoordinate(form.value.latitude);
 	const longitude = parseCoordinate(form.value.longitude);
-
 	if (!validCoordinates(latitude, longitude)) {
 		map.setView(DEFAULT_CENTER, 7);
 		if (marker) {
@@ -585,18 +333,13 @@ function syncMapToCurrentCoordinates() {
 		}
 		return;
 	}
-
 	moveMarker(latitude, longitude);
 	map.setView([latitude, longitude], 13);
 }
 
 function initializeMap() {
-	if (!mapHost.value) {
-		return;
-	}
-
+	if (!mapHost.value) return;
 	map = L.map(mapHost.value).setView(DEFAULT_CENTER, 7);
-
 	L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
 		maxZoom: 19,
 		attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>',
@@ -605,36 +348,20 @@ function initializeMap() {
 	map.on('click', async (event) => {
 		const latitude = Number(event.latlng.lat.toFixed(6));
 		const longitude = Number(event.latlng.lng.toFixed(6));
-
 		form.value.latitude = latitude;
 		form.value.longitude = longitude;
 		moveMarker(latitude, longitude);
-
 		await reverseGeocode(latitude, longitude);
 	});
 
 	syncMapToCurrentCoordinates();
+	requestAnimationFrame(() => { map?.invalidateSize(); });
 
-	requestAnimationFrame(() => {
-		map?.invalidateSize();
-	});
-
-	// Setup resize observer for mobile viewport changes
 	if (window.ResizeObserver) {
-		resizeObserver = new ResizeObserver(() => {
-			if (map) {
-				map.invalidateSize();
-			}
-		});
+		resizeObserver = new ResizeObserver(() => { if (map) map.invalidateSize(); });
 		resizeObserver.observe(mapHost.value);
 	}
-
-	// Also handle window resize as fallback
-	handleWindowResize = () => {
-		if (map) {
-			map.invalidateSize();
-		}
-	};
+	handleWindowResize = () => { if (map) map.invalidateSize(); };
 	window.addEventListener('resize', handleWindowResize);
 }
 
@@ -654,10 +381,7 @@ function getFileExtension(fileName) {
 
 function isSupportedMediaFile(file) {
 	const mimeType = String(file?.type ?? '').toLowerCase();
-	if (mimeType && SUPPORTED_MEDIA_MIME_TYPES.has(mimeType)) {
-		return true;
-	}
-
+	if (mimeType && SUPPORTED_MEDIA_MIME_TYPES.has(mimeType)) return true;
 	const extension = getFileExtension(file?.name);
 	return SUPPORTED_MEDIA_EXTENSIONS.has(extension);
 }
@@ -666,14 +390,12 @@ function validateMediaFile(file) {
 	if (!isSupportedMediaFile(file)) {
 		return t('propertyForm.mediaUploadValidationType', { fileName: file?.name || '' });
 	}
-
 	if (Number(file?.size ?? 0) > MAX_MEDIA_SIZE_BYTES) {
 		return t('propertyForm.mediaUploadValidationSize', {
 			fileName: file?.name || '',
 			maxSizeMb: MAX_MEDIA_SIZE_MB,
 		});
 	}
-
 	return '';
 }
 
@@ -692,39 +414,25 @@ function openMediaPicker() {
 
 async function onMediaSelected(event) {
 	const files = Array.from(event?.target?.files ?? []);
-
 	if (!files.length) {
 		selectedMediaNames.value = [];
 		return;
 	}
-
 	selectedMediaNames.value = files.map((file) => String(file?.name ?? '')).filter(Boolean);
-
 	mediaUploadError.value = '';
-
 	const firstValidationError = files.map((file) => validateMediaFile(file)).find(Boolean);
 	if (firstValidationError) {
 		mediaUploadError.value = firstValidationError;
-		if (event?.target) {
-			event.target.value = '';
-		}
+		if (event?.target) { event.target.value = ''; }
 		return;
 	}
-
 	isUploadingMedia.value = true;
-
 	try {
 		for (const file of files) {
 			try {
 				const uploadedPath = await uploadPropertyMedia(file);
-				if (!uploadedPath) {
-					continue;
-				}
-
-				mediaItems.value.push({
-					path: uploadedPath,
-					kind: inferMediaKindFromFile(file),
-				});
+				if (!uploadedPath) continue;
+				mediaItems.value.push({ path: uploadedPath, kind: inferMediaKindFromFile(file) });
 			} catch (error) {
 				const status = error?.response?.status;
 				const apiMessage = extractApiErrorMessage(error);
@@ -739,13 +447,10 @@ async function onMediaSelected(event) {
 				}
 			}
 		}
-
 		syncMediaPathsFromItems();
 	} finally {
 		isUploadingMedia.value = false;
-		if (event?.target) {
-			event.target.value = '';
-		}
+		if (event?.target) { event.target.value = ''; }
 	}
 }
 
@@ -783,9 +488,6 @@ async function load() {
 	}
 
 	const locations = await listLocations();
-	districtOptions.value = locations.districts ?? [];
-	citiesByDistrict.value = locations.citiesByDistrict ?? {};
-	allCities.value = locations.allCities ?? [];
 	propertyTypeOptions.value = locations.propertyTypes?.length ? locations.propertyTypes : propertyTypeOptions.value;
 
 	if (isEdit.value) {
@@ -800,35 +502,10 @@ async function load() {
 					? [{ path: found.imageUrl, kind: inferMediaKindFromPath(found.imageUrl) }]
 					: [];
 
-			// Match district and city to available options
-			// Try multiple field names for district and city (name, id, etc.)
-			const districtCandidates = [
-				found.district?.name,
-				found.district_name,
-				found.district,
-				found.district_id,
-			].filter(Boolean).map(String).map(s => s.trim());
-			const cityCandidates = [
-				found.city?.name,
-				found.city_name,
-				found.city,
-				found.city_id,
-			].filter(Boolean).map(String).map(s => s.trim());
-			
-			const matchedDistrict = districtCandidates.length 
-				? findBestMatch(districtCandidates[0], districtOptions.value) 
-				: '';
-			const districtCities = citiesByDistrict.value?.[matchedDistrict] || [];
-			const matchedCity = cityCandidates.length 
-				? (findBestMatch(cityCandidates[0], districtCities) || findBestMatch(cityCandidates[0], allCities.value || []))
-				: '';
-
 			form.value = {
 				...form.value,
 				...found,
 				priceCurrency: normalizeCurrency(found.priceCurrency ?? found.price_currency ?? found.currency),
-				district: matchedDistrict,
-				city: matchedCity,
 				propertyType: String(found.propertyType ?? found.property_type ?? '').trim().toLowerCase(),
 				listingType: String(found.listingType ?? found.listing_type ?? '').trim().toLowerCase(),
 				mediaPaths: normalizedMedia.map((item) => item.path),
@@ -839,54 +516,14 @@ async function load() {
 	}
 
 	await nextTick();
-
-	if (!map) {
-		initializeMap();
-	}
-
+	if (!map) { initializeMap(); }
 	syncMapToCurrentCoordinates();
 
-	// Re-match district and city when options become available (fixes race condition)
-	if (isEdit.value) {
-		// Use regular watch to avoid temporal dead zone issues with watchEffect
-		const unwatchDistrict = watch(
-			() => districtOptions.value,
-			(newOptions) => {
-				if (newOptions.length > 0 && form.value.district) {
-					const matched = findBestMatch(form.value.district, newOptions);
-					if (matched !== form.value.district) {
-						form.value.district = matched;
-					}
-					unwatchDistrict();
-				}
-			},
-			{ immediate: false }
-		);
-		
-		const unwatchCity = watch(
-			() => allCities.value,
-			(newAllCities) => {
-				if (newAllCities.length > 0 && form.value.city) {
-					const matched = findBestMatch(form.value.city, newAllCities);
-					if (matched !== form.value.city) {
-						form.value.city = matched;
-					}
-					unwatchCity();
-				}
-			},
-			{ immediate: false }
-		);
-	}
-
-	if (!form.value.address) {
-		if (form.value.city && form.value.district) {
-			form.value.address = `${form.value.city}, ${form.value.district}`;
-		} else if (isEdit.value) {
-			const latitude = parseCoordinate(form.value.latitude);
-			const longitude = parseCoordinate(form.value.longitude);
-			if (validCoordinates(latitude, longitude)) {
-				form.value.address = fallbackAddress(latitude, longitude);
-			}
+	if (!form.value.address && isEdit.value) {
+		const latitude = parseCoordinate(form.value.latitude);
+		const longitude = parseCoordinate(form.value.longitude);
+		if (validCoordinates(latitude, longitude)) {
+			form.value.address = fallbackAddress(latitude, longitude);
 		}
 	}
 }
@@ -896,21 +533,17 @@ async function save() {
 		router.push({ name: 'seller-onboarding', query: { redirect: route.fullPath } });
 		return;
 	}
-
 	if (isEdit.value) {
 		const updated = await updateProperty(route.params.id, form.value);
 		router.push({ name: 'property-detail', params: { id: route.params.id } });
 		return;
 	}
-
 	const created = await createProperty(form.value);
 	router.push({ name: 'home', query: { owned: '1', created: '1' } });
 }
 
 function confirmDelete() {
-	if (confirm(t('actions.deleteConfirm'))) {
-		handleDelete();
-	}
+	if (confirm(t('actions.deleteConfirm'))) { handleDelete(); }
 }
 
 async function handleDelete() {
@@ -918,7 +551,6 @@ async function handleDelete() {
 		router.push({ name: 'seller-onboarding', query: { redirect: route.fullPath } });
 		return;
 	}
-
 	try {
 		const propertyId = route.params.id;
 		await deleteProperty(propertyId);
@@ -930,50 +562,23 @@ async function handleDelete() {
 }
 
 watch(
-	() => form.value.district,
-	(newDistrict) => {
-		if (!newDistrict) {
-			form.value.city = '';
-			return;
-		}
-
-		// Only clear city if we have district options and the city doesn't belong to the selected district
-		if (districtOptions.value.length > 0 && !cityOptions.value.includes(form.value.city)) {
-			form.value.city = '';
-		}
-	},
-);
-
-watch(
 	() => [form.value.latitude, form.value.longitude],
 	([latitude, longitude]) => {
 		const parsedLatitude = parseCoordinate(latitude);
 		const parsedLongitude = parseCoordinate(longitude);
-
 		if (!validCoordinates(parsedLatitude, parsedLongitude)) {
-			if (marker && map) {
-				map.removeLayer(marker);
-				marker = null;
-			}
+			if (marker && map) { map.removeLayer(marker); marker = null; }
 			return;
 		}
-
 		moveMarker(parsedLatitude, parsedLongitude);
 	},
 );
 
-onMounted(load);
-
-// Watch address field for geocoding
 watch(
 	() => form.value.address,
 	(newAddress) => {
-		if (isUpdatingFromMap) {
-			return;
-		}
-		if (geocodeTimeout) {
-			clearTimeout(geocodeTimeout);
-		}
+		if (isUpdatingFromMap) return;
+		if (geocodeTimeout) clearTimeout(geocodeTimeout);
 		geocodeTimeout = setTimeout(() => {
 			if (newAddress && newAddress.length >= 3) {
 				forwardGeocode(newAddress);
@@ -982,22 +587,13 @@ watch(
 	}
 );
 
+onMounted(load);
+
 onBeforeUnmount(() => {
-	if (map) {
-		map.remove();
-		map = null;
-	}
-	if (geocodeTimeout) {
-		clearTimeout(geocodeTimeout);
-	}
-	if (resizeObserver) {
-		resizeObserver.disconnect();
-		resizeObserver = null;
-	}
-	if (handleWindowResize) {
-		window.removeEventListener('resize', handleWindowResize);
-		handleWindowResize = null;
-	}
+	if (map) { map.remove(); map = null; }
+	if (geocodeTimeout) { clearTimeout(geocodeTimeout); }
+	if (resizeObserver) { resizeObserver.disconnect(); resizeObserver = null; }
+	if (handleWindowResize) { window.removeEventListener('resize', handleWindowResize); handleWindowResize = null; }
 });
 </script>
 
