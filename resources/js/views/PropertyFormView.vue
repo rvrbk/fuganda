@@ -151,7 +151,7 @@
 			<div class="md:col-span-2 rounded border border-slate-200 p-3">
 				<p class="text-xs font-semibold uppercase tracking-wide text-slate-600">{{ $t('propertyForm.mapPickerLabel') }}</p>
 				<p class="mt-1 text-xs text-slate-500">{{ $t('propertyForm.mapPickerHint') }}</p>
-				<div ref="mapHost" class="mt-3 h-64 w-full rounded border border-slate-200"></div>
+				<div ref="mapHost" class="mt-3 h-64 w-full rounded border border-slate-200 relative"></div>
 				<p v-if="form.latitude && form.longitude" class="mt-2 text-xs text-slate-500">
 					{{ $t('propertyForm.latitudeLabel') }}: {{ form.latitude }}, {{ $t('propertyForm.longitudeLabel') }}: {{ form.longitude }}
 				</p>
@@ -206,6 +206,8 @@ const selectedMediaNames = ref([]);
 
 let map = null;
 let marker = null;
+let resizeObserver = null;
+let handleWindowResize = null;
 
 const DEFAULT_CENTER = [0.3476, 32.5825];
 const SUPPORTED_CURRENCIES = ['UGX', 'USD'];
@@ -589,6 +591,24 @@ function initializeMap() {
 	requestAnimationFrame(() => {
 		map?.invalidateSize();
 	});
+
+	// Setup resize observer for mobile viewport changes
+	if (window.ResizeObserver) {
+		resizeObserver = new ResizeObserver(() => {
+			if (map) {
+				map.invalidateSize();
+			}
+		});
+		resizeObserver.observe(mapHost.value);
+	}
+
+	// Also handle window resize as fallback
+	handleWindowResize = () => {
+		if (map) {
+			map.invalidateSize();
+		}
+	};
+	window.addEventListener('resize', handleWindowResize);
 }
 
 function inferMediaKindFromPath(path) {
@@ -882,6 +902,14 @@ onBeforeUnmount(() => {
 	}
 	if (geocodeTimeout) {
 		clearTimeout(geocodeTimeout);
+	}
+	if (resizeObserver) {
+		resizeObserver.disconnect();
+		resizeObserver = null;
+	}
+	if (handleWindowResize) {
+		window.removeEventListener('resize', handleWindowResize);
+		handleWindowResize = null;
 	}
 });
 </script>
