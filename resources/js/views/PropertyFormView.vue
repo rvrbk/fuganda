@@ -175,7 +175,7 @@
 </template>
 
 <script setup>
-import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue';
+import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch, watchEffect } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { useI18n } from 'vue-i18n';
 import L from 'leaflet';
@@ -815,10 +815,6 @@ async function load() {
 				found.city_id,
 			].filter(Boolean).map(String).map(s => s.trim());
 			
-			// Debug logging
-			console.log('Property data district/city candidates:', { districtCandidates, cityCandidates });
-			console.log('Available options:', { districtOptions: districtOptions.value, allCities: allCities.value });
-			
 			const matchedDistrict = districtCandidates.length 
 				? findBestMatch(districtCandidates[0], districtOptions.value) 
 				: '';
@@ -826,8 +822,6 @@ async function load() {
 			const matchedCity = cityCandidates.length 
 				? (findBestMatch(cityCandidates[0], districtCities) || findBestMatch(cityCandidates[0], allCities.value || []))
 				: '';
-			
-			console.log('Matched values:', { matchedDistrict, matchedCity });
 
 			form.value = {
 				...form.value,
@@ -854,26 +848,29 @@ async function load() {
 
 	// Re-match district and city when options become available (fixes race condition)
 	if (isEdit.value) {
-		// We'll use watchers to handle the case where options load after form values
-		const stopDistrictWatch = watch(() => districtOptions.value, (newOptions) => {
-			if (newOptions.length > 0 && form.value.district) {
-				const matched = findBestMatch(form.value.district, newOptions);
+		// Use watchEffect to handle the case where options load after form values
+		// watchEffect runs immediately and tracks dependencies automatically
+		const stopDistrictEffect = watchEffect(() => {
+			// This runs when districtOptions or form.value.district changes
+			if (districtOptions.value.length > 0 && form.value.district) {
+				const matched = findBestMatch(form.value.district, districtOptions.value);
 				if (matched !== form.value.district) {
 					form.value.district = matched;
 				}
-				stopDistrictWatch();
+				stopDistrictEffect();
 			}
-		}, { once: true, immediate: true });
+		});
 		
-		const stopCitiesWatch = watch(() => allCities.value, (newAllCities) => {
-			if (newAllCities.length > 0 && form.value.city) {
-				const matched = findBestMatch(form.value.city, newAllCities);
+		const stopCityEffect = watchEffect(() => {
+			// This runs when allCities or form.value.city changes
+			if (allCities.value.length > 0 && form.value.city) {
+				const matched = findBestMatch(form.value.city, allCities.value);
 				if (matched !== form.value.city) {
 					form.value.city = matched;
 				}
-				stopCitiesWatch();
+				stopCityEffect();
 			}
-		}, { once: true, immediate: true });
+		});
 	}
 
 	if (!form.value.address) {
