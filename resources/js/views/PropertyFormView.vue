@@ -209,7 +209,7 @@ let marker = null;
 let resizeObserver = null;
 let handleWindowResize = null;
 
-const DEFAULT_CENTER = [0.3476, 32.5825];
+const DEFAULT_CENTER = [0.6, 32.5825];
 const SUPPORTED_CURRENCIES = ['UGX', 'USD'];
 const MAX_MEDIA_SIZE_MB = 100;
 const MAX_MEDIA_SIZE_BYTES = MAX_MEDIA_SIZE_MB * 1024 * 1024;
@@ -279,7 +279,7 @@ function mapPickerIcon() {
 		className: 'property-form-pin',
 		html: '<span class="property-form-pin__body" aria-hidden="true"><span class="property-form-pin__core"></span></span>',
 		iconSize: [26, 36],
-		iconAnchor: [13, 35],
+		iconAnchor: [13, 30],
 		popupAnchor: [0, -30],
 	});
 }
@@ -773,10 +773,21 @@ async function load() {
 					? [{ path: found.imageUrl, kind: inferMediaKindFromPath(found.imageUrl) }]
 					: [];
 
+			// Match district and city to available options
+			const rawDistrict = String(found.district?.name ?? found.district_name ?? found.district ?? '').trim();
+			const rawCity = String(found.city?.name ?? found.city_name ?? found.city ?? '').trim();
+			const matchedDistrict = firstMatchingOption([rawDistrict], districtOptions.value) || rawDistrict;
+			const districtCities = citiesByDistrict.value?.[matchedDistrict] || [];
+			const matchedCity = firstMatchingOption([rawCity], districtCities) || firstMatchingOption([rawCity], allCities.value || []) || rawCity;
+
 			form.value = {
 				...form.value,
 				...found,
 				priceCurrency: normalizeCurrency(found.priceCurrency ?? found.price_currency ?? found.currency),
+				district: matchedDistrict,
+				city: matchedCity,
+				propertyType: String(found.propertyType ?? found.property_type ?? '').trim().toLowerCase(),
+				listingType: String(found.listingType ?? found.listing_type ?? '').trim().toLowerCase(),
 				mediaPaths: normalizedMedia.map((item) => item.path),
 			};
 			mediaItems.value = normalizedMedia;
