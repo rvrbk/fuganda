@@ -801,11 +801,33 @@ async function load() {
 					: [];
 
 			// Match district and city to available options
-			const rawDistrict = String(found.district?.name ?? found.district_name ?? found.district ?? '').trim();
-			const rawCity = String(found.city?.name ?? found.city_name ?? found.city ?? '').trim();
-			const matchedDistrict = findBestMatch(rawDistrict, districtOptions.value);
+			// Try multiple field names for district and city (name, id, etc.)
+			const districtCandidates = [
+				found.district?.name,
+				found.district_name,
+				found.district,
+				found.district_id,
+			].filter(Boolean).map(String).map(s => s.trim());
+			const cityCandidates = [
+				found.city?.name,
+				found.city_name,
+				found.city,
+				found.city_id,
+			].filter(Boolean).map(String).map(s => s.trim());
+			
+			// Debug logging
+			console.log('Property data district/city candidates:', { districtCandidates, cityCandidates });
+			console.log('Available options:', { districtOptions: districtOptions.value, allCities: allCities.value });
+			
+			const matchedDistrict = districtCandidates.length 
+				? findBestMatch(districtCandidates[0], districtOptions.value) 
+				: '';
 			const districtCities = citiesByDistrict.value?.[matchedDistrict] || [];
-			const matchedCity = findBestMatch(rawCity, districtCities) || findBestMatch(rawCity, allCities.value || []);
+			const matchedCity = cityCandidates.length 
+				? (findBestMatch(cityCandidates[0], districtCities) || findBestMatch(cityCandidates[0], allCities.value || []))
+				: '';
+			
+			console.log('Matched values:', { matchedDistrict, matchedCity });
 
 			form.value = {
 				...form.value,
