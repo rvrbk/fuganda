@@ -385,6 +385,33 @@ function firstMatchingOption(candidates, options) {
 	return bestScore >= 55 ? bestOption : '';
 }
 
+function findBestMatch(value, options) {
+	if (!value || !options?.length) return '';
+	
+	// First try exact match (case-sensitive)
+	const exactMatch = options.find(opt => String(opt).trim() === String(value).trim());
+	if (exactMatch) return exactMatch;
+	
+	// Then try case-insensitive exact match
+	const normalizedValue = String(value).trim().toLowerCase();
+	const caseInsensitiveMatch = options.find(opt => String(opt).trim().toLowerCase() === normalizedValue);
+	if (caseInsensitiveMatch) return caseInsensitiveMatch;
+	
+	// Then try contains match (case-insensitive)
+	const containsMatch = options.find(opt => 
+		String(opt).trim().toLowerCase().includes(normalizedValue) ||
+		normalizedValue.includes(String(opt).trim().toLowerCase())
+	);
+	if (containsMatch) return containsMatch;
+	
+	// Then use firstMatchingOption with score >= 55
+	const scoredMatch = firstMatchingOption([value], options);
+	if (scoredMatch) return scoredMatch;
+	
+	// As last resort, return the first option or empty
+	return options[0] || '';
+}
+
 function findDistrictByCity(city) {
 	const normalizedCity = normalizeComparableText(city);
 
@@ -776,9 +803,9 @@ async function load() {
 			// Match district and city to available options
 			const rawDistrict = String(found.district?.name ?? found.district_name ?? found.district ?? '').trim();
 			const rawCity = String(found.city?.name ?? found.city_name ?? found.city ?? '').trim();
-			const matchedDistrict = firstMatchingOption([rawDistrict], districtOptions.value) || rawDistrict;
+			const matchedDistrict = findBestMatch(rawDistrict, districtOptions.value);
 			const districtCities = citiesByDistrict.value?.[matchedDistrict] || [];
-			const matchedCity = firstMatchingOption([rawCity], districtCities) || firstMatchingOption([rawCity], allCities.value || []) || rawCity;
+			const matchedCity = findBestMatch(rawCity, districtCities) || findBestMatch(rawCity, allCities.value || []);
 
 			form.value = {
 				...form.value,
