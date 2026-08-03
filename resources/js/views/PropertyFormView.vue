@@ -852,6 +852,30 @@ async function load() {
 
 	syncMapToCurrentCoordinates();
 
+	// Re-match district and city when options become available (fixes race condition)
+	if (isEdit.value) {
+		// We'll use watchers to handle the case where options load after form values
+		const stopDistrictWatch = watch(() => districtOptions.value, (newOptions) => {
+			if (newOptions.length > 0 && form.value.district) {
+				const matched = findBestMatch(form.value.district, newOptions);
+				if (matched !== form.value.district) {
+					form.value.district = matched;
+				}
+				stopDistrictWatch();
+			}
+		}, { once: true, immediate: true });
+		
+		const stopCitiesWatch = watch(() => allCities.value, (newAllCities) => {
+			if (newAllCities.length > 0 && form.value.city) {
+				const matched = findBestMatch(form.value.city, newAllCities);
+				if (matched !== form.value.city) {
+					form.value.city = matched;
+				}
+				stopCitiesWatch();
+			}
+		}, { once: true, immediate: true });
+	}
+
 	if (!form.value.address) {
 		if (form.value.city && form.value.district) {
 			form.value.address = `${form.value.city}, ${form.value.district}`;
@@ -911,7 +935,8 @@ watch(
 			return;
 		}
 
-		if (!cityOptions.value.includes(form.value.city)) {
+		// Only clear city if we have district options and the city doesn't belong to the selected district
+		if (districtOptions.value.length > 0 && !cityOptions.value.includes(form.value.city)) {
 			form.value.city = '';
 		}
 	},
