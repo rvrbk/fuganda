@@ -43,10 +43,31 @@
 
 /* Prevent iOS Safari from auto-zooming on select elements */
 /* iOS zooms in on select elements with font-size < 16px and doesn't zoom back out */
-/* Solution: Ensure minimum 16px font size on mobile */
-@media (max-width: 768px) {
+/* Solution: Ensure minimum 16px font size and height on touch devices */
+
+/* Apply to all selects by default */
+select {
+    min-height: 44px;
+    -webkit-text-size-adjust: 100%;
+    text-size-adjust: 100%;
+}
+
+/* For touch devices, force larger font size */
+@media (hover: none) and (pointer: coarse) {
     select {
-        font-size: 16px !important;
-        min-height: 44px;
+        font-size: 18px !important;
+        min-height: 50px !important;
+        padding-top: 0.5rem !important;
+        padding-bottom: 0.5rem !important;
+    }
+}
+
+/* Fallback for smaller screens */
+@media (max-width: 1024px) {
+    select {
+        font-size: 18px !important;
+        min-height: 50px !important;
+        padding-top: 0.5rem !important;
+        padding-bottom: 0.5rem !important;
     }
 }
