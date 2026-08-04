@@ -48,6 +48,7 @@
 /* 1. Prevent text size adjustment on native selects */
 select {
     -webkit-text-size-adjust: none !important;
+    max-text-size-adjust: none !important;
     text-size-adjust: none !important;
     min-height: 44px;
 }
@@ -59,18 +60,17 @@ select {
 .searchable-select__option {
     -webkit-text-size-adjust: none !important;
     text-size-adjust: none !important;
-    min-height: 44px;
-    font-size: 16px !important;
+    font-size: 12px !important;
 }
 
-/* 3. Force larger font on mobile for all select-like elements */
+/* 3. Mobile-specific adjustments for select elements */
 @media (max-width: 1200px) {
     select,
     .searchable-select__button,
     .searchable-select__search,
     .searchable-select__option {
-        font-size: 18px !important;
-        min-height: 50px !important;
+        min-height: 36px !important;
+        font-size: 12px !important;
         line-height: 1.5 !important;
     }
     
@@ -86,8 +86,9 @@ select {
     select,
     .searchable-select__button,
     .searchable-select__search {
-        font-size: 18px !important;
+        min-height: 44px !important;
         -webkit-text-size-adjust: none !important;
-        min-height: 50px !important;
+        text-size-adjust: none !important;
+        font-size: 12px !important;
     }
 }
