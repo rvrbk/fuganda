@@ -26,3 +26,8 @@ app.use(router)
 if (import.meta.env.PROD) {
 	registerSW({ immediate: true });
 }
+
+// Fix for iOS Safari select zoom issue
+// iOS zooms in on select elements with font-size < 16px and doesn't zoom back out
+// Solution: CSS ensures mobile selects have font-size: 16px to prevent the zoom-in entirely
+// This is handled in app.css with mobile-specific select styling
