@@ -29,7 +29,7 @@ if (import.meta.env.PROD) {
 
 // Fix for iOS Safari select zoom issue
 // iOS zooms in on select elements and doesn't zoom back out on selection
-// Primary fix: CSS prevents the zoom with -webkit-text-size-adjust and font-size: 12px
+// Primary fix: CSS prevents the zoom with -webkit-text-size-adjust and font-size: 16px
 // Fallback: Force viewport reset after selection
 document.addEventListener('change', (e) => {
 	if (e.target.tagName === 'SELECT') {
