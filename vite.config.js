@@ -94,5 +94,17 @@ export default defineConfig({
             ignored: ['**/storage/framework/views/**'],
         },
     },
+    build: {
+        chunkSizeWarningLimit: 1000,
+        rollupOptions: {
+            output: {
+                manualChunks: {
+                    element: ['element-plus'],
+                    leaflet: ['leaflet'],
+                    vue: ['vue', 'vue-router', 'pinia'],
+                },
+            },
+        },
+    },
 });
 
