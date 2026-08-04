@@ -55,9 +55,9 @@ export default defineConfig({
             },
             workbox: {
                 cleanupOutdatedCaches: true,
-                // Precache the compiled JS/CSS bundles
+                // Precache the compiled JS/CSS bundles from the assets directory
                 globDirectory: 'public/build',
-                globPatterns: ['**/*.{js,css,woff2}'],
+                globPatterns: ['**/assets/*.{js,css,woff2}'],
                 // Don't set a navigate fallback — Laravel handles SPA routing server-side
                 navigateFallback: null,
                 // Prepend /build/ to all precached URLs since assets are served from /build/
@@ -101,7 +101,7 @@ export default defineConfig({
                 manualChunks: {
                     element: ['element-plus'],
                     leaflet: ['leaflet'],
-                    vue: ['vue', 'vue-router', 'pinia'],
+                    vue: ['vue', 'vue-router'],
                 },
             },
         },
