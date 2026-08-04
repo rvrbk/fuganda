@@ -45,26 +45,49 @@
 /* iOS zooms in on select elements and doesn't zoom back out */
 /* Solution: Multiple approaches combined for reliability */
 
-/* 1. Prevent text size adjustment */
+/* 1. Prevent text size adjustment on native selects */
 select {
     -webkit-text-size-adjust: none !important;
     text-size-adjust: none !important;
     min-height: 44px;
 }
 
-/* 2. Force larger font on mobile */
+/* 2. Fix for SearchableSelect custom components */
+/* Target the button and input elements which are the tap targets */
+.searchable-select__button,
+.searchable-select__search,
+.searchable-select__option {
+    -webkit-text-size-adjust: none !important;
+    text-size-adjust: none !important;
+    min-height: 44px;
+    font-size: 16px !important;
+}
+
+/* 3. Force larger font on mobile for all select-like elements */
 @media (max-width: 1200px) {
-    select {
+    select,
+    .searchable-select__button,
+    .searchable-select__search,
+    .searchable-select__option {
         font-size: 18px !important;
         min-height: 50px !important;
         line-height: 1.5 !important;
     }
+    
+    /* Make sure the button has enough padding */
+    .searchable-select__button {
+        padding-top: 0.5rem !important;
+        padding-bottom: 0.5rem !important;
+    }
 }
 
-/* 3. Extra insurance for iOS devices */
+/* 4. Extra insurance for iOS devices */
 @supports (-webkit-touch-callout: none) {
-    select {
+    select,
+    .searchable-select__button,
+    .searchable-select__search {
         font-size: 18px !important;
         -webkit-text-size-adjust: none !important;
+        min-height: 50px !important;
     }
 }

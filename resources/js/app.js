@@ -30,13 +30,26 @@ if (import.meta.env.PROD) {
 // Fix for iOS Safari select zoom issue
 // iOS zooms in on select elements and doesn't zoom back out on selection
 // Primary fix: CSS prevents the zoom with -webkit-text-size-adjust and font-size: 18px
-// Fallback: Reset viewport scale on select change
+// Fallback: Force viewport reset after selection
 document.addEventListener('change', (e) => {
-	if (e.target.tagName === 'SELECT') {
-		// Force iOS to reset viewport by briefly setting maximum-scale=1
-		const viewport = document.querySelector('meta[name="viewport"]');
-		if (viewport) {
-			const original = viewport.getAttribute('content');
+	if (e.target.tagName === 'SELECT' || e.target.closest('.searchable-select__button, .searchable-select__option')) {
+		resetIosViewport();
+	}
+});
+
+// Also handle selection from SearchableSelect dropdown
+document.addEventListener('click', (e) => {
+	if (e.target.closest('.searchable-select__option')) {
+		resetIosViewport();
+	}
+});
+
+function resetIosViewport() {
+	const viewport = document.querySelector('meta[name="viewport"]');
+	if (viewport) {
+		const original = viewport.getAttribute('content');
+		// Check if already has maximum-scale to avoid duplicates
+		if (!original.includes('maximum-scale=1.0')) {
 			viewport.setAttribute('content', original + ',maximum-scale=1.0');
 			// Force reflow
 			void document.body.offsetHeight;
@@ -46,4 +59,4 @@ document.addEventListener('change', (e) => {
 			}, 100);
 		}
 	}
-});
+}
