@@ -28,6 +28,22 @@ if (import.meta.env.PROD) {
 }
 
 // Fix for iOS Safari select zoom issue
-// iOS zooms in on select elements with font-size < 16px and doesn't zoom back out
-// Solution: CSS ensures mobile selects have font-size: 16px to prevent the zoom-in entirely
-// This is handled in app.css with mobile-specific select styling
+// iOS zooms in on select elements and doesn't zoom back out on selection
+// Primary fix: CSS prevents the zoom with -webkit-text-size-adjust and font-size: 18px
+// Fallback: Reset viewport scale on select change
+document.addEventListener('change', (e) => {
+	if (e.target.tagName === 'SELECT') {
+		// Force iOS to reset viewport by briefly setting maximum-scale=1
+		const viewport = document.querySelector('meta[name="viewport"]');
+		if (viewport) {
+			const original = viewport.getAttribute('content');
+			viewport.setAttribute('content', original + ',maximum-scale=1.0');
+			// Force reflow
+			void document.body.offsetHeight;
+			// Restore after a short delay
+			setTimeout(() => {
+				viewport.setAttribute('content', original);
+			}, 100);
+		}
+	}
+});
