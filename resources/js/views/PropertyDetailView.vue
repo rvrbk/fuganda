@@ -101,7 +101,7 @@
 			</div>
 		</div>
 
-		<p class="text-xl font-semibold text-emerald-700">{{ formatPrice(property.price, property.priceCurrency) }}</p>
+		<p class="text-xl font-semibold text-emerald-700">{{ formatPrice(property.price, property.priceCurrency) }}<span v-if="property.listingType === 'rent'">{{ $t('properties.perMonth') }}</span></p>
 
 		<PropertyMap :markers="propertyMarkers" />
 

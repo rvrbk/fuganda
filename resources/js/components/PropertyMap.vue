@@ -81,12 +81,13 @@ function buildPopupContent(item) {
 	const place = escapeHtml(`${item?.district ?? ''}${item?.district && item?.city ? ' - ' : ''}${item?.city ?? ''}`.trim());
 	const detailsHref = `/properties/${encodeURIComponent(item?.id ?? '')}`;
 	const price = escapeHtml(formatPrice(item?.price, item?.priceCurrency));
+	const isRent = item?.listingType === 'rent';
 
 	return `
 		<div class="property-popup-card">
 			<p class="property-popup-card__title">${title}</p>
 			${place ? `<p class="property-popup-card__meta">${place}</p>` : ''}
-			<p class="property-popup-card__price">${price}</p>
+			<p class="property-popup-card__price">${price}${isRent ? ' per month' : ''}</p>
 			<a href="${detailsHref}" class="property-popup-card__link">View details</a>
 		</div>
 	`;

@@ -9,7 +9,7 @@ use Illuminate\Support\Facades\Validator;
 
 class ImageUploadController
 {
-    private const MEDIA_MAX_SIZE_KB = 102400;
+    private const MEDIA_MAX_SIZE_KB = 204800;
     private const ALLOWED_MEDIA_EXTENSIONS = ['jpg', 'jpeg', 'png', 'webp', 'mp4', 'webm', 'mov', 'm4v'];
 
     public function store(Request $request): JsonResponse
@@ -40,7 +40,7 @@ class ImageUploadController
         ], [
             'file.required' => 'Please choose an image or video file to upload.',
             'file.file' => 'The uploaded media is invalid. Please try selecting the file again.',
-            'file.max' => 'The media file is too large. Maximum allowed size is 100 MB.',
+            'file.max' => 'The media file is too large. Maximum allowed size is 200 MB.',
         ]);
 
         $validator->after(function ($validator) use ($request): void {

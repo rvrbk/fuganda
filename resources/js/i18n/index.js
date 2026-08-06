@@ -49,6 +49,7 @@ const i18n = createI18n({
 				createdSuccess: 'Property added successfully.',
 				placedSuccess: 'Property placed successfully.',
 				results: 'Results: {n}',
+				perMonth: ' per month',
 			},
 			messages: {
 				empty: 'Your inbox is empty.',
@@ -74,7 +75,7 @@ const i18n = createI18n({
 				mediaUploadLabel: 'Property media',
 				mediaChooseFiles: 'Choose files',
 				mediaNoFileChosen: 'No file chosen',
-				mediaUploadHint: 'Choose one or more JPG, PNG, WEBP, MP4, WEBM, MOV, or M4V files up to 100MB each. Files upload immediately.',
+				mediaUploadHint: 'Choose one or more JPG, PNG, WEBP, MP4, WEBM, MOV, or M4V files up to 200MB each. Files upload immediately.',
 				uploadingMedia: 'Uploading media...',
 				mediaUploadValidationType: '"{fileName}" is not a supported media file. Use JPG, PNG, WEBP, MP4, WEBM, MOV, or M4V.',
 				mediaUploadValidationSize: '"{fileName}" is too large. Maximum size is {maxSizeMb}MB per file.',
@@ -251,6 +252,7 @@ const i18n = createI18n({
 				createdSuccess: 'Ekizimbe kiteekeddwako bulungi.',
 				placedSuccess: 'Ekizimbe kiteekeddwawo bulungi.',
 				results: 'Ebisangiddwa: {n}',
+				perMonth: ' ku mwezi',
 			},
 			messages: {
 				empty: 'Tewali bubaka bukyajja.',
@@ -276,7 +278,7 @@ const i18n = createI18n({
 				mediaUploadLabel: 'Mediya yekizimbe',
 				mediaChooseFiles: 'Londa fayiro',
 				mediaNoFileChosen: 'Tewali fayiro elondeddwa',
-				mediaUploadHint: 'Londa ebifaananyi oba obutambi obusinga obumu (JPG, PNG, WEBP, MP4, WEBM, MOV, M4V) obutasukka 100MB buli kimu. Binyusibwa amangu ago.',
+				mediaUploadHint: 'Londa ebifaananyi oba obutambi obusinga obumu (JPG, PNG, WEBP, MP4, WEBM, MOV, M4V) obutasukka 200MB buli kimu. Binyusibwa amangu ago.',
 				uploadingMedia: 'Mediya ennyusibwa...',
 				mediaUploadValidationType: '"{fileName}" si mediya akkirizibwa. Kozesa JPG, PNG, WEBP, MP4, WEBM, MOV oba M4V.',
 				mediaUploadValidationSize: '"{fileName}" esusse obunene. Ekkubo erisinga buli fayiro ni {maxSizeMb}MB.',

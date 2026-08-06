@@ -207,7 +207,7 @@ let handleWindowResize = null;
 
 const DEFAULT_CENTER = [0.6, 32.5825];
 const SUPPORTED_CURRENCIES = ['UGX', 'USD'];
-const MAX_MEDIA_SIZE_MB = 100;
+const MAX_MEDIA_SIZE_MB = 200;
 const MAX_MEDIA_SIZE_BYTES = MAX_MEDIA_SIZE_MB * 1024 * 1024;
 
 let isUpdatingFromMap = false;

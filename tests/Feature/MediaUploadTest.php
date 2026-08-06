@@ -91,12 +91,12 @@ class MediaUploadTest extends TestCase
         Sanctum::actingAs($user);
 
         $response = $this->postJson('/api/uploads/media', [
-            'file' => UploadedFile::fake()->create('huge-tour.mp4', 102401, 'video/mp4'),
+            'file' => UploadedFile::fake()->create('huge-tour.mp4', 204801, 'video/mp4'),
         ]);
 
         $response->assertUnprocessable();
         $response->assertJsonValidationErrors(['file']);
-        $response->assertJsonPath('errors.file.0', 'The media file is too large. Maximum allowed size is 100 MB.');
+        $response->assertJsonPath('errors.file.0', 'The media file is too large. Maximum allowed size is 200 MB.');
     }
 
     public function test_unauthenticated_request_to_media_endpoint_is_unauthorized(): void
