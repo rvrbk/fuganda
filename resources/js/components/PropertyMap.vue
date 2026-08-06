@@ -27,6 +27,10 @@ const props = defineProps({
 		type: Boolean,
 		default: false,
 	},
+	bottomPadding: {
+		type: Number,
+		default: 24,
+	},
 });
 
 const emit = defineEmits(['marker-selected']);
@@ -130,18 +134,17 @@ function drawMarkers() {
 	});
 
 	if (bounds.length === 1) {
-		// Use fitBounds with padding so marker stays visible above bottom UI elements (results ribbon)
+		// Use fitBounds with padding so marker stays visible above bottom UI elements
 		map.fitBounds([bounds[0], bounds[0]], { 
 			paddingTopLeft: L.point(24, 24),
-			paddingBottomRight: L.point(24, 160),
+			paddingBottomRight: L.point(24, props.bottomPadding),
 			maxZoom: props.zoom 
 		});
 		return;
 	}
 
 	if (bounds.length > 1) {
-		// Use consistent padding to ensure markers stay visible above bottom ribbon
-		map.fitBounds(bounds, { padding: [[24, 24], [24, 160]] });
+		map.fitBounds(bounds, { padding: [[24, 24], [24, props.bottomPadding]] });
 	}
 }
 

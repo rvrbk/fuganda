@@ -3,6 +3,7 @@
 		<PropertyMap
 			:markers="properties"
 			:selected-marker-id="selectedPropertyId"
+			:bottom-padding="160"
 			full-viewport
 			class="h-full w-full"
 			@marker-selected="handleMarkerSelected"
