@@ -65,6 +65,7 @@ const i18n = createI18n({
 				sendError: 'Unable to send message. Please try again.',
 			},
 			propertyForm: {
+				propertyDetails: 'Property Details',
 				title: 'Property title',
 				description: 'Description',
 				imageUploadLabel: 'Property image',
@@ -257,6 +258,7 @@ const i18n = createI18n({
 				sendError: 'Obubaka busobeddwa okusindikibwa. Gezaako nate.',
 			},
 			propertyForm: {
+				propertyDetails: 'Ebisingawo byekizimbe',
 				title: 'Mutwe gwekizimbe',
 				description: 'Ennyinyonnyola',
 				imageUploadLabel: 'Ekifaananyi kyekizimbe',
