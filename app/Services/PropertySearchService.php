@@ -16,6 +16,8 @@ class PropertySearchService
 
         if ($publishedOnly) {
             $query->published();
+        } elseif (! isset($filters['include_hidden']) || ! $filters['include_hidden']) {
+            $query->visible();
         }
 
         if (! empty($filters['location'])) {

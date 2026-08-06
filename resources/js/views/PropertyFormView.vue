@@ -147,6 +147,12 @@
 				<textarea id="property-description" v-model="form.description" class="w-full rounded border border-slate-300 px-3 py-2 text-sm" rows="4" :placeholder="$t('propertyForm.description')" required></textarea>
 			</div>
 			<div class="md:col-span-2">
+				<label class="flex items-center gap-2">
+					<input type="checkbox" v-model="form.isVisible" class="h-4 w-4 rounded border-slate-300 text-slate-900 focus:ring-0" />
+					<span class="text-sm text-slate-700">{{ $t('propertyForm.visibleOnPlatform') }}</span>
+				</label>
+			</div>
+			<div class="md:col-span-2">
 				<button class="rounded bg-slate-900 px-4 py-2 text-sm text-white disabled:cursor-not-allowed disabled:bg-slate-500" type="submit" :disabled="isUploadingMedia || showSubscriptionBlock">{{ $t('actions.save') }}</button>
 				<button v-if="isEdit" type="button" class="ml-2 rounded bg-rose-600 px-4 py-2 text-sm text-white hover:bg-rose-700 disabled:cursor-not-allowed disabled:bg-rose-400" :disabled="isUploadingMedia || showSubscriptionBlock" @click="confirmDelete">{{ $t('actions.delete') }}</button>
 			</div>
@@ -231,6 +237,7 @@ const form = ref({
 	longitude: '',
 	imageUrl: '',
 	mediaPaths: [],
+	isVisible: true,
 });
 
 function mapPickerIcon() {
@@ -616,6 +623,7 @@ async function load() {
 				priceCurrency: normalizeCurrency(found.priceCurrency ?? found.price_currency ?? found.currency),
 				propertyType: String(found.propertyType ?? found.property_type ?? '').trim().toLowerCase(),
 				listingType: String(found.listingType ?? found.listing_type ?? '').trim().toLowerCase(),
+				isVisible: found.isVisible ?? true,
 				mediaPaths: normalizedMedia.map((item) => item.path),
 			};
 			mediaItems.value = normalizedMedia;

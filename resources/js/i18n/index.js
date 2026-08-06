@@ -100,6 +100,7 @@ const i18n = createI18n({
 				addressLabel: 'Address',
 				mapPickerLabel: 'Map picker',
 				mapPickerHint: 'Click on the map to set the exact location and auto-fill address, latitude, and longitude.',
+				visibleOnPlatform: 'Visible on platform',
 				deleteError: 'Failed to delete listing. Please try again.',
 			},
 			login: {
@@ -291,7 +292,8 @@ const i18n = createI18n({
 				addressLabel: 'Endagiriro',
 				mapPickerLabel: 'Maapu yendawo',
 				mapPickerHint: 'Nyiga ku maapu okuteeka ekifo ekituufu era ojjuze mu bwangu endagiriro, latitude ne longitude.',
-				deleteError: 'Tetusobodde kusazaamu ekizimbe. Gezaako nate.',
+				visibleOnPlatform: 'Ebyafaananyizibwa ku platform',
+				deleteError: 'Tetusobodde kusazaamu ekizimbe. Gezaako nate.'
 			},
 			login: {
 				title: 'Yingira',

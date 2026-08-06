@@ -81,6 +81,7 @@ function normalizeProperty(item) {
 		longitude: item.longitude == null ? null : Number(item.longitude),
 		status: item.status,
 		publishedAt: item.published_at,
+		isVisible: Boolean(item.is_visible ?? true),
 		imageUrl: normalizeImagePath(firstImage?.path ?? ''),
 		media,
 		ownerId: item.user?.id ?? item.user_id ?? null,
@@ -127,6 +128,7 @@ function toPayload(input) {
 		latitude: toNullableNumber(input.latitude),
 		longitude: toNullableNumber(input.longitude),
 		status: input.status || 'published',
+		is_visible: Boolean(input.isVisible),
 		images,
 	};
 }

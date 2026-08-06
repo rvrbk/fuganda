@@ -27,6 +27,7 @@ class Property extends Model
         'longitude',
         'status',
         'published_at',
+        'is_visible',
     ];
 
     protected function casts(): array
@@ -37,6 +38,7 @@ class Property extends Model
             'latitude' => 'float',
             'longitude' => 'float',
             'published_at' => 'datetime',
+            'is_visible' => 'boolean',
         ];
     }
 
@@ -62,6 +64,11 @@ class Property extends Model
 
     public function scopePublished(Builder $query): Builder
     {
-        return $query->where('status', 'published');
+        return $query->where('status', 'published')->where('is_visible', true);
+    }
+
+    public function scopeVisible(Builder $query): Builder
+    {
+        return $query->where('is_visible', true);
     }
 }

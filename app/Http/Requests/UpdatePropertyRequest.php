@@ -32,6 +32,7 @@ class UpdatePropertyRequest extends FormRequest
             'longitude' => ['sometimes', 'nullable', 'numeric', 'between:-180,180'],
             'status' => ['sometimes', 'in:draft,published,archived'],
             'published_at' => ['sometimes', 'nullable', 'date'],
+            'is_visible' => ['sometimes', 'boolean'],
             'images' => ['sometimes', 'array'],
             'images.*.path' => ['required_with:images', 'string', 'max:2048'],
             'images.*.sort_order' => ['nullable', 'integer', 'min:0'],

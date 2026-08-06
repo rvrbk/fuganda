@@ -39,6 +39,7 @@ class StorePropertyRequest extends FormRequest
             'longitude' => ['nullable', 'numeric', 'between:-180,180'],
             'status' => ['sometimes', 'in:draft,published,archived'],
             'published_at' => ['nullable', 'date'],
+            'is_visible' => ['sometimes', 'boolean'],
             'images' => ['sometimes', 'array'],
             'images.*.path' => ['required_with:images', 'string', 'max:2048'],
             'images.*.sort_order' => ['nullable', 'integer', 'min:0'],
