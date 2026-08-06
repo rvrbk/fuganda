@@ -140,16 +140,17 @@
 			<div class="md:col-span-2">
 				<label class="mb-1 block text-xs font-semibold uppercase tracking-wide text-slate-600" for="property-address">{{ $t('propertyForm.addressLabel') }}</label>
 				<div class="flex gap-2">
-					<input id="property-address" v-model="form.address" class="flex-1 rounded border border-slate-300 px-3 py-2 text-sm" :placeholder="$t('propertyForm.addressLabel')" required />
+					<input id="property-address" v-model="form.address" class="flex-1 rounded border border-slate-300 px-3 py-2 text-sm" :placeholder="$t('propertyForm.addressPlaceholder')" required />
 					<button
 						type="button"
 						class="rounded bg-slate-900 px-4 py-2 text-sm text-white hover:bg-slate-800 disabled:cursor-not-allowed disabled:bg-slate-500"
 						@click="triggerGeocode"
 						:disabled="!form.address || form.address.length < 3"
 					>
-						{{ $t('propertyForm.searchAddress') }}
+						{{ $t('propertyForm.searchLocation') }}
 					</button>
 				</div>
+				<p class="mt-1 text-xs text-slate-500">{{ $t('propertyForm.addressHint') }}</p>
 			</div>
 
 			<div class="md:col-span-2">
@@ -415,9 +416,45 @@ async function forwardGeocode(query) {
 	}
 }
 
+function isCoordinateString(input) {
+	// Match patterns like: "lat, lng", "lat,lng", "lat  ,  lng", "-0.32, 32.58"
+	const coordinatePattern = /^\s*(-?\d+\.?\d*)\s*[,\s]+\s*(-?\d+\.?\d*)\s*$/;
+	return coordinatePattern.test(input);
+}
+
+function parseCoordinateString(input) {
+	const cleaned = input.replace(/[\s,]+/g, ' ').trim();
+	const parts = cleaned.split(/\s+/);
+	if (parts.length === 2) {
+		const lat = parseFloat(parts[0]);
+		const lng = parseFloat(parts[1]);
+		return { latitude: lat, longitude: lng };
+	}
+	return null;
+}
+
 async function triggerGeocode() {
 	if (!form.value.address || form.value.address.length < 3) return;
-	await forwardGeocode(form.value.address);
+
+	const trimmedAddress = form.value.address.trim();
+
+	// Check if input looks like coordinates
+	if (isCoordinateString(trimmedAddress)) {
+		const coords = parseCoordinateString(trimmedAddress);
+		if (coords && validCoordinates(coords.latitude, coords.longitude)) {
+			isUpdatingFromMap = true;
+			form.value.latitude = coords.latitude;
+			form.value.longitude = coords.longitude;
+			moveMarker(coords.latitude, coords.longitude);
+			map.setView([coords.latitude, coords.longitude], 15);
+			await reverseGeocode(coords.latitude, coords.longitude);
+			isUpdatingFromMap = false;
+			return;
+		}
+	}
+
+	// Otherwise treat as address and do forward geocode
+	await forwardGeocode(trimmedAddress);
 }
 
 async function reverseGeocodeFromCoords(latitude, longitude) {
