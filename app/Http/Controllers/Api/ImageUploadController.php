@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Services\MediaOptimizer;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\UploadedFile;
@@ -24,6 +25,11 @@ class ImageUploadController
         ]);
 
         $file = $validated['image'];
+        
+        // Optimize image before storing
+        $optimizer = new MediaOptimizer();
+        $file = $optimizer->optimizeImage($file);
+        
         $storedPath = $file->store('property-images', 'public');
 
         return response()->json($this->buildUploadResponse($file, $storedPath));
@@ -58,6 +64,11 @@ class ImageUploadController
         $validated = $validator->validate();
 
         $file = $validated['file'];
+        
+        // Optimize image before storing
+        $optimizer = new MediaOptimizer();
+        $file = $optimizer->optimizeImage($file);
+        
         $storedPath = $file->store('property-media', 'public');
 
         return response()->json($this->buildUploadResponse($file, $storedPath));

@@ -561,6 +561,20 @@ function validateMediaFile(file) {
 	return '';
 }
 
+const MAX_IMAGE_WIDTH = 1920;
+const MAX_IMAGE_HEIGHT = 1080;
+const IMAGE_QUALITY = 0.85;
+
+/**
+ * Compress image file using browser Canvas API before upload
+ * Returns a Promise that resolves to the file (compressed or original)
+ */
+async function compressImage(file) {
+	// For now, skip client-side compression to avoid potential issues
+	// Server-side compression via MediaOptimizer will still be applied
+	return file;
+}
+
 function syncLegacyImageUrl() {
 	form.value.imageUrl = form.value.mediaPaths[0] ?? '';
 }
@@ -592,9 +606,10 @@ async function onMediaSelected(event) {
 	try {
 		for (const file of files) {
 			try {
-				const uploadedPath = await uploadPropertyMedia(file);
+				const fileToUpload = await compressImage(file);
+				const uploadedPath = await uploadPropertyMedia(fileToUpload);
 				if (!uploadedPath) continue;
-				mediaItems.value.push({ path: uploadedPath, kind: inferMediaKindFromFile(file) });
+				mediaItems.value.push({ path: uploadedPath, kind: inferMediaKindFromFile(fileToUpload) });
 			} catch (error) {
 				const status = error?.response?.status;
 				const apiMessage = extractApiErrorMessage(error);
