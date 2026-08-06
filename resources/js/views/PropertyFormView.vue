@@ -139,7 +139,17 @@
 
 			<div class="md:col-span-2">
 				<label class="mb-1 block text-xs font-semibold uppercase tracking-wide text-slate-600" for="property-address">{{ $t('propertyForm.addressLabel') }}</label>
-				<input id="property-address" v-model="form.address" class="w-full rounded border border-slate-300 px-3 py-2 text-sm" :placeholder="$t('propertyForm.addressLabel')" required />
+				<div class="flex gap-2">
+					<input id="property-address" v-model="form.address" class="flex-1 rounded border border-slate-300 px-3 py-2 text-sm" :placeholder="$t('propertyForm.addressLabel')" required />
+					<button
+						type="button"
+						class="rounded bg-slate-900 px-4 py-2 text-sm text-white hover:bg-slate-800 disabled:cursor-not-allowed disabled:bg-slate-500"
+						@click="triggerGeocode"
+						:disabled="!form.address || form.address.length < 3"
+					>
+						{{ $t('propertyForm.searchAddress') }}
+					</button>
+				</div>
 			</div>
 
 			<div class="md:col-span-2">
@@ -198,9 +208,7 @@ const DEFAULT_CENTER = [0.6, 32.5825];
 const SUPPORTED_CURRENCIES = ['UGX', 'USD'];
 const MAX_MEDIA_SIZE_MB = 100;
 const MAX_MEDIA_SIZE_BYTES = MAX_MEDIA_SIZE_MB * 1024 * 1024;
-const GEOCODE_DEBOUNCE_MS = 500;
 
-let geocodeTimeout = null;
 let isUpdatingFromMap = false;
 const SUPPORTED_MEDIA_MIME_TYPES = new Set([
 	'image/jpeg',
@@ -405,6 +413,11 @@ async function forwardGeocode(query) {
 	} catch {
 		isUpdatingFromMap = false;
 	}
+}
+
+async function triggerGeocode() {
+	if (!form.value.address || form.value.address.length < 3) return;
+	await forwardGeocode(form.value.address);
 }
 
 async function reverseGeocodeFromCoords(latitude, longitude) {
@@ -731,24 +744,24 @@ watch(
 	},
 );
 
-watch(
-	() => form.value.address,
-	(newAddress) => {
-		if (isUpdatingFromMap) return;
-		if (geocodeTimeout) clearTimeout(geocodeTimeout);
-		geocodeTimeout = setTimeout(() => {
-			if (newAddress && newAddress.length >= 3) {
-				forwardGeocode(newAddress);
-			}
-		}, GEOCODE_DEBOUNCE_MS);
-	}
-);
+// Geocode watcher disabled - geocoding now only triggers on button press
+// watch(
+// 	() => form.value.address,
+// 	(newAddress) => {
+// 		if (isUpdatingFromMap) return;
+// 		if (geocodeTimeout) clearTimeout(geocodeTimeout);
+// 		geocodeTimeout = setTimeout(() => {
+// 			if (newAddress && newAddress.length >= 3) {
+// 				forwardGeocode(newAddress);
+// 			}
+// 		}, GEOCODE_DEBOUNCE_MS);
+// 	}
+// );
 
 onMounted(load);
 
 onBeforeUnmount(() => {
 	if (map) { map.remove(); map = null; }
-	if (geocodeTimeout) { clearTimeout(geocodeTimeout); }
 	if (resizeObserver) { resizeObserver.disconnect(); resizeObserver = null; }
 	if (handleWindowResize) { window.removeEventListener('resize', handleWindowResize); handleWindowResize = null; }
 });
