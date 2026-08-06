@@ -5,17 +5,17 @@ export default defineConfig({
         ...minimal2023Preset,
         apple: {
             sizes: [180],
-            padding: 0.1,
-            resizeOptions: { background: '#0ea5e9', fit: 'contain' },
+            padding: 0.15,
+            resizeOptions: { background: 'transparent', fit: 'contain' },
         },
         maskable: {
             sizes: [512],
-            padding: 0,
-            resizeOptions: { background: '#0ea5e9', fit: 'contain' },
+            padding: 0.15,
+            resizeOptions: { background: 'transparent', fit: 'contain' },
         },
         transparent: {
             sizes: [64, 192, 512],
-            padding: 0.1,
+            padding: 0.15,
             resizeOptions: { background: 'transparent', fit: 'contain' },
         },
     },
