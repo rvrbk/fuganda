@@ -4,7 +4,7 @@
             <div class="mx-auto flex max-w-6xl items-center justify-between gap-3 px-4 py-4">
                 <div class="logo-container">
                     <h1 class="main-text">MyCanopy</h1>
-                    <span class="subtext hidden sm:inline">a verbeek<span class="dot">.</span>ug platform</span>
+                    <span class="subtext inline">a verbeek<span class="dot">.</span>ug platform</span>
                 </div>
                 <div class="flex items-center gap-2">
                     <select

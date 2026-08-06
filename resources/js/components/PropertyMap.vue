@@ -107,7 +107,8 @@ function drawMarkers() {
 	const bounds = [];
 
 	props.markers.forEach((item) => {
-		if (item.latitude == null || item.longitude == null) {
+		if (item.latitude == null || item.longitude == null || 
+			!Number.isFinite(item.latitude) || !Number.isFinite(item.longitude)) {
 			return;
 		}
 
@@ -132,6 +133,11 @@ function drawMarkers() {
 			marker.openPopup();
 		}
 	});
+
+	if (bounds.length === 0) {
+		map.setView(props.center, props.zoom);
+		return;
+	}
 
 	if (bounds.length === 1) {
 		// Use fitBounds with padding so marker stays visible above bottom UI elements
