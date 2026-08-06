@@ -130,12 +130,18 @@ function drawMarkers() {
 	});
 
 	if (bounds.length === 1) {
-		map.setView(bounds[0], props.zoom);
+		// Use fitBounds with padding so marker stays visible above bottom UI elements (results ribbon)
+		map.fitBounds([bounds[0], bounds[0]], { 
+			paddingTopLeft: L.point(24, 24),
+			paddingBottomRight: L.point(24, 160),
+			maxZoom: props.zoom 
+		});
 		return;
 	}
 
 	if (bounds.length > 1) {
-		map.fitBounds(bounds, { padding: [24, 24] });
+		// Use consistent padding to ensure markers stay visible above bottom ribbon
+		map.fitBounds(bounds, { padding: [[24, 24], [24, 160]] });
 	}
 }
 
