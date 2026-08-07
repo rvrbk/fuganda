@@ -31,7 +31,7 @@
 		</div>
 
 		<div class="space-y-3">
-			<div class="overflow-hidden rounded border border-slate-200 bg-slate-100">
+			<div class="overflow-hidden rounded border border-slate-200 bg-slate-100 cursor-pointer" @click="openLightbox(activeMediaIndex)">
 				<img
 					v-if="activeMedia && activeMedia.kind === 'image'"
 					:src="activeMedia.path"
@@ -61,13 +61,47 @@
 					v-for="(item, index) in mediaItems"
 					:key="`${item.path}-${index}`"
 					type="button"
-					class="relative h-16 w-20 flex-shrink-0 overflow-hidden rounded border border-slate-300 transition sm:h-20 sm:w-24"
+					class="relative h-16 w-20 flex-shrink-0 overflow-hidden rounded border border-slate-300 transition sm:h-20 sm:w-24 cursor-pointer"
 					:class="index === activeMediaIndex ? 'border-sky-500 ring-2 ring-inset ring-sky-500' : ''"
-					@click="activeMediaIndex = index"
+					@click="openLightbox(index)"
 				>
 					<img v-if="item.kind === 'image'" :src="item.path" :alt="property.title" loading="lazy" class="h-full w-full object-cover" />
 					<video v-else :src="item.path" muted playsinline class="h-full w-full bg-black object-cover"></video>
 				</button>
+			</div>
+		</div>
+
+		<!-- Lightbox Modal -->
+		<div v-if="lightboxOpen" class="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4" @click="closeLightbox">
+			<button class="absolute top-4 right-4 rounded bg-white/20 p-2 text-white hover:bg-white/30 transition" @click.stop="closeLightbox">
+				<svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+					<path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+				</svg>
+			</button>
+			<button class="absolute left-4 rounded bg-white/20 p-2 text-white hover:bg-white/30 transition" @click.stop="prevMedia" v-if="mediaItems.length > 1">
+				<svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+					<path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7" />
+				</svg>
+			</button>
+			<button class="absolute right-4 rounded bg-white/20 p-2 text-white hover:bg-white/30 transition" @click.stop="nextMedia" v-if="mediaItems.length > 1">
+				<svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+					<path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7" />
+				</svg>
+			</button>
+			<div class="max-w-full max-h-full flex items-center justify-center">
+				<img
+					v-if="activeMedia && activeMedia.kind === 'image'"
+					:src="activeMedia.path"
+					:alt="property.title"
+					class="max-w-[90vw] max-h-[90vh] object-contain"
+				/>
+				<video
+					v-else-if="activeMedia && activeMedia.kind === 'video'"
+					:src="activeMedia.path"
+					controls
+					playsinline
+					class="max-w-[90vw] max-h-[90vh] bg-black object-contain"
+				></video>
 			</div>
 		</div>
 		<p class="text-slate-700">{{ property.description }}</p>
@@ -158,7 +192,7 @@
 </template>
 
 <script setup>
-import { computed, onMounted, ref } from 'vue';
+import { computed, onMounted, onUnmounted, ref } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { useRoute } from 'vue-router';
 import PropertyMap from '../components/PropertyMap.vue';
@@ -226,6 +260,7 @@ const activeMediaIndex = ref(0);
 const hasPaidContactFee = ref(false);
 const isCheckingContactFee = ref(false);
 const placeholderImageUrl = '/images/property-placeholder.jpg';
+const lightboxOpen = ref(false);
 
 const mediaItems = computed(() => {
 	if (!property.value) {
@@ -309,6 +344,45 @@ function clearMessageFeedback() {
 	}
 }
 
+function openLightbox(index) {
+	activeMediaIndex.value = index;
+	lightboxOpen.value = true;
+	document.body.style.overflow = 'hidden';
+}
+
+function closeLightbox() {
+	lightboxOpen.value = false;
+	document.body.style.overflow = '';
+}
+
+function nextMedia() {
+	if (activeMediaIndex.value < mediaItems.value.length - 1) {
+		activeMediaIndex.value++;
+	}
+}
+
+function prevMedia() {
+	if (activeMediaIndex.value > 0) {
+		activeMediaIndex.value--;
+	}
+}
+
+function handleKeydown(event) {
+	if (!lightboxOpen.value) return;
+	
+	switch (event.key) {
+		case 'Escape':
+			closeLightbox();
+			break;
+		case 'ArrowRight':
+			nextMedia();
+			break;
+		case 'ArrowLeft':
+			prevMedia();
+			break;
+	}
+}
+
 async function checkContactFeePayment() {
 	if (isGuestUser.value) {
 		hasPaidContactFee.value = false;
@@ -357,5 +431,12 @@ onMounted(async () => {
 	
 	await load();
 	await checkContactFeePayment();
+	
+	window.addEventListener('keydown', handleKeydown);
+});
+
+onUnmounted(() => {
+	window.removeEventListener('keydown', handleKeydown);
+	document.body.style.overflow = '';
 });
 </script>
