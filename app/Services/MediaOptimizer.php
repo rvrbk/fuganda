@@ -27,8 +27,7 @@ class MediaOptimizer
             if ($image->width() > self::MAX_IMAGE_WIDTH || $image->height() > self::MAX_IMAGE_HEIGHT) {
                 $image->scaleDown(
                     width: self::MAX_IMAGE_WIDTH,
-                    height: self::MAX_IMAGE_HEIGHT,
-                    mode: 'aspect'
+                    height: self::MAX_IMAGE_HEIGHT
                 );
             }
 
