@@ -526,12 +526,7 @@ async function initiateContactPayment() {
 			hasPaidContactFee.value = true;
 			paymentSuccess.value = true;
 			paymentInitiatedInModal.value = true;
-			// Close modal after user sees the message
-			setTimeout(() => {
-				showPaymentModal.value = false;
-				phoneNumber.value = '';
-				paymentInitiatedInModal.value = false;
-			}, 3000);
+			// Modal stays open until user manually closes it
 		} else {
 			// For MTN/Airtel Mobile Money, payment request is sent to phone
 			paymentSuccess.value = true;
@@ -548,16 +543,13 @@ async function initiateContactPayment() {
 					paymentCheckInterval.value = null;
 					hasPaidContactFee.value = true;
 					paymentSuccess.value = false;
+					paymentInitiatedInModal.value = false;
+					showPaymentModal.value = false;
+					phoneNumber.value = '';
 				}
 			}, 10000); // Check every 10 seconds
 			// Also do an immediate check after 3 seconds
 			setTimeout(() => checkContactFeePayment(), 3000);
-			// Close modal after user sees the message
-			setTimeout(() => {
-				showPaymentModal.value = false;
-				phoneNumber.value = '';
-				paymentInitiatedInModal.value = false;
-			}, 3000);
 		}
 	} catch (error) {
 		console.error('Failed to initiate contact payment:', error);
