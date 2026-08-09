@@ -28,11 +28,18 @@ class BuyerBillingController extends Controller
             'plan_code' => ['sometimes', 'string', 'max:100'],
             'amount_ugx' => ['sometimes', 'integer', 'min:0'],
             'currency' => ['sometimes', 'in:UGX'],
-            'payment_method' => ['required', 'in:mobile_money,card'],
-            'billing_email' => ['required', 'email', 'max:255'],
+            'payment_provider' => ['sometimes', 'in:mtn,airtel,mobile_money'],
+            'payment_method' => ['sometimes', 'in:mobile_money,card,mtn,airtel'],
+            'phone_number' => ['nullable', 'string', 'max:20'],
+            'billing_email' => ['nullable', 'email', 'max:255'],
             'success_url' => ['sometimes', 'url', 'max:2048'],
             'cancel_url' => ['sometimes', 'url', 'max:2048'],
         ]);
+
+        // Normalize payment provider
+        if (! isset($validated['payment_provider']) && isset($validated['payment_method'])) {
+            $validated['payment_provider'] = $validated['payment_method'];
+        }
 
         $result = $this->billingService->createCheckoutSession($request->user(), $validated);
         $subscription = $result['subscription'];
@@ -44,24 +51,37 @@ class BuyerBillingController extends Controller
             'checkout' => $result['checkout'],
             'checkout_url' => data_get($result, 'checkout.url'),
             'payment_status' => data_get($result, 'checkout.payment_status'),
+            'provider' => data_get($result, 'checkout.provider', $validated['payment_provider'] ?? 'mtn'),
         ]);
     }
 
-    public function pesapalWebhook(Request $request): JsonResponse
+    public function mtnWebhook(Request $request): JsonResponse
     {
-        $signatureHeader = (string) $request->header('X-Pesapal-Signature', '');
+        $signatureHeader = (string) $request->header('X-MTN-Signature', '');
         $payload = $request->getContent();
 
-        if (! $this->billingService->verifyPesapalWebhookSignature($payload, $signatureHeader)) {
-            throw new BadRequestHttpException('Invalid Pesapal signature.');
-        }
+        $result = $this->billingService->handleMtnWebhook($payload, $signatureHeader);
 
-        $this->billingService->handlePesapalWebhookPayload($payload);
-
-        return response()->json(['received' => true]);
+        return response()->json([
+            'received' => true,
+            'processed' => $result['processed'] ?? true,
+        ]);
     }
 
-    public function pesapalCallback(Request $request): JsonResponse|RedirectResponse
+    public function airtelWebhook(Request $request): JsonResponse
+    {
+        $signatureHeader = (string) $request->header('X-Airtel-Signature', '');
+        $payload = $request->getContent();
+
+        $result = $this->billingService->handleAirtelWebhook($payload, $signatureHeader);
+
+        return response()->json([
+            'received' => true,
+            'processed' => $result['processed'] ?? true,
+        ]);
+    }
+
+    public function mobileMoneyCallback(Request $request): JsonResponse|RedirectResponse
     {
         $merchantReference = $this->firstNonEmpty($request, [
             'merchant_reference',
@@ -69,6 +89,8 @@ class BuyerBillingController extends Controller
             'order_merchant_reference',
             'OrderMerchantReference',
             'orderMerchantReference',
+            'reference',
+            'Reference',
         ]);
 
         $orderTrackingId = $this->firstNonEmpty($request, [
@@ -77,15 +99,17 @@ class BuyerBillingController extends Controller
             'orderTrackingId',
             'Order_Tracking_Id',
             'order_trackingid',
+            'transaction_id',
+            'TransactionId',
         ]);
 
-        $processed = $this->billingService->handlePesapalCallbackPayload(array_filter([
+        $processed = $this->billingService->handleMobileMoneyCallback(array_filter([
             'merchant_reference' => $merchantReference,
             'order_tracking_id' => $orderTrackingId,
         ]));
 
         if (! $processed) {
-            Log::warning('Pesapal callback could not be processed.', [
+            Log::warning('Mobile money callback could not be processed.', [
                 'query' => $request->query(),
                 'merchant_reference' => $merchantReference,
                 'order_tracking_id' => $orderTrackingId,
