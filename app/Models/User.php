@@ -6,7 +6,6 @@ namespace App\Models;
 use Database\Factories\UserFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
-use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Attributes\Hidden;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -44,16 +43,6 @@ class User extends Authenticatable
         return $this->hasMany(Property::class);
     }
 
-    public function sellerSubscription(): HasOne
-    {
-        return $this->hasOne(SellerSubscription::class)->ofMany('id', 'max');
-    }
-
-    public function sellerPublishFees(): HasMany
-    {
-        return $this->hasMany(SellerPublishFee::class);
-    }
-
     public function buyerSubscription(): HasOne
     {
         return $this->hasOne(BuyerSubscription::class)->ofMany('id', 'max');
@@ -87,33 +76,5 @@ class User extends Authenticatable
     public function isBuyer(): bool
     {
         return $this->role === 'buyer';
-    }
-
-    public function hasActiveSellerSubscription(): bool
-    {
-        if (! $this->isSeller()) {
-            return false;
-        }
-
-        $subscription = SellerSubscription::query()
-            ->where('user_id', $this->id)
-            ->latest('id')
-            ->first();
-
-        return $subscription?->status === 'active';
-    }
-
-    public function sellerSubscriptionStatus(): string
-    {
-        if (! $this->isSeller()) {
-            return 'not_applicable';
-        }
-
-        $subscription = SellerSubscription::query()
-            ->where('user_id', $this->id)
-            ->latest('id')
-            ->first();
-
-        return $subscription?->status ?? 'inactive';
     }
 }

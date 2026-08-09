@@ -1,6 +1,5 @@
 import { createRouter, createWebHistory } from 'vue-router';
 import { canManageListings, getProfile } from '../services/authProfile';
-import { hasActiveSellerSubscription } from '../services/sellerBilling';
 
 const router = createRouter({
     history: createWebHistory(),
@@ -35,12 +34,7 @@ const router = createRouter({
             component: () => import('../views/DashboardView.vue'),
             meta: { requiresAuth: true, requiresSellerRole: true },
         },
-        {
-            path: '/seller/onboarding',
-            name: 'seller-onboarding',
-            component: () => import('../views/SellerOnboardingView.vue'),
-            meta: { requiresAuth: true, requiresSellerRole: true },
-        },
+
         { path: '/forbidden', name: 'forbidden', component: () => import('../views/ForbiddenView.vue') },
     ],
 });
@@ -64,26 +58,6 @@ router.beforeEach(async (to) => {
 
         if (to.meta.requiresSellerRole && !await canManageListings(profile)) {
             return { name: 'forbidden', query: { from: to.fullPath } };
-        }
-
-        if (await canManageListings(profile)) {
-            let hasActiveSubscription = false;
-            try {
-                hasActiveSubscription = await hasActiveSellerSubscription();
-            } catch {
-                // Gracefully degrade to onboarding instead of breaking navigation.
-                hasActiveSubscription = false;
-            }
-
-            const isOnboardingRoute = to.name === 'seller-onboarding';
-
-            if (!hasActiveSubscription && !isOnboardingRoute) {
-                return { name: 'seller-onboarding', query: { redirect: to.fullPath } };
-            }
-
-            if (hasActiveSubscription && isOnboardingRoute) {
-                return { name: 'dashboard' };
-            }
         }
 
         return true;

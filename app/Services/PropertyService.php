@@ -10,7 +10,7 @@ use Illuminate\Support\Facades\DB;
 
 class PropertyService
 {
-    public function __construct(private readonly SellerBillingService $sellerBillingService)
+    public function __construct()
     {
     }
 
@@ -22,12 +22,6 @@ class PropertyService
             $data['user_id'] = $user->id;
 
             $isPublishing = ($data['status'] ?? null) === 'published';
-            $isSellerPublish = $isPublishing && $user->isSeller() && ! $user->isAdmin();
-
-            // In demo mode, bypass subscription requirements
-            if (! config('app.demo_mode') && $isPublishing) {
-                $this->sellerBillingService->enforcePublishRequirements($user);
-            }
 
             if ($isPublishing && empty($data['published_at'])) {
                 $data['published_at'] = now();
@@ -59,12 +53,6 @@ class PropertyService
             $data = Arr::except($attributes, ['images']);
 
             $isPublishing = ($data['status'] ?? null) === 'published';
-            $isSellerPublish = $isPublishing && $user->isSeller() && ! $user->isAdmin();
-
-            // In demo mode, bypass subscription requirements
-            if (! config('app.demo_mode') && $isPublishing) {
-                $this->sellerBillingService->enforcePublishRequirements($user);
-            }
 
             if ($isPublishing && empty($property->published_at) && empty($data['published_at'])) {
                 $data['published_at'] = now();
@@ -72,11 +60,6 @@ class PropertyService
 
             if (array_key_exists('status', $data) && $data['status'] !== 'published') {
                 $data['published_at'] = null;
-            }
-
-            // In demo mode, allow direct publishing
-            if (config('app.demo_mode') && $isPublishing) {
-                $data['published_at'] = now();
             }
 
             $property->fill($data);
@@ -101,8 +84,6 @@ class PropertyService
 
     private function authorizeOwnership(User $user, Property $property): void
     {
-        // In demo mode, allow users to edit their own properties
-        // (normal behavior is already to check ownership)
         if ((int) $property->user_id !== (int) $user->id) {
             throw new AuthorizationException('Only the listing owner can modify this property.');
         }

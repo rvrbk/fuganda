@@ -170,7 +170,6 @@ The platform implements a **role-based access control** system with four primary
 - Unread message counts
 
 **Payment System:**
-- Subscription-based model for sellers
 - MTN MoMo integration
 - Airtel Money integration
 - Bank transfer support
@@ -186,9 +185,8 @@ The platform implements a **role-based access control** system with four primary
 
 A special **demo mode** (`DEMO_MODE` environment variable) allows:
 - Anyone to register as a seller
-- Property creation without subscription
-- Immediate publishing without payment
-- Bypassing onboarding redirects
+- Immediate property publishing without payment
+- Direct access to all features without restrictions
 
 This is designed for testing, demos, and platform evaluation.
 

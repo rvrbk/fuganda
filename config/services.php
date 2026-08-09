@@ -50,7 +50,6 @@ return [
         'callback_url' => env('PESAPAL_CALLBACK_URL', env('APP_URL').'/api/callbacks/pesapal'),
         'non_production_mock_payment_status' => env('PESAPAL_NON_PRODUCTION_MOCK_PAYMENT_STATUS'),
         'publish_fee_amount_ugx' => env('PESAPAL_PUBLISH_FEE_AMOUNT_UGX', 7500),
-        'subscription_grace_period_days' => env('SUBSCRIPTION_GRACE_PERIOD_DAYS', 7),
     ],
 
     'mobile_money' => [

@@ -11,8 +11,7 @@ class AuthProfileController extends Controller
 {
     public function show(Request $request): JsonResponse
     {
-        $user = $request->user()->loadMissing('sellerSubscription');
-        $subscription = $user->sellerSubscription;
+        $user = $request->user();
 
         return response()->json([
             'id' => $user->id,
@@ -20,11 +19,6 @@ class AuthProfileController extends Controller
             'email' => $user->email,
             'role' => $user->role,
             'corporation_id' => $user->corporation_id,
-            'seller_has_active_subscription' => $user->hasActiveSellerSubscription(),
-            'seller_subscription_status' => $user->sellerSubscriptionStatus(),
-            'seller_subscription_plan_code' => $subscription?->plan_code,
-            'seller_subscription_amount' => $subscription?->amount_ugx,
-            'seller_subscription_currency' => $subscription?->currency,
             'unread_messages' => Message::query()
                 ->where('receiver_id', $user->id)
                 ->whereNull('read_at')

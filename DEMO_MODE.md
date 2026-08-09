@@ -5,10 +5,9 @@
 Demo Mode is a feature that allows you to open up the platform for testing purposes. When enabled, it removes restrictions so that:
 
 - **Anyone can register** as a seller by default (instead of buyer)
-- **Anyone can create properties** without needing a seller subscription
+- **Anyone can create properties** without restrictions
 - **Properties can be published immediately** without payment requirements
-- **No publish fees are charged** for listing properties
-- **Frontend redirects are bypassed** - users won't be sent to onboarding
+- **Frontend redirects are bypassed** - users can access all features directly
 
 This is perfect for:
 - Letting testers populate the platform with sample properties
@@ -94,10 +93,8 @@ This means **you only need to set `DEMO_MODE` in your `.env`** - no separate fro
 - Users can create properties regardless of their role
 
 #### Publishing Properties
-- The `PropertyService` bypasses subscription requirements
-- Properties can be published immediately without payment
-- No publish fees are charged
-- The `SellerBillingService` skips subscription validation
+- The `PropertyService` allows direct publishing
+- Properties can be published immediately without any payment requirements
 
 ### Frontend Changes
 
@@ -105,10 +102,7 @@ This means **you only need to set `DEMO_MODE` in your `.env`** - no separate fro
 - The router no longer redirects users to the seller onboarding page
 - Users can access property creation pages directly
 
-#### Seller Billing Status
-- `hasActiveSellerSubscription()` always returns `true`
-- `getSellerBillingStatus()` returns an active status immediately
-- No actual API calls are made for billing status
+
 
 #### Listing Management
 - `canManageListings()` returns `true` for all users
@@ -159,12 +153,10 @@ This means **you only need to set `DEMO_MODE` in your `.env`** - no separate fro
 - `config/app.php` - Added `demo_mode` configuration
 - `routes/api.php` - Added `/api/demo-mode` endpoint
 - `app/Http/Requests/StorePropertyRequest.php` - Bypasses authorization in demo mode
-- `app/Services/PropertyService.php` - Bypasses subscription checks in demo mode
-- `app/Services/SellerBillingService.php` - Skips publish requirement enforcement in demo mode
+- `app/Services/PropertyService.php` - Allows direct publishing in demo mode
 - `app/Actions/Fortify/CreateNewUser.php` - Defaults to seller role in demo mode
 
 ### Frontend
-- `resources/js/services/sellerBilling.js` - Fetches demo mode from API, returns active status when enabled
 - `resources/js/services/authProfile.js` - Fetches demo mode from API, allows listing management for all users when enabled
 
 ## Troubleshooting

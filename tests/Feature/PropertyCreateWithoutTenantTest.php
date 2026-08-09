@@ -3,8 +3,6 @@
 namespace Tests\Feature;
 
 use App\Models\Property;
-use App\Models\SellerPublishFee;
-use App\Models\SellerSubscription;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Laravel\Sanctum\Sanctum;
@@ -18,16 +16,6 @@ class PropertyCreateWithoutTenantTest extends TestCase
     {
         $user = User::factory()->seller()->create([
             'corporation_id' => null,
-        ]);
-
-        SellerSubscription::query()->create([
-            'user_id' => $user->id,
-            'plan_code' => 'starter_monthly',
-            'amount_ugx' => 39000,
-            'currency' => 'UGX',
-            'status' => 'active',
-            'started_at' => now(),
-            'renews_at' => now()->addMonth(),
         ]);
 
         Sanctum::actingAs($user);
@@ -61,8 +49,5 @@ class PropertyCreateWithoutTenantTest extends TestCase
         $this->assertNull($property->corporation_id);
         $this->assertSame('published', $property->status);
         $this->assertNotNull($property->published_at);
-
-        // No per-listing fees - sellers with active subscriptions can publish freely
-        $this->assertDatabaseCount('seller_publish_fees', 0);
     }
 }

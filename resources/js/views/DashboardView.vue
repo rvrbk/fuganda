@@ -2,23 +2,12 @@
     <section class="space-y-4 rounded-lg border border-slate-200 bg-white p-6 shadow-sm">
         <h2 class="text-xl font-semibold text-slate-900">Agent Dashboard</h2>
 
-        <div v-if="billingSummary" class="rounded-md border border-sky-200 bg-sky-50 p-3 text-sm text-sky-900">
-            <p class="font-semibold">{{ $t('dashboard.billingTitle') }}</p>
-            <p class="mt-1">{{ billingSummary }}</p>
-        </div>
 
-        <div v-if="showSubscriptionBlock" class="rounded-md border border-amber-300 bg-amber-50 p-3 text-sm text-amber-900">
-            <p>{{ $t('agentOnboarding.blockingCallout') }}</p>
-            <RouterLink class="mt-2 inline-block font-semibold text-amber-900 underline" :to="{ name: 'seller-onboarding' }">
-                {{ $t('agentOnboarding.openOnboarding') }}
-            </RouterLink>
-        </div>
 
         <div class="grid gap-3 md:grid-cols-3">
             <RouterLink
                 class="flex items-center justify-center rounded-lg bg-slate-900 px-4 py-3 text-sm font-medium text-white shadow-sm transition-colors hover:bg-slate-700"
-                :class="showSubscriptionBlock ? 'pointer-events-none cursor-not-allowed !bg-slate-200 !text-slate-400 shadow-none' : ''"
-                :to="showSubscriptionBlock ? { name: 'seller-onboarding', query: { redirect: '/properties/new' } } : { name: 'property-create' }"
+                :to="{ name: 'property-create' }"
             >
                 {{ $t('actions.createListing') }}
             </RouterLink>
@@ -42,33 +31,13 @@
 import { computed, onMounted, ref } from 'vue';
 import { getProfile, isBuyerProfile } from '../services/authProfile';
 import { getUnreadMessageCount } from '../services/messages';
-import { hasActiveSellerSubscription } from '../services/sellerBilling';
 import { formatPrice } from '../utils/formatters';
 import { usePageMeta } from '../composables/usePageMeta';
 
 usePageMeta({ title: 'Agent Dashboard', robots: 'noindex,nofollow' });
 
 const unreadCount = ref(0);
-const showSubscriptionBlock = ref(false);
 const profile = ref(null);
-
-const billingSummary = computed(() => {
-    const data = profile.value;
-    if (!data) {
-        return '';
-    }
-
-    if (!data.seller_has_active_subscription) {
-        return '';
-    }
-
-    const amount = Number(data.seller_subscription_amount ?? 0);
-    const currency = String(data.seller_subscription_currency ?? 'UGX').toUpperCase();
-    const planCode = String(data.seller_subscription_plan_code ?? 'starter_monthly');
-    const planLabel = planCode.replaceAll('_', ' ');
-
-    return `${formatPrice(amount, currency)} / month · ${planLabel}`;
-});
 
 const loadUnreadCount = async () => {
     try {
@@ -80,15 +49,6 @@ const loadUnreadCount = async () => {
 
 onMounted(async () => {
     profile.value = await getProfile(true);
-
-    if (!isBuyerProfile(profile.value)) {
-        try {
-            showSubscriptionBlock.value = !(await hasActiveSellerSubscription());
-        } catch {
-            showSubscriptionBlock.value = true;
-        }
-    }
-
     await loadUnreadCount();
 });
 </script>

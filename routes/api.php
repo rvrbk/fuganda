@@ -8,7 +8,6 @@ use App\Http\Controllers\Api\PublicController;
 use App\Http\Controllers\Api\PropertyController;
 use App\Http\Controllers\Api\ImageUploadController;
 use App\Http\Controllers\Api\AuthProfileController;
-use App\Http\Controllers\Api\SellerBillingController;
 use App\Http\Controllers\Api\TenantDashboardController;
 
 Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
@@ -48,17 +47,11 @@ Route::middleware('auth:sanctum')->prefix('auth')->group(function () {
     Route::get('me', [AuthProfileController::class, 'show']);
 });
 
-Route::middleware('auth:sanctum')->prefix('seller/billing')->group(function () {
-    Route::get('status', [SellerBillingController::class, 'status']);
-    Route::post('subscribe', [SellerBillingController::class, 'subscribe']);
-    Route::post('cancel', [SellerBillingController::class, 'cancel']);
-});
-
 Route::middleware('auth:sanctum')->prefix('buyer/contact')->group(function () {
     Route::get('status/{property}', [\App\Http\Controllers\Api\BuyerContactController::class, 'status']);
     Route::post('checkout/{property}', [\App\Http\Controllers\Api\BuyerContactController::class, 'checkout']);
 });
 
-Route::post('webhooks/pesapal', [SellerBillingController::class, 'pesapalWebhook']);
-Route::post('callbacks/pesapal', [SellerBillingController::class, 'pesapalCallback']);
-Route::get('callbacks/pesapal', [SellerBillingController::class, 'pesapalCallback']);
+Route::post('webhooks/pesapal', [\App\Http\Controllers\Api\BuyerContactController::class, 'pesapalWebhook']);
+Route::post('callbacks/pesapal', [\App\Http\Controllers\Api\BuyerContactController::class, 'pesapalCallback']);
+Route::get('callbacks/pesapal', [\App\Http\Controllers\Api\BuyerContactController::class, 'pesapalCallback']);

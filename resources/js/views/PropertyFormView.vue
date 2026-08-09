@@ -2,12 +2,7 @@
 	<section class="rounded-lg border border-slate-200 bg-white p-5">
 		<h2 class="mb-4 text-xl font-semibold text-slate-900">{{ isEdit ? $t('actions.editListing') : $t('actions.createListing') }}</h2>
 
-		<div v-if="showSubscriptionBlock" class="mb-4 rounded-md border border-amber-300 bg-amber-50 p-3 text-sm text-amber-900">
-			<p>{{ $t('agentOnboarding.blockingCallout') }}</p>
-			<RouterLink class="mt-2 inline-block font-semibold underline" :to="{ name: 'seller-onboarding', query: { redirect: route.fullPath } }">
-				{{ $t('agentOnboarding.openOnboarding') }}
-			</RouterLink>
-		</div>
+
 
 		<form class="grid gap-3 md:grid-cols-2" @submit.prevent="save">
 			<div>
@@ -164,8 +159,8 @@
 				</label>
 			</div>
 			<div class="md:col-span-2">
-				<button class="rounded bg-slate-900 px-4 py-2 text-sm text-white disabled:cursor-not-allowed disabled:bg-slate-500" type="submit" :disabled="isUploadingMedia || showSubscriptionBlock">{{ $t('actions.save') }}</button>
-				<button v-if="isEdit" type="button" class="ml-2 rounded bg-rose-600 px-4 py-2 text-sm text-white hover:bg-rose-700 disabled:cursor-not-allowed disabled:bg-rose-400" :disabled="isUploadingMedia || showSubscriptionBlock" @click="confirmDelete">{{ $t('actions.delete') }}</button>
+				<button class="rounded bg-slate-900 px-4 py-2 text-sm text-white disabled:cursor-not-allowed disabled:bg-slate-500" type="submit" :disabled="isUploadingMedia">{{ $t('actions.save') }}</button>
+				<button v-if="isEdit" type="button" class="ml-2 rounded bg-rose-600 px-4 py-2 text-sm text-white hover:bg-rose-700 disabled:cursor-not-allowed disabled:bg-rose-400" :disabled="isUploadingMedia" @click="confirmDelete">{{ $t('actions.delete') }}</button>
 			</div>
 		</form>
 	</section>
@@ -176,7 +171,6 @@ import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router';
 import { useI18n } from 'vue-i18n';
 import L from 'leaflet';
-import { hasActiveSellerSubscription } from '../services/sellerBilling';
 import { getProfile, isBuyerProfile } from '../services/authProfile';
 import { createProperty, deleteProperty, extractApiErrorMessage, getProperty, updateProperty, uploadPropertyMedia } from '../services/properties';
 import { listLocations } from '../services/locations';
@@ -196,7 +190,7 @@ const districtOptions = ref([]);
 const isUploadingMedia = ref(false);
 const mediaItems = ref([]);
 const mediaUploadError = ref('');
-const showSubscriptionBlock = ref(false);
+
 const mediaInput = ref(null);
 const selectedMediaNames = ref([]);
 
@@ -656,13 +650,6 @@ function moveMediaDown(index) {
 
 async function load() {
 	const profile = await getProfile();
-	if (!isBuyerProfile(profile)) {
-		try {
-			showSubscriptionBlock.value = !(await hasActiveSellerSubscription());
-		} catch {
-			showSubscriptionBlock.value = true;
-		}
-	}
 
 	const locations = await listLocations();
 	propertyTypeOptions.value = locations.propertyTypes?.length ? locations.propertyTypes : propertyTypeOptions.value;
@@ -728,10 +715,6 @@ async function load() {
 }
 
 async function save() {
-	if (showSubscriptionBlock.value) {
-		router.push({ name: 'seller-onboarding', query: { redirect: route.fullPath } });
-		return;
-	}
 
 	// Ensure district and city are set from coordinates before saving
 	if (!form.value.district || !form.value.city) {
@@ -769,10 +752,6 @@ function confirmDelete() {
 }
 
 async function handleDelete() {
-	if (showSubscriptionBlock.value) {
-		router.push({ name: 'seller-onboarding', query: { redirect: route.fullPath } });
-		return;
-	}
 	try {
 		const propertyId = route.params.id;
 		await deleteProperty(propertyId);

@@ -16,12 +16,7 @@
 				<p>{{ $t('properties.placedSuccess') }}</p>
 			</div>
 
-			<div v-if="showSubscriptionBlock" class="mb-2 rounded-md border border-amber-300 bg-amber-50 px-3 py-2 text-xs text-amber-900 sm:mb-3 sm:text-sm">
-				<p>{{ $t('agentOnboarding.blockingCallout') }}</p>
-				<RouterLink class="mt-1 inline-block font-semibold underline" :to="{ name: 'seller-onboarding', query: { redirect: '/properties/new' } }">
-					{{ $t('agentOnboarding.openOnboarding') }}
-				</RouterLink>
-			</div>
+
 
 			<div class="flex h-10 items-center justify-between gap-3 sm:mb-3 sm:h-auto">
 				<p class="truncate text-sm font-semibold text-slate-800">{{ $t('filters.search') }}</p>
@@ -35,9 +30,8 @@
 					</button>
 					<RouterLink
 						v-if="canCreateListing"
-						:to="showSubscriptionBlock ? { name: 'seller-onboarding', query: { redirect: '/properties/new' } } : { name: 'property-create' }"
+						:to="{ name: 'property-create' }"
 						class="rounded bg-slate-900 px-3 py-1.5 text-xs text-white shadow hover:bg-slate-800"
-						:class="showSubscriptionBlock ? 'bg-slate-500 hover:bg-slate-500' : ''"
 					>
 						{{ $t('actions.createListing') }}
 					</RouterLink>
@@ -155,7 +149,6 @@ import { useRoute, useRouter } from 'vue-router';
 import PropertyMap from '../components/PropertyMap.vue';
 import SearchableSelect from '../components/SearchableSelect.vue';
 import { canManageListings, getProfile, getUserRole } from '../services/authProfile';
-import { hasActiveSellerSubscription } from '../services/sellerBilling';
 import { listProperties } from '../services/properties';
 import { listLocations, listCitiesByDistrict, listAllCities, getDistrictByCity } from '../services/locations';
 import { formatPrice } from '../utils/formatters';
@@ -185,7 +178,6 @@ usePageMeta(() => ({
 }));
 const locations = ref({ districts: [], propertyTypes: [] });
 const canCreateListing = ref(false);
-const showSubscriptionBlock = ref(false);
 const mobileFiltersOpen = ref(false);
 const selectedPropertyId = ref(null);
 const cardRefs = new Map();
@@ -316,13 +308,6 @@ onMounted(async () => {
 	const profile = await getProfile();
 	const role = getUserRole(profile);
 	canCreateListing.value = Boolean(profile) && (role === 'seller' || role === 'admin');
-	if (canCreateListing.value) {
-		try {
-			showSubscriptionBlock.value = !(await hasActiveSellerSubscription());
-		} catch {
-			showSubscriptionBlock.value = true;
-		}
-	}
 
 	locations.value = await listLocations();
 	await load();
