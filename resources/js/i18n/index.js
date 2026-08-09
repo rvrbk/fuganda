@@ -159,6 +159,7 @@ const i18n = createI18n({
 				backToLogin: 'Back to login',
 			},
 			userContact: {
+				loginRequired: 'Please log in to contact the agent.',
 				blockingCallout: 'To contact the agent, pay {amount} per property.',
 				payNow: 'Pay {amount} now',
 				paymentSuccess: 'Payment received! You can now contact the agent.',
@@ -316,6 +317,12 @@ const i18n = createI18n({
 				resetSuccess: 'Password ekyusiddwa. Tukuzzaayo ku login...',
 				resetError: 'Tetusobola kuzzaawo password. Kebera link ogezaako nate.',
 				backToLogin: 'Ddayo ku login',
+			},
+			userContact: {
+				loginRequired: 'Yingira kati okutuukirira agent.',
+				blockingCallout: 'Okuyingira agent, laga {amount} ku buli kizimbe.',
+				payNow: 'Laga {amount} kati',
+				paymentSuccess: 'Ssente zifunye! Kati osobola okutuukirira agent.',
 			},
 		},
 	},
