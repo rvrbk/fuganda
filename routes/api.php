@@ -52,6 +52,24 @@ Route::middleware('auth:sanctum')->prefix('buyer/contact')->group(function () {
     Route::post('checkout/{property}', [\App\Http\Controllers\Api\BuyerContactController::class, 'checkout']);
 });
 
-Route::post('webhooks/pesapal', [\App\Http\Controllers\Api\BuyerContactController::class, 'pesapalWebhook']);
-Route::post('callbacks/pesapal', [\App\Http\Controllers\Api\BuyerContactController::class, 'pesapalCallback']);
-Route::get('callbacks/pesapal', [\App\Http\Controllers\Api\BuyerContactController::class, 'pesapalCallback']);
+Route::middleware('auth:sanctum')->prefix('buyer/billing')->group(function () {
+    Route::get('status', [\App\Http\Controllers\Api\BuyerBillingController::class, 'status']);
+    Route::post('subscribe', [\App\Http\Controllers\Api\BuyerBillingController::class, 'subscribe']);
+    Route::post('cancel', [\App\Http\Controllers\Api\BuyerBillingController::class, 'cancel']);
+});
+
+// Mobile Money Webhooks
+Route::post('webhooks/mtn-momo', [\App\Http\Controllers\Api\BuyerContactController::class, 'mtnWebhook']);
+Route::post('webhooks/airtel-money', [\App\Http\Controllers\Api\BuyerContactController::class, 'airtelWebhook']);
+Route::post('callbacks/mtn-momo', [\App\Http\Controllers\Api\BuyerContactController::class, 'mobileMoneyCallback']);
+Route::get('callbacks/mtn-momo', [\App\Http\Controllers\Api\BuyerContactController::class, 'mobileMoneyCallback']);
+Route::post('callbacks/airtel-money', [\App\Http\Controllers\Api\BuyerContactController::class, 'mobileMoneyCallback']);
+Route::get('callbacks/airtel-money', [\App\Http\Controllers\Api\BuyerContactController::class, 'mobileMoneyCallback']);
+
+// Billing Webhooks
+Route::post('webhooks/mtn-momo/billing', [\App\Http\Controllers\Api\BuyerBillingController::class, 'mtnWebhook']);
+Route::post('webhooks/airtel-money/billing', [\App\Http\Controllers\Api\BuyerBillingController::class, 'airtelWebhook']);
+Route::post('callbacks/mtn-momo/billing', [\App\Http\Controllers\Api\BuyerBillingController::class, 'mobileMoneyCallback']);
+Route::get('callbacks/mtn-momo/billing', [\App\Http\Controllers\Api\BuyerBillingController::class, 'mobileMoneyCallback']);
+Route::post('callbacks/airtel-money/billing', [\App\Http\Controllers\Api\BuyerBillingController::class, 'mobileMoneyCallback']);
+Route::get('callbacks/airtel-money/billing', [\App\Http\Controllers\Api\BuyerBillingController::class, 'mobileMoneyCallback']);

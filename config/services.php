@@ -41,20 +41,29 @@ return [
         'redirect' => env('GOOGLE_REDIRECT_URI'),
     ],
 
-    'pesapal' => [
-        'base_url' => env('PESAPAL_BASE_URL', 'https://pay.pesapal.com/v3'),
-        'consumer_key' => env('PESAPAL_CONSUMER_KEY'),
-        'consumer_secret' => env('PESAPAL_CONSUMER_SECRET'),
-        'notification_id' => env('PESAPAL_NOTIFICATION_ID'),
-        'webhook_secret' => env('PESAPAL_WEBHOOK_SECRET'),
-        'callback_url' => env('PESAPAL_CALLBACK_URL', env('APP_URL').'/api/callbacks/pesapal'),
-        'non_production_mock_payment_status' => env('PESAPAL_NON_PRODUCTION_MOCK_PAYMENT_STATUS'),
-        'publish_fee_amount_ugx' => env('PESAPAL_PUBLISH_FEE_AMOUNT_UGX', 7500),
+    'mobile_money' => [
+        'default_provider' => env('MOBILE_MONEY_DEFAULT_PROVIDER', 'mtn'),
+        'webhook_secret' => env('MOBILE_MONEY_WEBHOOK_SECRET'),
     ],
 
-    'mobile_money' => [
-        'provider' => env('MOBILE_MONEY_PROVIDER', 'stub'),
-        'webhook_secret' => env('MOBILE_MONEY_WEBHOOK_SECRET'),
+    'mtn_momo' => [
+        'base_url' => env('MTN_MOMO_BASE_URL', 'https://sandbox.momodeveloper.mtn.com'),
+        'production_base_url' => env('MTN_MOMO_PRODUCTION_BASE_URL', 'https://momodeveloper.mtn.com'),
+        'api_user' => env('MTN_MOMO_API_USER', 'placeholder_api_user'),
+        'api_key' => env('MTN_MOMO_API_KEY', 'placeholder_api_key'),
+        'merchant_code' => env('MTN_MOMO_MERCHANT_CODE', 'placeholder_merchant_code'),
+        'subscription_key' => env('MTN_MOMO_SUBSCRIPTION_KEY', 'placeholder_subscription_key'),
+        'callback_url' => env('MTN_MOMO_CALLBACK_URL', env('APP_URL').'/api/callbacks/mtn-momo'),
+        'webhook_secret' => env('MTN_MOMO_WEBHOOK_SECRET'),
+    ],
+
+    'airtel_money' => [
+        'base_url' => env('AIRTEL_MONEY_BASE_URL', 'https://openapi.airtel.africa'),
+        'client_id' => env('AIRTEL_MONEY_CLIENT_ID', 'placeholder_client_id'),
+        'client_secret' => env('AIRTEL_MONEY_CLIENT_SECRET', 'placeholder_client_secret'),
+        'merchant_code' => env('AIRTEL_MONEY_MERCHANT_CODE', 'placeholder_merchant_code'),
+        'callback_url' => env('AIRTEL_MONEY_CALLBACK_URL', env('APP_URL').'/api/callbacks/airtel-money'),
+        'webhook_secret' => env('AIRTEL_MONEY_WEBHOOK_SECRET'),
     ],
 
 ];

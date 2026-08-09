@@ -8,7 +8,7 @@
  *   4. Late / past-due payment recovery
  *   5. Checkout cancellation — user abandons the payment page and returns
  *
- * All tests run against a mocked API so no real Pesapal calls are made.
+ * All tests run against a mocked API so no real MTN/Airtel Money calls are made.
  * Screenshots are attached to the test report at every meaningful step.
  */
 import { expect, test, type Page, type TestInfo } from '@playwright/test';

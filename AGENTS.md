@@ -170,10 +170,9 @@ The platform implements a **role-based access control** system with four primary
 - Unread message counts
 
 **Payment System:**
-- MTN MoMo integration
-- Airtel Money integration
+- MTN MoMo API integration (direct)
+- Airtel Money API integration (direct)
 - Bank transfer support
-- Pesapal payment gateway
 
 **Localization:**
 - English/Luganda language support
@@ -276,10 +275,9 @@ fuganda/
    - District/city datasets for accurate search filters
 
 2. **Payment Methods:**
-   - MTN Mobile Money (MoMo)
-   - Airtel Money
+   - MTN Mobile Money (MoMo) - Direct API integration
+   - Airtel Money - Direct API integration
    - Bank transfer
-   - Pesapal payment gateway
 
 3. **Connectivity Optimizations:**
    - PWA support for offline access
