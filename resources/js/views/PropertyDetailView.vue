@@ -15,6 +15,12 @@
 		>
 			{{ $t('properties.createdSuccess') }}
 		</p>
+		<p
+			v-if="paymentSuccess"
+			class="rounded border border-emerald-200 bg-emerald-50 px-3 py-2 text-sm text-emerald-800"
+		>
+			{{ $t('userContact.paymentInitiated') || 'Payment request sent to your phone. Please approve to continue.' }}
+		</p>
 
 		<div class="flex items-start justify-between gap-4">
 			<div>
@@ -156,7 +162,7 @@
 				<p>{{ $t('userContact.blockingCallout', { amount: formatPrice(10000, 'UGX') }) }}</p>
 				<button
 					class="mt-2 rounded bg-sky-700 px-3 py-1.5 text-xs text-white"
-					@click="initiateContactPayment"
+					@click="showPaymentModal = true"
 				>
 					{{ $t('userContact.payNow', { amount: formatPrice(10000, 'UGX') }) }}
 				</button>
@@ -188,11 +194,79 @@
 				<button class="rounded bg-sky-700 px-3 py-2 text-sm text-white" type="submit">{{ $t('actions.send') }}</button>
 			</form>
 		</div>
+
+		<!-- Payment Modal -->
+		<div v-if="showPaymentModal" class="fixed inset-0 z-[1000] flex items-center justify-center bg-black/70 p-4" @click="showPaymentModal = false">
+			<div class="w-full max-w-md rounded-lg bg-white p-6 shadow-2xl isolate" @click.stop>
+				<h3 class="text-lg font-semibold text-slate-900">{{ $t('userContact.paymentTitle') || 'Complete Payment' }}</h3>
+				
+				<!-- Success message (shown after payment is initiated) -->
+				<div v-if="paymentInitiatedInModal" class="mt-4 p-4 rounded-lg border border-emerald-200 bg-emerald-50">
+					<p class="text-sm text-emerald-800">{{ $t('userContact.paymentInitiated') || 'Payment request sent to your phone. Please approve to continue.' }}</p>
+					<button
+						class="mt-3 rounded bg-sky-700 px-4 py-2 text-sm text-white"
+						@click="showPaymentModal = false; paymentInitiatedInModal = false;"
+					>
+						{{ $t('actions.close') || 'Close' }}
+					</button>
+				</div>
+				
+				<template v-else>
+					<p class="mt-1 text-sm text-slate-600">{{ $t('userContact.paymentDescription', { amount: formatPrice(10000, 'UGX') }) || `Pay UGX 10,000 to contact the agent` }}</p>
+
+					<div class="mt-4 space-y-3">
+					<div>
+						<label class="block text-sm font-medium text-slate-700">{{ $t('userContact.phoneNumber') || 'Phone Number' }}</label>
+						<input
+							v-model="phoneNumber"
+							type="tel"
+							class="mt-1 w-full rounded border border-slate-300 px-3 py-2 text-sm"
+							:placeholder="$t('userContact.phonePlaceholder') || 'e.g. 256772123456'"
+							required
+						/>
+						<p class="mt-1 text-xs text-slate-500">{{ $t('userContact.phoneHint') || 'Enter your MTN or Airtel number' }}</p>
+					</div>
+
+					<div>
+						<label class="block text-sm font-medium text-slate-700">{{ $t('userContact.paymentProvider') || 'Payment Provider' }}</label>
+						<select
+							v-model="selectedPaymentProvider"
+							class="mt-1 w-full rounded border border-slate-300 px-3 py-2 text-sm"
+						>
+							<option value="mtn">MTN Mobile Money</option>
+							<option value="airtel">Airtel Money</option>
+						</select>
+					</div>
+				</div>
+
+				<div class="mt-6 flex gap-3">
+					<button
+						class="rounded border border-slate-300 px-4 py-2 text-sm text-slate-700 hover:bg-slate-50"
+						@click="showPaymentModal = false"
+					>
+						{{ $t('actions.cancel') || 'Cancel' }}
+					</button>
+					<button
+						class="rounded bg-sky-700 px-4 py-2 text-sm text-white hover:bg-sky-800"
+						@click="initiateContactPayment"
+						:disabled="!phoneNumber || isSubmitting"
+					>
+						<span v-if="!isSubmitting">{{ $t('userContact.confirmPayment') || 'Confirm Payment' }}</span>
+						<span v-else>{{ $t('actions.processing') || 'Processing...' }}</span>
+					</button>
+				</div>
+
+				<p v-if="paymentError" class="mt-4 rounded border border-rose-200 bg-rose-50 px-3 py-2 text-sm text-rose-800">
+					{{ paymentError }}
+				</p>
+				</template>
+			</div>
+		</div>
 	</section>
 </template>
 
 <script setup>
-import { computed, onMounted, onUnmounted, ref } from 'vue';
+import { computed, onMounted, onUnmounted, ref, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { useRoute } from 'vue-router';
 import PropertyMap from '../components/PropertyMap.vue';
@@ -261,6 +335,14 @@ const hasPaidContactFee = ref(false);
 const isCheckingContactFee = ref(false);
 const placeholderImageUrl = '/images/property-placeholder.jpg';
 const lightboxOpen = ref(false);
+const phoneNumber = ref('');
+const selectedPaymentProvider = ref('mtn');
+const showPaymentModal = ref(false);
+const isSubmitting = ref(false);
+const paymentError = ref(null);
+const paymentSuccess = ref(false);
+const paymentCheckInterval = ref(null);
+const paymentInitiatedInModal = ref(false);
 
 const mediaItems = computed(() => {
 	if (!property.value) {
@@ -310,6 +392,23 @@ const canSendMessage = computed(() => {
 
 const isGuestUser = computed(() => !profile.value);
 const showCreatedSuccess = computed(() => String(route.query.created ?? '') === '1');
+
+// Auto-clear payment success message after 10 seconds
+watch(() => paymentSuccess.value, (newVal) => {
+	if (newVal) {
+		setTimeout(() => {
+			paymentSuccess.value = false;
+		}, 10000);
+	}
+});
+
+// Clear payment check interval when payment is confirmed
+watch(() => hasPaidContactFee.value, (newVal) => {
+	if (newVal && paymentCheckInterval.value) {
+		clearInterval(paymentCheckInterval.value);
+		paymentCheckInterval.value = null;
+	}
+});
 
 async function load() {
 	loading.value = true;
@@ -406,13 +505,18 @@ async function checkContactFeePayment() {
 }
 
 async function initiateContactPayment() {
-	if (!property.value) {
+	if (!property.value || !phoneNumber.value) {
 		return;
 	}
 	
+	isSubmitting.value = true;
+	paymentError.value = null;
+	paymentInitiatedInModal.value = false;
+	
 	try {
 		const result = await initiateBuyerContactPayment(property.value.id, {
-			payment_method: 'mobile_money',
+			payment_provider: selectedPaymentProvider.value,
+			phone_number: phoneNumber.value,
 			billing_email: profile.value?.email || '',
 		});
 		
@@ -420,9 +524,46 @@ async function initiateContactPayment() {
 			window.location.href = result.redirectUrl;
 		} else if (result.hasPaid) {
 			hasPaidContactFee.value = true;
+			paymentSuccess.value = true;
+			paymentInitiatedInModal.value = true;
+			// Close modal after user sees the message
+			setTimeout(() => {
+				showPaymentModal.value = false;
+				phoneNumber.value = '';
+				paymentInitiatedInModal.value = false;
+			}, 3000);
+		} else {
+			// For MTN/Airtel Mobile Money, payment request is sent to phone
+			paymentSuccess.value = true;
+			paymentInitiatedInModal.value = true;
+			// Clear any existing interval
+			if (paymentCheckInterval.value) {
+				clearInterval(paymentCheckInterval.value);
+			}
+			// Set up polling to check payment status periodically
+			paymentCheckInterval.value = setInterval(async () => {
+				const status = await checkBuyerContactPayment(property.value.id);
+				if (status.hasPaid) {
+					clearInterval(paymentCheckInterval.value);
+					paymentCheckInterval.value = null;
+					hasPaidContactFee.value = true;
+					paymentSuccess.value = false;
+				}
+			}, 10000); // Check every 10 seconds
+			// Also do an immediate check after 3 seconds
+			setTimeout(() => checkContactFeePayment(), 3000);
+			// Close modal after user sees the message
+			setTimeout(() => {
+				showPaymentModal.value = false;
+				phoneNumber.value = '';
+				paymentInitiatedInModal.value = false;
+			}, 3000);
 		}
 	} catch (error) {
 		console.error('Failed to initiate contact payment:', error);
+		paymentError.value = error.response?.data?.message || error.message || t('userContact.paymentFailed') || 'Payment initiation failed. Please try again.';
+	} finally {
+		isSubmitting.value = false;
 	}
 }
 
@@ -438,5 +579,10 @@ onMounted(async () => {
 onUnmounted(() => {
 	window.removeEventListener('keydown', handleKeydown);
 	document.body.style.overflow = '';
+	// Clear payment check interval on unmount
+	if (paymentCheckInterval.value) {
+		clearInterval(paymentCheckInterval.value);
+		paymentCheckInterval.value = null;
+	}
 });
 </script>
