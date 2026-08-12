@@ -31,7 +31,7 @@ class ApiClientsSeeder extends Seeder
             [
                 'uuid' => ApiClient::generateUuid(),
                 'client_id' => 'mycanopy-mobile-app',
-                'client_secret' => Hash::make('mobile-app-secret-change-me'),
+                'client_secret' => Hash::make('7Xk9Lm2pQv4rT8yB1w'),
                 'password_client' => true,
                 'personal_access_client' => false,
                 'revoked' => false,
