@@ -19,6 +19,9 @@ Route::get('demo-mode', function () {
     return response()->json(['demo_mode' => config('app.demo_mode')]);
 });
 
+// External API Authentication Routes (for third-party consumers)
+Route::post('auth/login', [\App\Http\Controllers\Api\ApiAuthController::class, 'login']);
+
 Route::get('properties', [PropertyController::class, 'index']);
 Route::get('properties/{id}', [PropertyController::class, 'show'])->whereNumber('id');
 Route::get('locations', [LocationController::class, 'index']);
@@ -45,6 +48,11 @@ Route::prefix('public')->group(function () {
 
 Route::middleware('auth:sanctum')->prefix('auth')->group(function () {
     Route::get('me', [AuthProfileController::class, 'show']);
+    // External API token management
+    Route::get('me/detailed', [\App\Http\Controllers\Api\ApiAuthController::class, 'me']);
+    Route::post('logout', [\App\Http\Controllers\Api\ApiAuthController::class, 'logout']);
+    Route::post('tokens/revoke', [\App\Http\Controllers\Api\ApiAuthController::class, 'revokeToken']);
+    Route::post('tokens/revoke-all', [\App\Http\Controllers\Api\ApiAuthController::class, 'revokeAllTokens']);
 });
 
 Route::middleware('auth:sanctum')->prefix('buyer/contact')->group(function () {

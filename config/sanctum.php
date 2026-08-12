@@ -17,7 +17,7 @@ return [
 
     'stateful' => explode(',', env('SANCTUM_STATEFUL_DOMAINS', sprintf(
         '%s%s',
-        'localhost,localhost:3000,localhost:19006,127.0.0.1,127.0.0.1:8000,127.0.0.1:19006,::1,fuganda.test,fuganda.test:80,fuganda.test:5173,mycanopy.verbeek.ug',
+        'localhost,localhost:3000,localhost:19006,127.0.0.1,127.0.0.1:8000,127.0.0.1:19006,::1,fuganda.test,fuganda.test:80,fuganda.test:5173,mycanopy.verbeek.ug,api.mycanopy.verbeek.ug',
         Sanctum::currentApplicationUrlWithPort(),
     ))),
 
@@ -78,6 +78,24 @@ return [
         'authenticate_session' => Laravel\Sanctum\Http\Middleware\AuthenticateSession::class,
         'encrypt_cookies' => Illuminate\Cookie\Middleware\EncryptCookies::class,
         'validate_csrf_token' => Illuminate\Foundation\Http\Middleware\ValidateCsrfToken::class,
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | Personal Access Client Configuration
+    |--------------------------------------------------------------------------
+    |
+    | Configuration for external API clients (third-party applications).
+    | When enabled, allows external apps to authenticate using OAuth2 flows.
+    |
+    */
+
+    'personal_access_client' => [
+        'enabled' => (bool) env('SANCTUM_PERSONAL_ACCESS_CLIENT_ENABLED', true),
+        'id' => env('PERSONAL_ACCESS_CLIENT_ID'),
+        'secret' => env('PERSONAL_ACCESS_CLIENT_SECRET'),
+        'password_client' => true,
+        'personal_access_client' => true,
     ],
 
 ];
