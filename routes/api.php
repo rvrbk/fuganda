@@ -19,7 +19,32 @@ Route::get('demo-mode', function () {
     return response()->json(['demo_mode' => config('app.demo_mode')]);
 });
 
+// ============================================================================
+// OAuth2 Token Endpoints (for external API clients with client_id/client_secret)
+// ============================================================================
+
+// OAuth2 Token Endpoint (handles both client_credentials and password grants)
+Route::post('oauth/token', [\App\Http\Controllers\Api\OAuthTokenController::class, 'issueToken']);
+
+// OAuth Token Management
+Route::middleware('auth:sanctum')->group(function () {
+    Route::post('oauth/revoke', [\App\Http\Controllers\Api\OAuthTokenController::class, 'revokeToken']);
+    Route::get('oauth/token/info', [\App\Http\Controllers\Api\OAuthTokenController::class, 'tokenInfo']);
+});
+
+// API Client Management (Admin)
+Route::middleware('auth:sanctum')->prefix('oauth/clients')->group(function () {
+    Route::get('/', [\App\Http\Controllers\Api\ApiClientController::class, 'index']);
+    Route::post('/', [\App\Http\Controllers\Api\ApiClientController::class, 'store']);
+    Route::get('/{client}', [\App\Http\Controllers\Api\ApiClientController::class, 'show']);
+    Route::delete('/{client}', [\App\Http\Controllers\Api\ApiClientController::class, 'destroy']);
+    Route::post('/{client}/regenerate', [\App\Http\Controllers\Api\ApiClientController::class, 'regenerateSecret']);
+});
+
+// ============================================================================
 // External API Authentication Routes (for third-party consumers)
+// ============================================================================
+
 Route::post('auth/login', [\App\Http\Controllers\Api\ApiAuthController::class, 'login']);
 
 Route::get('properties', [PropertyController::class, 'index']);

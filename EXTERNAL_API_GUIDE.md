@@ -16,13 +16,246 @@ https://mycanopy.verbeek.ug/api/
 
 ## Authentication
 
-MyCanopy uses **Laravel Sanctum** for API authentication. External applications authenticate via **Personal Access Tokens** using a simple login flow.
+MyCanopy supports **two authentication methods** for external applications:
 
-### Authentication Flow
+### Method 1: Personal Access Tokens (User-Based)
+Authentication via user credentials. The external app logs in as a specific user.
 
-1. **Login** - Exchange user credentials for an access token
-2. **Use Token** - Include the token in the `Authorization` header for all authenticated requests
-3. **Manage Tokens** - Optional: Revoke tokens when needed
+**Authentication Flow:**
+1. Login with user email/password → Get token
+2. Use token in `Authorization: Bearer` header
+3. All API calls are made on behalf of that user
+
+### Method 2: OAuth2 Client Credentials (App-Based)
+Authentication via `client_id` and `client_secret`. The external app has its own credentials.
+
+**Authentication Flow:**
+1. Create API client → Get `client_id` and `client_secret`
+2. Request token via `/oauth/token` with client credentials
+3. Use token in `Authorization: Bearer` header
+4. API calls are made on behalf of a service user or associated user
+
+---
+
+## Authentication Endpoints
+
+### OAuth2 Token Endpoint (Client Credentials Grant)
+
+**Description:** Get an access token using your app's `client_id` and `client_secret`. This is the **recommended method for machine-to-machine authentication** (mobile apps, backend services).
+
+**Endpoint:**
+```
+POST https://mycanopy.verbeek.ug/api/oauth/token
+```
+
+**Headers:**
+```
+Content-Type: application/json
+Accept: application/json
+```
+
+**Request Body (JSON):**
+```json
+{
+    "grant_type": "client_credentials",
+    "client_id": "your-client-id",
+    "client_secret": "your-client-secret",
+    "scope": "*"
+}
+```
+
+**Request Body (x-www-form-urlencoded):**
+```
+grant_type=client_credentials&client_id=your-client-id&client_secret=your-client-secret&scope=*
+```
+
+**Parameters:**
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| `grant_type` | string | Yes | Must be `client_credentials` |
+| `client_id` | string | Yes | Your app's client ID |
+| `client_secret` | string | Yes | Your app's client secret |
+| `scope` | string | No | Requested scopes (space-separated). Default: `*` |
+
+**Response (Success - 200 OK):**
+```json
+{
+    "token_type": "Bearer",
+    "expires_in": 3600,
+    "access_token": "1|abc123def456...",
+    "refresh_token": null,
+    "client_id": "your-client-id",
+    "user_id": 1,
+    "scopes": ["*"]
+}
+```
+
+**Response (Error):**
+```json
+{
+    "error": "invalid_client",
+    "error_description": "The client credentials are invalid."
+}
+```
+
+**Error Codes:**
+| Error | Description |
+|-------|-------------|
+| `invalid_request` | Missing required parameters |
+| `invalid_client` | Invalid client_id or client_secret |
+| `invalid_scope` | Requested scope is not allowed |
+| `unsupported_grant_type` | grant_type not supported |
+
+---
+
+### OAuth2 Token Endpoint (Password Grant)
+
+**Description:** Get an access token using user credentials via a client. Useful when your app needs to authenticate specific users.
+
+**Endpoint:**
+```
+POST https://mycanopy.verbeek.ug/api/oauth/token
+```
+
+**Request Body (JSON):**
+```json
+{
+    "grant_type": "password",
+    "client_id": "your-client-id",
+    "client_secret": "your-client-secret",
+    "username": "user@example.com",
+    "password": "user-password",
+    "scope": "*"
+}
+```
+
+**Parameters:**
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| `grant_type` | string | Yes | Must be `password` |
+| `client_id` | string | Yes | Your app's client ID |
+| `client_secret` | string | Yes | Your app's client secret |
+| `username` | string | Yes | User's email address |
+| `password` | string | Yes | User's password |
+| `scope` | string | No | Requested scopes (space-separated) |
+
+**Note:** The client must have `password_client` enabled.
+
+---
+
+### User-Based Authentication (Personal Access Tokens)
+
+**Description:** Authenticate with user credentials directly. Simpler approach for apps that manage user sessions.
+
+**Endpoint:**
+```
+POST https://mycanopy.verbeek.ug/api/auth/login
+```
+
+**Request Body:**
+```json
+{
+    "email": "user@example.com",
+    "password": "your-password",
+    "device_name": "my-mobile-app"
+}
+```
+
+**Response:**
+```json
+{
+    "token": "1|abc123def456...",
+    "token_type": "Bearer",
+    "expires_at": null,
+    "user": {
+        "id": 1,
+        "name": "John Doe",
+        "email": "user@example.com",
+        "role": "seller"
+    }
+}
+```
+
+---
+
+## API Client Management Endpoints
+
+These endpoints require authentication and are typically used by administrators.
+
+### POST /oauth/clients - Create API Client
+
+**Description:** Create a new API client for an external application.
+
+**Endpoint:**
+```
+POST https://mycanopy.verbeek.ug/api/oauth/clients
+```
+
+**Headers:**
+```
+Authorization: Bearer ADMIN_TOKEN
+Content-Type: application/json
+Accept: application/json
+```
+
+**Request Body:**
+```json
+{
+    "name": "My Mobile App",
+    "redirect_uri": "https://myapp.com/callback",
+    "scopes": ["properties.read", "properties.write"]
+}
+```
+
+**Response (Success - 201 Created):**
+```json
+{
+    "message": "API client created successfully.",
+    "client": {
+        "id": 1,
+        "uuid": "550e8400-e29b-41d4-a716-446655440000",
+        "name": "My Mobile App",
+        "client_id": "abc123",
+        "client_secret": "xyz789", // ⚠️ Store this securely! Only shown once!
+        "redirect_uri": "https://myapp.com/callback",
+        "scopes": ["properties.read", "properties.write"],
+        "created_at": "2026-08-12T10:00:00.000000Z"
+    },
+    "warning": "Store the client_secret securely. It will not be shown again."
+}
+```
+
+### GET /oauth/clients - List API Clients
+
+**Description:** Get a list of all API clients.
+
+**Endpoint:**
+```
+GET https://mycanopy.verbeek.ug/api/oauth/clients
+```
+
+**Headers:**
+```
+Authorization: Bearer ADMIN_TOKEN
+Accept: application/json
+```
+
+**Response:**
+```json
+{
+    "clients": [
+        {
+            "id": 1,
+            "uuid": "550e8400-e29b-41d4-a716-446655440000",
+            "name": "My Mobile App",
+            "client_id": "abc123",
+            "redirect_uri": "https://myapp.com/callback",
+            "revoked": false,
+            "created_at": "2026-08-12T10:00:00.000000Z"
+        }
+    ]
+}
+```
 
 ---
 
@@ -710,9 +943,348 @@ When `DEMO_MODE=true` on the server:
 
 ---
 
-## Implementation Examples
+## OAuth2 Implementation Examples
 
-### JavaScript (Fetch API)
+### JavaScript (Fetch API) - Client Credentials
+
+```javascript
+// Configuration
+const API_BASE = 'https://mycanopy.verbeek.ug/api/';
+const CLIENT_ID = 'your-client-id';
+const CLIENT_SECRET = 'your-client-secret';
+
+// Get OAuth token
+const getOAuthToken = async () => {
+    const response = await fetch(API_BASE + 'oauth/token', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json'
+        },
+        body: JSON.stringify({
+            grant_type: 'client_credentials',
+            client_id: CLIENT_ID,
+            client_secret: CLIENT_SECRET,
+            scope: '*'
+        })
+    });
+    
+    const data = await response.json();
+    if (!response.ok) {
+        throw new Error(data.error_description || data.message);
+    }
+    
+    return data.access_token;
+};
+
+// Use the token
+const getProperties = async () => {
+    const token = await getOAuthToken();
+    const response = await fetch(API_BASE + 'properties', {
+        headers: {
+            'Authorization': `Bearer ${token}`,
+            'Accept': 'application/json'
+        }
+    });
+    return await response.json();
+};
+
+// Full usage
+(async () => {
+    try {
+        const properties = await getProperties();
+        console.log(properties);
+    } catch (error) {
+        console.error('Error:', error.message);
+    }
+})();
+```
+
+### Axios (JavaScript) - Client Credentials with Token Caching
+
+```javascript
+import axios from 'axios';
+
+const API_BASE = 'https://mycanopy.verbeek.ug/api/';
+
+const api = axios.create({
+    baseURL: API_BASE,
+    headers: {
+        'Accept': 'application/json'
+    }
+});
+
+// Token cache
+let cachedToken = null;
+let tokenExpiry = null;
+
+// Get or refresh token
+const getToken = async () => {
+    if (cachedToken && tokenExpiry && new Date() < tokenExpiry) {
+        return cachedToken;
+    }
+    
+    const response = await axios.post(API_BASE + 'oauth/token', {
+        grant_type: 'client_credentials',
+        client_id: process.env.REACT_APP_CLIENT_ID,
+        client_secret: process.env.REACT_APP_CLIENT_SECRET,
+        scope: '*'
+    }, {
+        headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json'
+        }
+    });
+    
+    cachedToken = response.data.access_token;
+    tokenExpiry = response.data.expires_in 
+        ? new Date(Date.now() + (response.data.expires_in * 1000)) 
+        : null;
+    
+    return cachedToken;
+};
+
+// Add token to all requests
+api.interceptors.request.use(async (config) => {
+    const token = await getToken();
+    if (token) {
+        config.headers.Authorization = `Bearer ${token}`;
+    }
+    return config;
+});
+
+// Now all requests automatically include the token
+export const getProperties = (params) => api.get('properties', { params });
+export const createProperty = (data) => api.post('properties', data);
+```
+
+### PHP (cURL) - Client Credentials
+
+```php
+<?php
+
+$baseUrl = 'https://mycanopy.verbeek.ug/api/';
+$clientId = 'your-client-id';
+$clientSecret = 'your-client-secret';
+$token = null;
+$tokenExpiry = null;
+
+// Get OAuth token
+function getOAuthToken() {
+    global $baseUrl, $clientId, $clientSecret, $token, $tokenExpiry;
+    
+    // Return cached token if valid
+    if ($token && $tokenExpiry && time() < $tokenExpiry) {
+        return $token;
+    }
+    
+    $ch = curl_init($baseUrl . 'oauth/token');
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+    curl_setopt($ch, CURLOPT_POST, true);
+    curl_setopt($ch, CURLOPT_HTTPHEADER, [
+        'Content-Type: application/json',
+        'Accept: application/json'
+    ]);
+    curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode([
+        'grant_type' => 'client_credentials',
+        'client_id' => $clientId,
+        'client_secret' => $clientSecret,
+        'scope' => '*'
+    ]));
+    
+    $response = curl_exec($ch);
+    $data = json_decode($response, true);
+    curl_close($ch);
+    
+    if (isset($data['error'])) {
+        throw new Exception($data['error_description'] ?? $data['error']);
+    }
+    
+    $token = $data['access_token'];
+    $tokenExpiry = $data['expires_in'] ? time() + $data['expires_in'] : null;
+    
+    return $token;
+}
+
+// Make authenticated request
+function getProperties($params = []) {
+    global $baseUrl, $token;
+    
+    $token = getOAuthToken();
+    
+    $query = http_build_query($params);
+    $url = $baseUrl . 'properties' . ($query ? '?' . $query : '');
+    
+    $ch = curl_init($url);
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+    curl_setopt($ch, CURLOPT_HTTPHEADER, [
+        'Authorization: Bearer ' . $token,
+        'Accept: application/json'
+    ]);
+    
+    $response = curl_exec($ch);
+    $data = json_decode($response, true);
+    curl_close($ch);
+    
+    return $data;
+}
+
+// Usage
+try {
+    $properties = getProperties(['district' => 'Kampala']);
+    print_r($properties);
+} catch (Exception $e) {
+    echo 'Error: ' . $e->getMessage();
+}
+```
+
+### Python (Requests) - Client Credentials
+
+```python
+import requests
+import time
+from datetime import datetime, timedelta
+
+BASE_URL = 'https://mycanopy.verbeek.ug/api/'
+CLIENT_ID = 'your-client-id'
+CLIENT_SECRET = 'your-client-secret'
+
+# Token cache
+_token_cache = {'token': None, 'expires_at': None}
+
+def get_oauth_token():
+    """Get OAuth token with caching."""
+    global _token_cache
+    
+    # Return cached token if valid
+    if _token_cache['token'] and _token_cache['expires_at']:
+        if datetime.now() < _token_cache['expires_at']:
+            return _token_cache['token']
+    
+    response = requests.post(
+        BASE_URL + 'oauth/token',
+        json={
+            'grant_type': 'client_credentials',
+            'client_id': CLIENT_ID,
+            'client_secret': CLIENT_SECRET,
+            'scope': '*'
+        },
+        headers={
+            'Accept': 'application/json'
+        }
+    )
+    
+    data = response.json()
+    if response.status_code != 200:
+        raise Exception(data.get('error_description', data.get('error', 'Unknown error')))
+    
+    # Cache the token
+    _token_cache['token'] = data['access_token']
+    _token_cache['expires_at'] = datetime.now() + timedelta(seconds=data.get('expires_in', 3600))
+    
+    return _token_cache['token']
+
+def get_properties(params=None):
+    """Get properties with OAuth authentication."""
+    token = get_oauth_token()
+    headers = {
+        'Authorization': f'Bearer {token}',
+        'Accept': 'application/json'
+    }
+    response = requests.get(BASE_URL + 'properties', headers=headers, params=params)
+    return response.json()
+
+# Usage
+try:
+    properties = get_properties({'district': 'Kampala'})
+    print(properties)
+except Exception as e:
+    print(f'Error: {e}')
+```
+
+### Dart/Flutter - Client Credentials
+
+```dart
+import 'dart:convert';
+import 'package:http/http.dart' as http;
+
+class MyCanopyOAuthApi {
+  static const String _baseUrl = 'https://mycanopy.verbeek.ug/api/';
+  static const String _clientId = 'your-client-id';
+  static const String _clientSecret = 'your-client-secret';
+  
+  static String? _cachedToken;
+  static DateTime? _tokenExpiry;
+
+  static Future<String> _getToken() async {
+    // Return cached token if valid
+    if (_cachedToken != null && _tokenExpiry != null && DateTime.now().isBefore(_tokenExpiry!)) {
+      return _cachedToken!;
+    }
+    
+    final response = await http.post(
+      Uri.parse('${_baseUrl}oauth/token'),
+      headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json',
+      },
+      body: jsonEncode({
+        'grant_type': 'client_credentials',
+        'client_id': _clientId,
+        'client_secret': _clientSecret,
+        'scope': '*',
+      }),
+    );
+    
+    final data = jsonDecode(response.body);
+    if (response.statusCode != 200) {
+      throw Exception(data['error_description'] ?? data['error'] ?? 'Unknown error');
+    }
+    
+    _cachedToken = data['access_token'];
+    _tokenExpiry = data['expires_in'] != null 
+        ? DateTime.now().add(Duration(seconds: data['expires_in'])) 
+        : null;
+    
+    return _cachedToken!;
+  }
+
+  static Future<Map<String, dynamic>> getProperties({Map<String, dynamic>? queryParams}) async {
+    final token = await _getToken();
+    final url = Uri.parse('${_baseUrl}properties').replace(queryParameters: queryParams);
+    
+    final response = await http.get(
+      url,
+      headers: {
+        'Authorization': 'Bearer $token',
+        'Accept': 'application/json',
+      },
+    );
+    
+    return jsonDecode(response.body);
+  }
+
+  static Future<Map<String, dynamic>> createProperty(Map<String, dynamic> data) async {
+    final token = await _getToken();
+    
+    final response = await http.post(
+      Uri.parse('${_baseUrl}properties'),
+      headers: {
+        'Authorization': 'Bearer $token',
+        'Content-Type': 'application/json',
+        'Accept': 'application/json',
+      },
+      body: jsonEncode(data),
+    );
+    
+    return jsonDecode(response.body);
+  }
+}
+```
+
+---
+
+## Implementation Examples
 
 ```javascript
 // Login

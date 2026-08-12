@@ -114,4 +114,21 @@ return [
 
     'password_timeout' => env('AUTH_PASSWORD_TIMEOUT', 10800),
 
+    /*
+    |--------------------------------------------------------------------------
+    | OAuth2 Configuration
+    |--------------------------------------------------------------------------
+    |
+    | Configuration for OAuth2 client credentials flow.
+    |
+    */
+
+    'oauth' => [
+        // Email of the default service user for client_credentials grant
+        'service_user' => env('OAUTH_SERVICE_USER', 'api-service@mycanopy.verbeek.ug'),
+
+        // Token expiration in seconds (null = never expires)
+        'token_expiration' => env('OAUTH_TOKEN_EXPIRATION', 3600),
+    ],
+
 ];

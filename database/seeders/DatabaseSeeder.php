@@ -16,5 +16,6 @@ class DatabaseSeeder extends Seeder
     {
         $this->call(LocationSeeder::class);
         $this->call(CoreUserRolesSeeder::class);
+        $this->call(ApiClientsSeeder::class);
     }
 }
