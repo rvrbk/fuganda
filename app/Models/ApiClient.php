@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Str;
 
 class ApiClient extends Model
 {
@@ -45,7 +46,7 @@ class ApiClient extends Model
 
     public static function generateUuid(): string
     {
-        return (string) Illuminate\Support\Str::uuid();
+        return (string) Str::uuid();
     }
 
     public function user()
