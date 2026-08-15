@@ -1,0 +1,899 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "MyCanopy API",
+    "description": "Uganda Property Listings API - Buy, rent, and sell properties across Uganda",
+    "version": "1.0.0",
+    "contact": {
+      "name": "MyCanopy Support",
+      "email": "support@verbeek.ug"
+    },
+    "license": {
+      "name": "MIT"
+    }
+  },
+  "servers": [
+    {
+      "url": "/api",
+      "description": "Main API server"
+    }
+  ],
+  "security": [
+    {
+      "bearerAuth": []
+    }
+  ],
+  "paths": {
+    "/oauth/token": {
+      "post": {
+        "tags": ["Authentication"],
+        "summary": "Get OAuth2 access token",
+        "operationId": "issueOAuthToken",
+        "description": "Issue access token using OAuth2 grant types (client_credentials, password). This is the main entry point for API authentication.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/x-www-form-urlencoded": {
+              "schema": {
+                "type": "object",
+                "required": ["grant_type", "client_id", "client_secret"],
+                "properties": {
+                  "grant_type": {"type": "string", "enum": ["client_credentials", "password"], "description": "OAuth2 grant type"},
+                  "client_id": {"type": "string", "description": "API client ID"},
+                  "client_secret": {"type": "string", "description": "API client secret"},
+                  "username": {"type": "string", "format": "email", "description": "User email (required for password grant)"},
+                  "password": {"type": "string", "description": "User password (required for password grant)"},
+                  "scope": {"type": "string", "description": "Requested scopes (space-separated)"}
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Token issued successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OAuthTokenResponse"
+                }
+              }
+            }
+          },
+          "400": {"description": "Invalid request"},
+          "401": {"description": "Invalid credentials"}
+        }
+      }
+    },
+    "/auth/login": {
+      "post": {
+        "tags": ["Authentication"],
+        "summary": "Login with email and password",
+        "operationId": "login",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["email", "password", "device_name"],
+                "properties": {
+                  "email": {"type": "string", "format": "email", "example": "user@example.com"},
+                  "password": {"type": "string", "example": "password123"},
+                  "device_name": {"type": "string", "example": "mobile-app"}
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful login",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "token": {"type": "string"},
+                    "user": {"$ref": "#/components/schemas/User"}
+                  }
+                }
+              }
+            }
+          },
+          "422": {"description": "Validation error"}
+        }
+      }
+    },
+    "/auth/logout": {
+      "post": {
+        "tags": ["Authentication"],
+        "summary": "Logout and revoke current token",
+        "operationId": "logout",
+        "security": [{"bearerAuth": []}],
+        "responses": {
+          "200": {"description": "Successfully logged out"}
+        }
+      }
+    },
+    "/auth/me": {
+      "get": {
+        "tags": ["Authentication"],
+        "summary": "Get current authenticated user",
+        "operationId": "getCurrentUser",
+        "security": [{"bearerAuth": []}],
+        "responses": {
+          "200": {
+            "description": "Current user data",
+            "content": {
+              "application/json": {
+                "schema": {"$ref": "#/components/schemas/User"}
+              }
+            }
+          },
+          "401": {"description": "Unauthenticated"}
+        }
+      }
+    },
+    "/auth/me/detailed": {
+      "get": {
+        "tags": ["Authentication"],
+        "summary": "Get detailed user with token info",
+        "operationId": "getDetailedProfile",
+        "security": [{"bearerAuth": []}],
+        "responses": {
+          "200": {
+            "description": "Detailed user profile",
+            "content": {
+              "application/json": {
+                "schema": {"$ref": "#/components/schemas/DetailedAuthProfile"}
+              }
+            }
+          }
+        }
+      }
+    },
+    "/auth/tokens/revoke": {
+      "post": {
+        "tags": ["Authentication"],
+        "summary": "Revoke a specific token",
+        "operationId": "revokeToken",
+        "security": [{"bearerAuth": []}],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["token_name"],
+                "properties": {
+                  "token_name": {"type": "string"}
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {"description": "Token revoked"}
+        }
+      }
+    },
+    "/auth/tokens/revoke-all": {
+      "post": {
+        "tags": ["Authentication"],
+        "summary": "Revoke all tokens for current user",
+        "operationId": "revokeAllTokens",
+        "security": [{"bearerAuth": []}],
+        "responses": {
+          "200": {"description": "All tokens revoked"}
+        }
+      }
+    },
+    "/register": {
+      "post": {
+        "tags": ["Authentication"],
+        "summary": "Register a new user",
+        "operationId": "register",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["name", "email", "password", "password_confirmation"],
+                "properties": {
+                  "name": {"type": "string", "example": "John Doe"},
+                  "email": {"type": "string", "format": "email", "example": "user@example.com"},
+                  "password": {"type": "string", "minLength": 8},
+                  "password_confirmation": {"type": "string"},
+                  "role": {"type": "string", "enum": ["buyer", "seller", "agent", "admin"], "default": "buyer"}
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {"description": "User registered successfully"},
+          "422": {"description": "Validation error"}
+        }
+      }
+    },
+    "/forgot-password": {
+      "post": {
+        "tags": ["Authentication"],
+        "summary": "Request password reset",
+        "operationId": "forgotPassword",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["email"],
+                "properties": {
+                  "email": {"type": "string", "format": "email"}
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {"description": "Reset link sent"}
+        }
+      }
+    },
+    "/reset-password": {
+      "post": {
+        "tags": ["Authentication"],
+        "summary": "Reset password with token",
+        "operationId": "resetPassword",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["email", "password", "password_confirmation", "token"],
+                "properties": {
+                  "email": {"type": "string", "format": "email"},
+                  "password": {"type": "string", "minLength": 8},
+                  "password_confirmation": {"type": "string"},
+                  "token": {"type": "string"}
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {"description": "Password reset successfully"}
+        }
+      }
+    },
+    "/properties": {
+      "get": {
+        "tags": ["Properties"],
+        "summary": "List all properties",
+        "operationId": "listProperties",
+        "parameters": [
+          {"name": "district", "in": "query", "schema": {"type": "string"}, "description": "Filter by district"},
+          {"name": "city", "in": "query", "schema": {"type": "string"}, "description": "Filter by city"},
+          {"name": "listing_type", "in": "query", "schema": {"type": "string", "enum": ["rent", "sale"]}, "description": "Filter by listing type"},
+          {"name": "property_type", "in": "query", "schema": {"type": "string"}, "description": "Filter by property type"},
+          {"name": "bedrooms", "in": "query", "schema": {"type": "integer"}, "description": "Minimum number of bedrooms"},
+          {"name": "min_price", "in": "query", "schema": {"type": "integer"}, "description": "Minimum price in UGX"},
+          {"name": "max_price", "in": "query", "schema": {"type": "integer"}, "description": "Maximum price in UGX"},
+          {"name": "owned", "in": "query", "schema": {"type": "boolean"}, "description": "Only show properties owned by current user"},
+          {"name": "per_page", "in": "query", "schema": {"type": "integer", "default": 15}, "description": "Items per page"}
+        ],
+        "responses": {
+          "200": {
+            "description": "List of properties",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {"type": "array", "items": {"$ref": "#/components/schemas/Property"}},
+                    "links": {"type": "object"},
+                    "meta": {"type": "object"}
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": ["Properties"],
+        "summary": "Create a new property",
+        "operationId": "createProperty",
+        "security": [{"bearerAuth": []}],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {"$ref": "#/components/schemas/PropertyInput"}
+            }
+          }
+        },
+        "responses": {
+          "201": {"description": "Property created", "content": {"application/json": {"schema": {"$ref": "#/components/schemas/Property"}}}},
+          "422": {"description": "Validation error"}
+        }
+      }
+    },
+    "/properties/{id}": {
+      "get": {
+        "tags": ["Properties"],
+        "summary": "Get a property by ID",
+        "operationId": "getProperty",
+        "parameters": [
+          {"name": "id", "in": "path", "required": true, "schema": {"type": "integer"}}
+        ],
+        "responses": {
+          "200": {
+            "description": "Property details",
+            "content": {
+              "application/json": {
+                "schema": {"$ref": "#/components/schemas/Property"}
+              }
+            }
+          },
+          "404": {"description": "Property not found"}
+        }
+      },
+      "put": {
+        "tags": ["Properties"],
+        "summary": "Update a property",
+        "operationId": "updateProperty",
+        "security": [{"bearerAuth": []}],
+        "parameters": [
+          {"name": "id", "in": "path", "required": true, "schema": {"type": "integer"}}
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {"$ref": "#/components/schemas/PropertyInput"}
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Property updated",
+            "content": {
+              "application/json": {
+                "schema": {"$ref": "#/components/schemas/Property"}
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": ["Properties"],
+        "summary": "Delete a property",
+        "operationId": "deleteProperty",
+        "security": [{"bearerAuth": []}],
+        "parameters": [
+          {"name": "id", "in": "path", "required": true, "schema": {"type": "integer"}}
+        ],
+        "responses": {
+          "204": {"description": "Property deleted"}
+        }
+      }
+    },
+    "/public/properties": {
+      "get": {
+        "tags": ["Public"],
+        "summary": "Public list of properties (no auth required)",
+        "operationId": "publicListProperties",
+        "parameters": [
+          {"name": "per_page", "in": "query", "schema": {"type": "integer", "default": 15}}
+        ],
+        "responses": {
+          "200": {
+            "description": "List of public properties",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {"type": "array", "items": {"$ref": "#/components/schemas/Property"}},
+                    "links": {"type": "object"},
+                    "meta": {"type": "object"}
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/public/properties/{id}": {
+      "get": {
+        "tags": ["Public"],
+        "summary": "Public property details (no auth required)",
+        "operationId": "publicGetProperty",
+        "parameters": [
+          {"name": "id", "in": "path", "required": true, "schema": {"type": "integer"}}
+        ],
+        "responses": {
+          "200": {
+            "description": "Public property details",
+            "content": {
+              "application/json": {
+                "schema": {"$ref": "#/components/schemas/Property"}
+              }
+            }
+          },
+          "404": {"description": "Property not found"}
+        }
+      }
+    },
+    "/public/property-contact": {
+      "post": {
+        "tags": ["Public"],
+        "summary": "Contact seller about a property",
+        "operationId": "contactSeller",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["property_id", "name", "email", "phone", "message"],
+                "properties": {
+                  "property_id": {"type": "integer"},
+                  "name": {"type": "string"},
+                  "email": {"type": "string", "format": "email"},
+                  "phone": {"type": "string"},
+                  "message": {"type": "string"}
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {"description": "Contact request sent"}
+        }
+      }
+    },
+    "/locations": {
+      "get": {
+        "tags": ["Locations"],
+        "summary": "Get all districts and property types",
+        "operationId": "listLocations",
+        "responses": {
+          "200": {
+            "description": "Locations data",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "districts": {"type": "array", "items": {"type": "string"}},
+                    "propertyTypes": {"type": "array", "items": {"type": "string"}},
+                    "allCities": {"type": "array", "items": {"type": "string"}}
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/messages": {
+      "get": {
+        "tags": ["Messages"],
+        "summary": "Get user messages",
+        "operationId": "listMessages",
+        "security": [{"bearerAuth": []}],
+        "responses": {
+          "200": {
+            "description": "List of messages",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {"type": "array", "items": {"$ref": "#/components/schemas/Message"}},
+                    "unread_count": {"type": "integer"}
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": ["Messages"],
+        "summary": "Send a message",
+        "operationId": "sendMessage",
+        "security": [{"bearerAuth": []}],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["recipient_id", "subject", "body"],
+                "properties": {
+                  "recipient_id": {"type": "integer"},
+                  "subject": {"type": "string"},
+                  "body": {"type": "string"},
+                  "property_id": {"type": "integer", "nullable": true}
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {"description": "Message sent"}
+        }
+      }
+    },
+    "/messages/unread-count": {
+      "get": {
+        "tags": ["Messages"],
+        "summary": "Get unread message count",
+        "operationId": "getUnreadCount",
+        "security": [{"bearerAuth": []}],
+        "responses": {
+          "200": {
+            "description": "Unread count",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "unread_count": {"type": "integer"}
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/uploads/images": {
+      "post": {
+        "tags": ["Uploads"],
+        "summary": "Upload property image",
+        "operationId": "uploadImage",
+        "security": [{"bearerAuth": []}],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "required": ["image"],
+                "properties": {
+                  "image": {"type": "string", "format": "binary"},
+                  "property_id": {"type": "integer"}
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Image uploaded",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "path": {"type": "string"},
+                    "url": {"type": "string"}
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/uploads/media": {
+      "post": {
+        "tags": ["Uploads"],
+        "summary": "Upload multiple media files",
+        "operationId": "uploadMedia",
+        "security": [{"bearerAuth": []}],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "required": ["files"],
+                "properties": {
+                  "files[]": {"type": "array", "items": {"type": "string", "format": "binary"}},
+                  "property_id": {"type": "integer"}
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Media uploaded",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "paths": {"type": "array", "items": {"type": "string"}}
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/dashboard": {
+      "get": {
+        "tags": ["Dashboard"],
+        "summary": "Get user dashboard",
+        "operationId": "getDashboard",
+        "security": [{"bearerAuth": []}],
+        "responses": {
+          "200": {
+            "description": "Dashboard data",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "user": {"$ref": "#/components/schemas/User"},
+                    "properties_count": {"type": "integer"},
+                    "messages_count": {"type": "integer"},
+                    "unread_messages": {"type": "integer"}
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/demo-mode": {
+      "get": {
+        "tags": ["System"],
+        "summary": "Check if demo mode is enabled",
+        "operationId": "checkDemoMode",
+        "responses": {
+          "200": {
+            "description": "Demo mode status",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "demo_mode": {"type": "boolean"}
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/buyer/contact/status/{property}": {
+      "get": {
+        "tags": ["Buyer"],
+        "summary": "Get contact status for a property",
+        "operationId": "getContactStatus",
+        "security": [{"bearerAuth": []}],
+        "parameters": [
+          {"name": "property", "in": "path", "required": true, "schema": {"type": "integer"}}
+        ],
+        "responses": {
+          "200": {"description": "Contact status"}
+        }
+      }
+    },
+    "/buyer/contact/checkout/{property}": {
+      "post": {
+        "tags": ["Buyer"],
+        "summary": "Checkout contact for a property",
+        "operationId": "checkoutContact",
+        "security": [{"bearerAuth": []}],
+        "parameters": [
+          {"name": "property", "in": "path", "required": true, "schema": {"type": "integer"}}
+        ],
+        "responses": {
+          "200": {"description": "Checkout successful"}
+        }
+      }
+    },
+    "/buyer/billing/status": {
+      "get": {
+        "tags": ["Billing"],
+        "summary": "Get billing status",
+        "operationId": "getBillingStatus",
+        "security": [{"bearerAuth": []}],
+        "responses": {
+          "200": {"description": "Billing status"}
+        }
+      }
+    },
+    "/buyer/billing/subscribe": {
+      "post": {
+        "tags": ["Billing"],
+        "summary": "Subscribe to billing",
+        "operationId": "subscribe",
+        "security": [{"bearerAuth": []}],
+        "responses": {
+          "200": {"description": "Subscription successful"}
+        }
+      }
+    },
+    "/buyer/billing/cancel": {
+      "post": {
+        "tags": ["Billing"],
+        "summary": "Cancel billing subscription",
+        "operationId": "cancelSubscription",
+        "security": [{"bearerAuth": []}],
+        "responses": {
+          "200": {"description": "Subscription cancelled"}
+        }
+      }
+    }
+  },
+  "components": {
+    "securitySchemes": {
+      "bearerAuth": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "JWT",
+        "description": "Use a valid Sanctum personal access token or OAuth2 access token"
+      }
+    },
+    "schemas": {
+      "User": {
+        "type": "object",
+        "properties": {
+          "id": {"type": "integer"},
+          "name": {"type": "string"},
+          "email": {"type": "string", "format": "email"},
+          "role": {"type": "string", "enum": ["buyer", "seller", "agent", "admin"]},
+          "email_verified_at": {"type": "string", "format": "date-time", "nullable": true},
+          "created_at": {"type": "string", "format": "date-time"},
+          "updated_at": {"type": "string", "format": "date-time"}
+        }
+      },
+      "OAuthTokenResponse": {
+        "type": "object",
+        "properties": {
+          "token_type": {"type": "string", "example": "Bearer"},
+          "expires_in": {"type": "integer", "nullable": true, "description": "Token expiration in seconds"},
+          "access_token": {"type": "string", "description": "The access token for API requests"},
+          "refresh_token": {"type": "string", "nullable": true, "description": "The refresh token if supported"},
+          "client_id": {"type": "string", "description": "The client ID that requested the token"},
+          "user_id": {"type": "integer", "nullable": true, "description": "The authenticated user ID"},
+          "scopes": {"type": "array", "items": {"type": "string"}, "description": "List of granted scopes"}
+        }
+      },
+      "DetailedAuthProfile": {
+        "type": "object",
+        "properties": {
+          "id": {"type": "integer"},
+          "name": {"type": "string"},
+          "email": {"type": "string", "format": "email"},
+          "role": {"type": "string", "enum": ["buyer", "seller", "agent", "admin"]},
+          "email_verified_at": {"type": "string", "format": "date-time", "nullable": true},
+          "current_token": {"type": "string", "nullable": true},
+          "abilities": {"type": "array", "items": {"type": "string"}},
+          "tokens": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "id": {"type": "integer"},
+                "name": {"type": "string"},
+                "token": {"type": "string"},
+                "abilities": {"type": "array", "items": {"type": "string"}},
+                "created_at": {"type": "string", "format": "date-time"},
+                "last_used_at": {"type": "string", "format": "date-time", "nullable": true}
+              }
+            }
+          },
+          "created_at": {"type": "string", "format": "date-time"},
+          "updated_at": {"type": "string", "format": "date-time"}
+        }
+      },
+      "Property": {
+        "type": "object",
+        "properties": {
+          "id": {"type": "integer"},
+          "title": {"type": "string"},
+          "description": {"type": "string", "nullable": true},
+          "price_ugx": {"type": "integer"},
+          "price_currency": {"type": "string", "default": "UGX"},
+          "listing_type": {"type": "string", "enum": ["rent", "sale"]},
+          "property_type": {"type": "string"},
+          "bedrooms": {"type": "integer", "nullable": true},
+          "bathrooms": {"type": "integer", "nullable": true},
+          "district": {"type": "string"},
+          "city": {"type": "string"},
+          "address": {"type": "string", "nullable": true},
+          "latitude": {"type": "number", "nullable": true},
+          "longitude": {"type": "number", "nullable": true},
+          "status": {"type": "string", "enum": ["draft", "published", "sold", "rented"]},
+          "is_visible": {"type": "boolean"},
+          "published_at": {"type": "string", "format": "date-time", "nullable": true},
+          "created_at": {"type": "string", "format": "date-time"},
+          "updated_at": {"type": "string", "format": "date-time"},
+          "user_id": {"type": "integer"},
+          "images": {
+            "type": "array",
+            "items": {"$ref": "#/components/schemas/PropertyImage"}
+          },
+          "user": {
+            "type": "object",
+            "properties": {
+              "id": {"type": "integer"},
+              "name": {"type": "string"},
+              "email": {"type": "string", "format": "email"}
+            }
+          }
+        }
+      },
+      "PropertyImage": {
+        "type": "object",
+        "properties": {
+          "id": {"type": "integer"},
+          "property_id": {"type": "integer"},
+          "path": {"type": "string"},
+          "url": {"type": "string"},
+          "sort_order": {"type": "integer"}
+        }
+      },
+      "PropertyInput": {
+        "type": "object",
+        "required": ["title", "price_ugx", "listing_type", "property_type", "district"],
+        "properties": {
+          "title": {"type": "string", "minLength": 3, "maxLength": 255},
+          "description": {"type": "string", "nullable": true},
+          "price_ugx": {"type": "integer", "minimum": 0},
+          "price_currency": {"type": "string", "default": "UGX"},
+          "listing_type": {"type": "string", "enum": ["rent", "sale"]},
+          "property_type": {"type": "string", "enum": ["Apartment", "House", "Bungalow", "Villa", "Commercial", "Land"]},
+          "bedrooms": {"type": "integer", "minimum": 0, "nullable": true},
+          "bathrooms": {"type": "integer", "minimum": 0, "nullable": true},
+          "district": {"type": "string"},
+          "city": {"type": "string"},
+          "address": {"type": "string", "nullable": true},
+          "latitude": {"type": "number", "nullable": true},
+          "longitude": {"type": "number", "nullable": true},
+          "status": {"type": "string", "enum": ["draft", "published"], "default": "published"},
+          "is_visible": {"type": "boolean", "default": true},
+          "imageUrl": {"type": "string", "nullable": true},
+          "mediaPaths": {"type": "array", "items": {"type": "string"}, "nullable": true}
+        }
+      },
+      "Message": {
+        "type": "object",
+        "properties": {
+          "id": {"type": "integer"},
+          "sender_id": {"type": "integer"},
+          "recipient_id": {"type": "integer"},
+          "subject": {"type": "string"},
+          "body": {"type": "string"},
+          "property_id": {"type": "integer", "nullable": true},
+          "read_at": {"type": "string", "format": "date-time", "nullable": true},
+          "created_at": {"type": "string", "format": "date-time"}
+        }
+      },
+      "Error": {
+        "type": "object",
+        "properties": {
+          "message": {"type": "string"},
+          "errors": {"type": "object", "additionalProperties": {"type": "array", "items": {"type": "string"}}}
+        }
+      }
+    }
+  }
+}

@@ -106,3 +106,20 @@ Route::post('callbacks/mtn-momo/billing', [\App\Http\Controllers\Api\BuyerBillin
 Route::get('callbacks/mtn-momo/billing', [\App\Http\Controllers\Api\BuyerBillingController::class, 'mobileMoneyCallback']);
 Route::post('callbacks/airtel-money/billing', [\App\Http\Controllers\Api\BuyerBillingController::class, 'mobileMoneyCallback']);
 Route::get('callbacks/airtel-money/billing', [\App\Http\Controllers\Api\BuyerBillingController::class, 'mobileMoneyCallback']);
+
+// ============================================================================
+// OpenAPI / Swagger Documentation
+// ============================================================================
+
+// Serve OpenAPI specification JSON
+Route::get('api-docs.json', function () {
+    return response()->file(public_path('api-docs.json'));
+});
+
+// Swagger UI
+Route::get('docs', function () {
+    return redirect('/api-docs.html');
+});
+Route::get('api-docs', function () {
+    return redirect('/api-docs.html');
+});

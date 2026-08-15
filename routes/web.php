@@ -29,6 +29,10 @@ Route::get('/reset-password/{token}', function () {
     return view('welcome');
 })->middleware('guest')->name('password.reset');
 
+Route::get('/api-docs.html', function () {
+    return response()->file(public_path('api-docs.html'));
+})->name('api-docs.ui');
+
 Route::get('/{any?}', function () {
     return view('welcome');
 })->where('any', '.*')->name('spa.fallback');
