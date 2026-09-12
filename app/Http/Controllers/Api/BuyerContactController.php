@@ -42,7 +42,7 @@ class BuyerContactController extends Controller
         }
 
         $validated = $request->validate([
-            'payment_provider' => ['sometimes', 'in:mtn,airtel,mobile_money'],
+            'payment_provider' => ['sometimes', 'in:mtn,airtel,mobile_money,pesapal'],
             'payment_method' => ['sometimes', 'in:mobile_money,card,mtn,airtel'],
             'phone_number' => ['nullable', 'string', 'max:20'],
             'billing_email' => ['nullable', 'email', 'max:255'],
@@ -122,6 +122,59 @@ class BuyerContactController extends Controller
 
         if (! $processed) {
             Log::warning('Mobile money callback could not be processed.', [
+                'query' => $request->query(),
+                'merchant_reference' => $merchantReference,
+                'order_tracking_id' => $orderTrackingId,
+            ]);
+
+            return response()->json([
+                'received' => true,
+                'processed' => false,
+            ], 202);
+        }
+
+        return response()->json(['received' => true]);
+    }
+
+    public function pesapalWebhook(Request $request): JsonResponse
+    {
+        $signatureHeader = (string) $request->header('X-Pesapal-Signature', '');
+        $payload = $request->getContent();
+
+        if (! $this->contactService->verifyPesapalWebhookSignature($payload, $signatureHeader)) {
+            throw new BadRequestHttpException('Invalid Pesapal signature.');
+        }
+
+        $this->contactService->handlePesapalWebhookPayload($payload);
+
+        return response()->json(['received' => true]);
+    }
+
+    public function pesapalCallback(Request $request): JsonResponse
+    {
+        $merchantReference = $this->firstNonEmpty($request, [
+            'merchant_reference',
+            'MerchantReference',
+            'order_merchant_reference',
+            'OrderMerchantReference',
+            'orderMerchantReference',
+        ]);
+
+        $orderTrackingId = $this->firstNonEmpty($request, [
+            'order_tracking_id',
+            'OrderTrackingId',
+            'orderTrackingId',
+            'Order_Tracking_Id',
+            'order_trackingid',
+        ]);
+
+        $processed = $this->contactService->handlePesapalCallbackPayload(array_filter([
+            'merchant_reference' => $merchantReference,
+            'order_tracking_id' => $orderTrackingId,
+        ]));
+
+        if (! $processed) {
+            Log::warning('Pesapal callback could not be processed.', [
                 'query' => $request->query(),
                 'merchant_reference' => $merchantReference,
                 'order_tracking_id' => $orderTrackingId,

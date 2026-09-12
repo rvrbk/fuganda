@@ -41,6 +41,17 @@ return [
         'redirect' => env('GOOGLE_REDIRECT_URI'),
     ],
 
+    'pesapal' => [
+        'base_url' => env('PESAPAL_BASE_URL', 'https://pay.pesapal.com/v3'),
+        'consumer_key' => env('PESAPAL_CONSUMER_KEY'),
+        'consumer_secret' => env('PESAPAL_CONSUMER_SECRET'),
+        'notification_id' => env('PESAPAL_NOTIFICATION_ID'),
+        'webhook_secret' => env('PESAPAL_WEBHOOK_SECRET'),
+        'callback_url' => env('PESAPAL_CALLBACK_URL', env('APP_URL').'/api/callbacks/pesapal'),
+        'non_production_mock_payment_status' => env('PESAPAL_NON_PRODUCTION_MOCK_PAYMENT_STATUS'),
+        'publish_fee_amount_ugx' => env('PESAPAL_PUBLISH_FEE_AMOUNT_UGX', 7500),
+    ],
+
     'mobile_money' => [
         'default_provider' => env('MOBILE_MONEY_DEFAULT_PROVIDER', 'mtn'),
         'webhook_secret' => env('MOBILE_MONEY_WEBHOOK_SECRET'),

@@ -28,7 +28,7 @@ class BuyerBillingController extends Controller
             'plan_code' => ['sometimes', 'string', 'max:100'],
             'amount_ugx' => ['sometimes', 'integer', 'min:0'],
             'currency' => ['sometimes', 'in:UGX'],
-            'payment_provider' => ['sometimes', 'in:mtn,airtel,mobile_money'],
+            'payment_provider' => ['sometimes', 'in:mtn,airtel,mobile_money,pesapal'],
             'payment_method' => ['sometimes', 'in:mobile_money,card,mtn,airtel'],
             'phone_number' => ['nullable', 'string', 'max:20'],
             'billing_email' => ['nullable', 'email', 'max:255'],
@@ -141,6 +141,67 @@ class BuyerBillingController extends Controller
             'buyer_subscription_status' => $subscription->status,
             'subscription' => $subscription,
         ]);
+    }
+
+    public function pesapalWebhook(Request $request): JsonResponse
+    {
+        $signatureHeader = (string) $request->header('X-Pesapal-Signature', '');
+        $payload = $request->getContent();
+
+        if (! $this->billingService->verifyPesapalWebhookSignature($payload, $signatureHeader)) {
+            throw new BadRequestHttpException('Invalid Pesapal signature.');
+        }
+
+        $this->billingService->handlePesapalWebhookPayload($payload);
+
+        return response()->json(['received' => true]);
+    }
+
+    public function pesapalCallback(Request $request): JsonResponse|RedirectResponse
+    {
+        $merchantReference = $this->firstNonEmpty($request, [
+            'merchant_reference',
+            'MerchantReference',
+            'order_merchant_reference',
+            'OrderMerchantReference',
+            'orderMerchantReference',
+        ]);
+
+        $orderTrackingId = $this->firstNonEmpty($request, [
+            'order_tracking_id',
+            'OrderTrackingId',
+            'orderTrackingId',
+            'Order_Tracking_Id',
+            'order_trackingid',
+        ]);
+
+        $processed = $this->billingService->handlePesapalCallbackPayload(array_filter([
+            'merchant_reference' => $merchantReference,
+            'order_tracking_id' => $orderTrackingId,
+        ]));
+
+        if (! $processed) {
+            Log::warning('Pesapal callback could not be processed.', [
+                'query' => $request->query(),
+                'merchant_reference' => $merchantReference,
+                'order_tracking_id' => $orderTrackingId,
+            ]);
+
+            if ($request->isMethod('get')) {
+                return redirect()->to($this->resolveCallbackRedirectPath($merchantReference, false));
+            }
+
+            return response()->json([
+                'received' => true,
+                'processed' => false,
+            ], 202);
+        }
+
+        if ($request->isMethod('get')) {
+            return redirect()->to($this->resolveCallbackRedirectPath($merchantReference, true));
+        }
+
+        return response()->json(['received' => true]);
     }
 
     private function firstNonEmpty(Request $request, array $keys): string

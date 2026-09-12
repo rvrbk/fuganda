@@ -162,7 +162,7 @@ onMounted(() => {
 
 	map = L.map(mapHost.value);
 
-	L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
+	L.tileLayer(`https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png?key=${import.meta.env.VITE_CARTO_API_KEY}`, {
 		maxZoom: 19,
 		attribution: '&copy; OpenStreetMap contributors &copy; CARTO',
 	}).addTo(map);

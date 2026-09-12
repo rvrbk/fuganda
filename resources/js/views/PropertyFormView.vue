@@ -496,7 +496,7 @@ function syncMapToCurrentCoordinates() {
 function initializeMap() {
 	if (!mapHost.value) return;
 	map = L.map(mapHost.value).setView(DEFAULT_CENTER, 7);
-	L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
+	L.tileLayer(`https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png?key=${import.meta.env.VITE_CARTO_API_KEY}`, {
 		maxZoom: 19,
 		attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>',
 	}).addTo(map);

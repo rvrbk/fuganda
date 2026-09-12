@@ -107,6 +107,14 @@ Route::get('callbacks/mtn-momo/billing', [\App\Http\Controllers\Api\BuyerBilling
 Route::post('callbacks/airtel-money/billing', [\App\Http\Controllers\Api\BuyerBillingController::class, 'mobileMoneyCallback']);
 Route::get('callbacks/airtel-money/billing', [\App\Http\Controllers\Api\BuyerBillingController::class, 'mobileMoneyCallback']);
 
+// Pesapal Webhooks and Callbacks
+Route::post('webhooks/pesapal', [\App\Http\Controllers\Api\BuyerContactController::class, 'pesapalWebhook']);
+Route::post('callbacks/pesapal', [\App\Http\Controllers\Api\BuyerBillingController::class, 'pesapalCallback']);
+Route::get('callbacks/pesapal', [\App\Http\Controllers\Api\BuyerBillingController::class, 'pesapalCallback']);
+Route::post('webhooks/pesapal/billing', [\App\Http\Controllers\Api\BuyerBillingController::class, 'pesapalWebhook']);
+Route::post('callbacks/pesapal/billing', [\App\Http\Controllers\Api\BuyerBillingController::class, 'pesapalCallback']);
+Route::get('callbacks/pesapal/billing', [\App\Http\Controllers\Api\BuyerBillingController::class, 'pesapalCallback']);
+
 // ============================================================================
 // OpenAPI / Swagger Documentation
 // ============================================================================
