@@ -76,6 +76,7 @@
             gtag('config', '{{ env('GA_MEASUREMENT_ID') }}', { send_page_view: false });
         </script>
         @endif
+        <script defer src="https://lore.verbeek.ug/heat.js" data-key="QrrxreMfn1vSEYL4b7OJjARpXfIaOG3e" data-lore-heat></script>
     </head>
     <body>
         <div id="app"></div>
