@@ -23,5 +23,5 @@ Disallow: /messages
 Disallow: /seller/
 Disallow: /auth/
 
-Sitemap: https://mycanopy.verbeek.ug/sitemap.xml
+Sitemap: https://mycanopy.ug/sitemap.xml
 

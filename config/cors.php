@@ -24,6 +24,8 @@ return [
         'https://fuganda.test:5173',
         'https://mycanopy.verbeek.ug',
         'http://mycanopy.verbeek.ug',
+        'https://mycanopy.ug',
+        'https://www.mycanopy.ug',
     ],
 
     'allowed_origins_patterns' => [

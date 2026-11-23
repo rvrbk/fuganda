@@ -11,9 +11,9 @@
 
 ## Key pages
 
-- [Homepage](https://mycanopy.verbeek.ug/): Map-based property search and discovery
-- [All Properties](https://mycanopy.verbeek.ug/properties): Full property search with filters by district, city, type and price
-- [Sitemap](https://mycanopy.verbeek.ug/sitemap.xml): Index of all published property listings
+- [Homepage](https://mycanopy.ug/): Map-based property search and discovery
+- [All Properties](https://mycanopy.ug/properties): Full property search with filters by district, city, type and price
+- [Sitemap](https://mycanopy.ug/sitemap.xml): Index of all published property listings
 
 ## Content notes
 
@@ -27,4 +27,4 @@ MyCanopy connects property seekers with property owners and agents in Uganda. Th
 
 ## Optional
 
-- [Sitemap XML](https://mycanopy.verbeek.ug/sitemap.xml)
+- [Sitemap XML](https://mycanopy.ug/sitemap.xml)
