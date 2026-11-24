@@ -73,6 +73,7 @@ export function usePageMeta(optsOrFactory = {}) {
         const metaDescription = description || DEFAULT_DESCRIPTION;
         const ogType = type || 'website';
         const canonicalUrl = window.location.origin + window.location.pathname;
+        const ogImage = image || `${window.location.origin}/og.png`;
 
         document.title = fullTitle;
 
@@ -86,19 +87,15 @@ export function usePageMeta(optsOrFactory = {}) {
         upsertMeta('property', 'og:type', ogType);
         upsertMeta('property', 'og:url', canonicalUrl);
         upsertMeta('property', 'og:site_name', APP);
-        if (image) {
-            upsertMeta('property', 'og:image', image);
-            upsertMeta('property', 'og:image:width', '1200');
-            upsertMeta('property', 'og:image:height', '630');
-        }
+        upsertMeta('property', 'og:image', ogImage);
+        upsertMeta('property', 'og:image:width', '1200');
+        upsertMeta('property', 'og:image:height', '630');
 
         // Twitter Card
-        upsertMeta('name', 'twitter:card', image ? 'summary_large_image' : 'summary');
+        upsertMeta('name', 'twitter:card', 'summary_large_image');
         upsertMeta('name', 'twitter:title', fullTitle);
         upsertMeta('name', 'twitter:description', metaDescription);
-        if (image) {
-            upsertMeta('name', 'twitter:image', image);
-        }
+        upsertMeta('name', 'twitter:image', ogImage);
 
         // JSON-LD structured data
         if (jsonLd) {

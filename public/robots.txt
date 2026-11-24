@@ -1,5 +1,3 @@
-# Crawling is disabled on non-production environments.
-# Update this file before going live.
 User-agent: *
 Allow: /
 Disallow: /dashboard
@@ -18,6 +16,11 @@ User-agent: cohere-ai
 User-agent: meta-externalagent
 User-agent: Applebot-Extended
 User-agent: CCBot
+User-agent: OAI-SearchBot
+User-agent: Claude-User
+User-agent: Claude-SearchBot
+User-agent: Perplexity-User
+Allow: /
 Disallow: /dashboard
 Disallow: /messages
 Disallow: /seller/

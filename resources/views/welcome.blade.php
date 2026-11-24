@@ -16,23 +16,57 @@
         <meta name="apple-mobile-web-app-capable" content="yes">
         <meta name="apple-mobile-web-app-status-bar-style" content="default">
         <meta name="apple-mobile-web-app-title" content="MyCanopy">
-        <title>MyCanopy — Uganda Property Listings</title>
-        <meta name="description" content="Discover properties for rent and sale across Uganda with quick map search.">
+        @php
+        $listing = $listing ?? null;
+        $siteTitle = 'MyCanopy — Uganda Property Listings';
+        $siteDescription = 'Discover properties for rent and sale across Uganda with quick map search.';
+        $pageTitle = $listing ? $listing->title.' | MyCanopy' : $siteTitle;
+        $pageDescription = $listing
+            ? \Illuminate\Support\Str::limit(trim(preg_replace('/\s+/', ' ', strip_tags($listing->description ?? ''))) ?: $siteDescription, 200)
+            : $siteDescription;
+        $pageUrl = $listing ? url('/properties/'.$listing->id) : url('/');
+        $pageImage = url('/og.png');
+        $pageImageIsListing = false;
+        if ($listing) {
+            foreach ($listing->images as $image) {
+                $path = (string) $image->path;
+                if ($path === '' || preg_match('/\.(mp4|webm|mov|m4v)$/i', $path)) {
+                    continue;
+                }
+                $pageImage = match (true) {
+                    str_starts_with($path, 'http') => $path,
+                    str_starts_with($path, '/') => url($path),
+                    default => url('/storage/'.ltrim(preg_replace('#^storage/#', '', $path), '/')),
+                };
+                $pageImageIsListing = true;
+                break;
+            }
+        }
+        @endphp
+        <title>{{ $pageTitle }}</title>
+        <meta name="description" content="{{ $pageDescription }}">
         <meta name="robots" content="{{ app()->isProduction() ? 'index,follow' : 'noindex,nofollow' }}">
 
         <!-- Open Graph defaults (overridden per-page by usePageMeta composable) -->
         <meta property="og:site_name" content="MyCanopy">
-        <meta property="og:type" content="website">
-        <meta property="og:title" content="MyCanopy — Uganda Property Listings">
-        <meta property="og:description" content="Discover properties for rent and sale across Uganda with quick map search.">
-        <meta property="og:url" content="{{ url('/') }}">
+        <meta property="og:type" content="{{ $listing ? 'article' : 'website' }}">
+        <meta property="og:title" content="{{ $pageTitle }}">
+        <meta property="og:description" content="{{ $pageDescription }}">
+        <meta property="og:url" content="{{ $pageUrl }}">
+        <meta property="og:image" content="{{ $pageImage }}">
+        @unless ($pageImageIsListing)
+        <meta property="og:image:width" content="1200">
+        <meta property="og:image:height" content="630">
+        @endunless
+        <meta property="og:image:alt" content="{{ $listing ? $listing->title : 'MyCanopy — Uganda property listings' }}">
 
         <!-- Twitter Card defaults -->
-        <meta name="twitter:card" content="summary">
-        <meta name="twitter:title" content="MyCanopy — Uganda Property Listings">
-        <meta name="twitter:description" content="Discover properties for rent and sale across Uganda with quick map search.">
+        <meta name="twitter:card" content="summary_large_image">
+        <meta name="twitter:title" content="{{ $pageTitle }}">
+        <meta name="twitter:description" content="{{ $pageDescription }}">
+        <meta name="twitter:image" content="{{ $pageImage }}">
 
-        <link rel="canonical" href="{{ url('/') }}">
+        <link rel="canonical" href="{{ $pageUrl }}">
 
         <!-- Structured data: Organization + WebSite (overridden per-page by usePageMeta) -->
         @php
@@ -59,6 +93,23 @@
                 ],
             ],
         ], JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT);
+        if ($listing) {
+            $structuredData = json_encode([
+                '@context' => 'https://schema.org',
+                '@type' => 'RealEstateListing',
+                'name' => $listing->title,
+                'description' => $pageDescription,
+                'url' => $pageUrl,
+                'image' => [$pageImage],
+                'address' => array_filter([
+                    '@type' => 'PostalAddress',
+                    'streetAddress' => $listing->address,
+                    'addressLocality' => $listing->city,
+                    'addressRegion' => $listing->district,
+                    'addressCountry' => 'UG',
+                ]),
+            ], JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT | JSON_HEX_TAG);
+        }
         @endphp
         <script type="application/ld+json" data-id="page-jsonld">{!! $structuredData !!}</script>
 

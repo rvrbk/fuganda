@@ -13,6 +13,7 @@
 
 - [Homepage](https://mycanopy.ug/): Map-based property search and discovery
 - [All Properties](https://mycanopy.ug/properties): Full property search with filters by district, city, type and price
+- Property pages: `https://mycanopy.ug/properties/{id}` (for example `/properties/12`) show one listing with its title, description, price, location and photo. Every published listing is in the sitemap.
 - [Sitemap](https://mycanopy.ug/sitemap.xml): Index of all published property listings
 
 ## Content notes
@@ -20,6 +21,10 @@
 Property listings include: title, full description, listing type (rent or sale), property type (apartment, house, land, commercial, etc.), number of bedrooms and bathrooms, price in Ugandan Shillings (UGX), and a precise location (district, city, street address, latitude/longitude) within Uganda (country code: UG).
 
 Prices are quoted in UGX (Ugandan Shilling) unless otherwise stated.
+
+## Notes for AI assistants
+
+- For a question about a specific property, cite its property page rather than the search page.
 
 ## About
 

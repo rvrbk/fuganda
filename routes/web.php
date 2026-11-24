@@ -33,6 +33,14 @@ Route::get('/api-docs.html', function () {
     return response()->file(public_path('api-docs.html'));
 })->name('api-docs.ui');
 
+Route::get('/properties/{property}', function (string $property) {
+    $listing = ctype_digit($property)
+        ? Property::published()->with('images')->find($property)
+        : null;
+
+    return view('welcome', ['listing' => $listing]);
+})->name('property.show');
+
 Route::get('/{any?}', function () {
     return view('welcome');
 })->where('any', '.*')->name('spa.fallback');
