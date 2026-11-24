@@ -83,7 +83,7 @@
 </template>
 
 <script setup>
-import { computed, onBeforeUnmount, onMounted, ref } from 'vue';
+import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { useRoute, useRouter } from 'vue-router';
 import { canManageListings, getProfile, logout } from './services/authProfile';
@@ -96,6 +96,9 @@ const unreadCount = ref(0);
 const appHeader = ref(null);
 const mobileMenuOpen = ref(false);
 const { locale } = useI18n();
+
+// The cookie banner is rendered outside Vue, so it is told about language changes.
+watch(locale, (code) => window.setCookieConsentLanguage?.(code), { immediate: true });
 
 function getLoginLinkClass(linkMode) {
 	if (route.name !== 'login') return 'text-slate-700 hover:bg-slate-100';

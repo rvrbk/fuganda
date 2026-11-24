@@ -67,7 +67,25 @@
         @vite(['resources/css/app.css', 'resources/js/app.js'])
 
         {{-- Page views are sent from the router.afterEach hook in router/index.js. --}}
-        @include('partials.cookie-consent', ['gaId' => env('GA_MEASUREMENT_ID'), 'autoPageView' => false])
+        {{-- Slate and white with the MyCanopy blue as a top accent, like the app header. --}}
+        @include('partials.cookie-consent', [
+            'gaId' => env('GA_MEASUREMENT_ID'),
+            'autoPageView' => false,
+            'theme' => [
+                '--cc-bg' => '#ffffff',
+                '--cc-fg' => '#0f172a',
+                '--cc-border' => '#e2e8f0',
+                '--cc-bar' => '3px solid oklch(50% 0.134 242.749)',
+                '--cc-radius' => '.5rem',
+                '--cc-btn-radius' => '.25rem',
+                '--cc-font' => "'Ubuntu', ui-sans-serif, system-ui, sans-serif",
+                '--cc-accent' => '#0f172a',
+                '--cc-accent-fg' => '#ffffff',
+                '--cc-border-strong' => '#cbd5e1',
+                '--cc-btn-weight' => '500',
+                '--cc-shadow' => '0 10px 30px rgba(15, 23, 42, .15)',
+            ],
+        ])
         <script defer src="https://lore.verbeek.ug/heat.js" data-key="QrrxreMfn1vSEYL4b7OJjARpXfIaOG3e" data-lore-heat></script>
     </head>
     <body>
