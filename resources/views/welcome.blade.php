@@ -137,7 +137,6 @@
                 '--cc-shadow' => '0 10px 30px rgba(15, 23, 42, .15)',
             ],
         ])
-        <script defer src="https://lore.verbeek.ug/heat.js" data-key="QrrxreMfn1vSEYL4b7OJjARpXfIaOG3e" data-lore-heat></script>
     </head>
     <body>
         <div id="app"></div>
